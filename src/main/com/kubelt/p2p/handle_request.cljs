@@ -10,10 +10,10 @@
   (:require
     [taoensso.timbre :as log]
     [com.kubelt.lib.http.status :as http.status]
-    [com.kubelt.p2p.proto :as p2p.proto]
     [clojure.string :as str]
     [com.kubelt.lib.kdf :as kdf]
     [com.kubelt.lib.jwt :as jwt]
+    [com.kubelt.lib.kv-store.proto :as kvstore]
     ))
 
 (defn set-user-namespace [pubkey]
@@ -46,14 +46,14 @@
   (jwt/validate-jwt (clj->js payload))))
 
 
-(defn kbt-resolve [kvstore kbt-name]
+(defn kbt-resolve [bee kbt-name]
 
   ;; Context has a :match key containing the routing
   ;; table match data.
   ;; The Hyperbee .get() request returns a promise. Note
   ;; that js/Promise is an AsyncContext, so execution pauses
   ;; until the promise resolves.
-  (-> (p2p.proto/query kvstore kbt-name)
+  (-> (kvstore/query bee kbt-name)
       (.then (fn [kbt-object]
                (let [;; Hyperbee returns an object that
                      ;; includes sequence number, etc.
@@ -69,4 +69,4 @@
 
 
 (defn kbt-update [bee kbt-name kbt-value]
-  (p2p.proto/store bee kbt-name kbt-value))
+  (kvstore/store bee kbt-name kbt-value))

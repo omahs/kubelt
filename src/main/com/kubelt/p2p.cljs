@@ -26,7 +26,7 @@
     [com.kubelt.p2p.execute :as p2p.execute]
     [com.kubelt.p2p.interceptor :as p2p.interceptor]
     [com.kubelt.lib.path :as lib.path]
-    [com.kubelt.p2p.proto :as p2p.proto]
+    [com.kubelt.lib.kv-store.hyperbee :as hyperbee]
     [com.kubelt.lib.util :as lib.util]))
 
 ;; TODO D-Bus integration
@@ -225,7 +225,7 @@
         options #js {:keyEncoding key-encoding
                      :valueEncoding value-encoding}]
 
-    (p2p.proto/make-kv-store feed options)))
+    (hyperbee/Hyperbee. feed options)))
 ;;  (p2p.proto/makeKVStore nil nil))
 
 (defmethod ig/halt-key! :hyper/bee [_ bee]

@@ -15,7 +15,8 @@
   (:require
     [com.kubelt.lib.jwt :as jwt]
     [com.kubelt.p2p :as p2p]
-    [com.kubelt.p2p.handle-request :as p2p.handle-request]))
+    [com.kubelt.p2p.handle-request :as p2p.handle-request]
+    [com.kubelt.lib.kv-store.hyperbee-mock :as hyperbee]))
 
 ;; test fixtures
 #_((select-keys value [:db/memory :http/router :hyper/bee])
@@ -33,6 +34,12 @@
                     :body/raw (str raw-body)
                     :p2p/hyperbee hyperbee
                     :p2p/database database}])))
+
+(def test-context { :request "fixme"
+                   :response "fixme"
+                   :body/raw "fixme"
+                   :p2p/hyperbee "fixme"})
+                   ;;:p2p/hyperbee (hyperbee-mock.)})
 
 (def keypair
   (.generateKeyPairSync crypto "rsa"
@@ -75,6 +82,9 @@
     ;; run p2p.handlerequest.user-namespace
     ;; check for mock hyperbee namespace
     ;; compare namespace matches jwt
+
+
+
     ))
 
 (deftest kbt-resolve-test

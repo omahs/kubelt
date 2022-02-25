@@ -57,7 +57,23 @@
 (defn on-error
   [^ServerResponse res ctx]
   ;; TODO
-  (log/error "error"))
+        (let [headers #js {"Content-Type" http.media-type/transit-json}
+              res-body (get-in ctx [:response :http/body])]
+          (prn {:location "execute-on-error" :ctx ctx})
+        (doto res
+          (.writeHead  http.status/internal-server-error headers)
+          (.end res-body ))))
+
+#_(
+  (let [status (-> ctx :response :http/status)
+        method (-> ctx :request :http/method)
+        err (-> ctx :error )
+        ;;message (get http.status/message status)
+        request-path (get-in ctx [:request :uri/path])
+        res-body (get-in ctx [:response :body/raw])]
+        (doto res
+          (.writeHead (if (nil? status) http.status/internal-server-error status ))
+          (.end res-body))))
 
 (defn extract-chain
   "Given a request method and a route table entry, return the chain of

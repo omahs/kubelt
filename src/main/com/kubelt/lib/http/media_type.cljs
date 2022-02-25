@@ -9,3 +9,6 @@
 
 (def transit-msgpack
   "application/transit+msgpack")
+
+(def text-html
+  "text/html; charset=UTF-8")
