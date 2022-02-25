@@ -15,11 +15,12 @@
     [com.kubelt.lib.http.status :as http.status]))
 
 
-(defn- send-http-error [ctx status message] 
+(defn- send-http-error [ctx status message]
   (prn {:location "send-http-error" :message message})
   (-> ctx
       (assoc-in [:response :http/status] status)
-      (assoc-in [:response :http/body] message)))
+      (assoc-in [:response :http/body] message)
+      (dissoc :error)))
 
 (def status-ok
   {:name ::status-ok
@@ -36,11 +37,12 @@
             (if-let [status (get-in ctx [:response :http/status])]
               ctx
               (assoc-in ctx [:response :http/status] http.status/no-content)))})
+
 (def user-namespace
   {:name ::user-namespace
    :enter (fn [ctx]
-            (if (nil? (get ctx :error)) 
-              (if-let [validated (js->clj (get-in ctx [:request :jwt/valid]) :keywordize-keys true)] 
+            (if (nil? (get ctx :error))
+              (if-let [validated (js->clj (get-in ctx [:request :jwt/valid]) :keywordize-keys true)]
                 (if-let [pubkey (get-in  validated [:payload :pubkey])]
                   ((p2p.handle-request/set-user-namespace pubkey)
                    ctx)
@@ -58,11 +60,11 @@
    :enter (fn [ctx]
             ;; TODO extract and validate JWT. Throw an error to
             ;; interrupt chain processing if token is invalid.
-            (if (nil? (get ctx :error)) 
+            (if (nil? (get ctx :error))
               (if-let [payload (get ctx :body/raw)]
                 (-> (p2p.handle-request/validate-jwt payload )
-                    (.then (fn [x] 
-                             (if (nil? x) 
+                    (.then (fn [x]
+                             (if (nil? x)
                                (send-http-error ctx http.status/unauthorized {:location "validate-jwt" :message "Invalid JWT provided"})
                                (-> ctx
                                    (assoc-in [:request :jwt/raw] payload)
@@ -70,16 +72,14 @@
 
                            )
                     ((prn {:hereiam 2 :msg "unauth"})
-                     (send-http-error ctx http.status/unauthorized {:location "validate-jwt" :message "invalid JWT payload"})))) 
+                     (send-http-error ctx http.status/unauthorized {:location "validate-jwt" :message "invalid JWT payload"}))))
               ctx))
 
-   :error (fn [ctx]
-            (let [error (get ctx :error)]
+   :error (fn [{:keys [error] :as ctx}]
             (log/error {:log/error error})
             (let [ret (send-http-error ctx http.status/internal-server-error error)]
               (prn {:location "validate-jwt-error" :message ret})
-            ret))
-            )})
+              ret))})
 ;; TODO check and throw error
 
 (def register
@@ -106,14 +106,14 @@
 (def kbt-resolve
   {:name ::kbt-resolve
    :enter (fn [ctx]
-            (if (nil? (get ctx :error)) 
+            (if (nil? (get ctx :error))
               (let [bee (get ctx :p2p/hyperbee)
                     match (get ctx :match)]
                 (if-let  [kbt-name (get-in match [:path-params :id])]
                   ;; success
                   (let [kvresult (p2p.handle-request/kbt-resolve bee kbt-name)]
                     (-> kvresult
-                        (.then (fn[x] 
+                        (.then (fn[x]
                                  (if-not (nil? x)
                                    (assoc-in ctx [:response :http/body] x)
                                    ;; No result found, return a 404.
@@ -131,7 +131,7 @@
 (def kbt-update
   {:name ::kbt-update
    :enter (fn [ctx]
-            (if (nil? (get ctx :error)) 
+            (if (nil? (get ctx :error))
               (let [request (get ctx :request)
                     hyperbee (get ctx :p2p/hyperbee)
                     match (get ctx :match)
@@ -143,7 +143,7 @@
                 (if (nil? update-result)
                   ctx
                   (-> update-result
-                      (.then (fn[x] 
+                      (.then (fn[x]
                                (assoc-in ctx [:response :http/status] http.status/created))))))
               ctx))
 

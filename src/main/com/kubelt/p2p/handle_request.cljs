@@ -1,20 +1,18 @@
 (ns com.kubelt.p2p.handle-request
-  "interceptor business logic" 
+  "interceptor business logic"
   (:import
     [goog.crypt Aes Arc4 Cbc Hmac Sha256 base64])
   (:require
     ["crypto" :as crypto]
     [goog.crypt.base64 :as base64]
     [goog.object])
-
   (:require
     [taoensso.timbre :as log]
     [com.kubelt.lib.http.status :as http.status]
     [clojure.string :as str]
     [com.kubelt.lib.kdf :as kdf]
     [com.kubelt.lib.jwt :as jwt]
-    [com.kubelt.lib.kv-store.proto :as kvstore]
-    ))
+    [com.kubelt.lib.kv-store.proto :as kvstore]))
 
 (defn set-user-namespace [pubkey]
   (let [hasher (Sha256.)]
@@ -27,7 +25,7 @@
 
       pubkey-hash)))
 
-;; business logic 
+;; business logic
 ;; returns a promise
 (defn validate-jwt [payload]
 
@@ -38,7 +36,7 @@
   ;; sign and produce token
   token (jwt/create-jwt key-private header payload)
 
-  ;; validate token 
+  ;; validate token
   validated (jwt/validate-jwt token)
 )
  (let [pubkey (jwt/get-public-key payload )]
