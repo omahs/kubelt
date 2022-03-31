@@ -104,10 +104,11 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn to-edn
   [wallet-obj]
-  (if-let [sign-fn (goog.object/get wallet-obj &quot;signFn&quot;)]
+  (let [address (goog.object/get wallet-obj &quot;address&quot;)
+        sign-fn (goog.object/get wallet-obj &quot;signFn&quot;)]
     {:com.kubelt/type :kubelt.type/wallet
-     :wallet/sign-fn sign-fn}
-    (lib.error/error &quot;missing wallet signing function&quot;)))</pre>
+     :wallet/address address
+     :wallet/sign-fn sign-fn}))</pre>
 				</td>
 			</tr>
 			<tr>
