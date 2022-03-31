@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.lib.bag.node</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Defines the nodes that are stored in a BAG and which map onto IPLD CAR blocks.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.lib.bag.node
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [com.kubelt.lib.bag.check :as bag.check]
+   [com.kubelt.lib.ipld :as ipld]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a DAG node that stores the given data.</p><p>Each node contains:</p><ul><li>data; a CLJS value. Should we require this to be a collection (map, vec)?  when codec is "raw" this data should already be serialized</li><li>codec; the codec to use in serializing the data into a block  defined as a keyword that must be mapped into an existing codec. If  not present, the codec set for the DAG is used instead.</li><li>hasher; the hash function to use to summarize the data defined as a  keyword that must be mapped into an existing hash fn. If not set,  the hasher set for the DAG is used instead.</li></ul><p>TODO add precondition check for validity of provided options.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn make-node
+  ([data]
+   {:pre [(bag.check/data? data)]
+    :post [(bag.check/node? %)]}
+   (let [options {}]
+     (make-node data options)))
+  ([data options]
+   {:pre [(map? options)]
+    :post [(bag.check/node? %)]}
+   (let [options (select-keys options [:ipld/codec :ipld/hasher])]
+     (merge options
+            {:kubelt/type :kubelt.type/node
+             :kubelt.node/data data}))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns the edn data associated with the node.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn data
+  [node]
+  {:pre [(bag.check/node? node)]}
+  (:kubelt.node/data node))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a function that can be used to build nodes using the given IPLD codec and hasher. The resulting nodes are turned into IPLD blocks using the given codec and hashing methods.</p><p>TODO add precondition check for validity of provided options.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn builder
+  ([options]
+   {:pre [(map? options)]}
+   (fn [data]
+     {:pre [(bag.check/data? data)]
+      :post [(bag.check/node? %)]}
+     (make-node data options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a DAG node that uses the DAG-CBOR codec.</p><p>TODO add precondition check for validity of provided options.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn cbor-node
+  ([data]
+   {:pre [(bag.check/data? data)]}
+   (let [options {:ipld/codec ipld/codec-cbor}]
+     (make-node data options)))
+  ([data options]
+   {:pre [(bag.check/data? data) (map? options)]}
+   (let [options (merge options {:ipld/codec ipld/codec-cbor})]
+     (make-node data options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a DAG node that uses the DAG-JSON codec.</p><p>TODO add precondition check for validity of provided options.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn json-node
+  ([data]
+   {:pre [(bag.check/data? data)]}
+   (let [options {:ipld/codec ipld/codec-json}]
+     (make-node data options)))
+  ([data options]
+   {:pre [(bag.check/data? data)]}
+   (let [options (merge options {:ipld/codec ipld/codec-json})]
+     (make-node data options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a DAG node that uses the raw codec.</p><p>TODO add precondition check for validity of provided options.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn raw-node
+  ([data]
+   {:pre [(bag.check/data? data)]}
+   (let [options {:ipld/codec ipld/codec-raw}]
+     (make-node data options)))
+  ([data options]
+   {:pre [(bag.check/data? data)]}
+   (let [options (merge options {:ipld/codec ipld/codec-raw})]
+     (make-node data options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

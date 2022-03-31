@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.lib.wallet.node</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>The Node.js implementation of a crypto wallet wrapper.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.lib.wallet.node
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [goog.object :as gobj])
+  (:require
+   [&quot;fs&quot; :as fs]
+   [&quot;path&quot; :as path])
+  (:require
+   [&quot;@ethersproject/keccak256&quot; :refer [keccak256]]
+   [&quot;@ethersproject/signing-key&quot; :refer [SigningKey]]
+   [&quot;@ethersproject/wallet&quot; :refer [Wallet]])
+  (:require
+   [cljs.core.async :as async :refer [go take! &lt;!]]
+   [cljs.core.async.interop :refer-macros [&lt;p!]]
+   [clojure.set :as cset])
+  (:require
+   [camel-snake-kebab.core :as csk])
+  (:require
+   [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.octet :as lib.octet]
+   [com.kubelt.lib.path :as lib.path]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Given an Ethereum wallet, return a signing function that uses the wallet's private key to sign the digest of some given data.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- make-sign-fn
+  [eth-wallet]
+  (fn [data]
+    (let [private-key (.-privateKey eth-wallet)
+          signing-key (SigningKey. private-key)
+          data-length (count data)
+          prefix (str &quot;\\u0019Ethereum Signed Message:\\n&quot; data-length)
+          prefix+data (str prefix data)
+          data-bytes (lib.octet/as-bytes prefix+data)
+          digest (keccak256 data-bytes)
+          signature-raw (.signDigest signing-key digest private-key)
+          signature (gobj/get signature-raw &quot;compact&quot;)]
+      signature)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- random-wallet
+  []
+  (go
+    (let [eth-wallet (.createRandom Wallet)
+          address (&lt;p! (.getAddress eth-wallet))
+          sign-fn (make-sign-fn eth-wallet)]
+      {:com.kubelt/type :kubelt.type/wallet
+       :wallet/address address
+       :wallet/sign-fn sign-fn})))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return the wallet directory path as a string for an application.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- wallet-dir
+  [app-name]
+  (let [config-path (lib.path/config app-name)
+        wallet-path (.join path config-path &quot;wallets&quot;)]
+    wallet-path))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return the wallet directory path for the application as a string, creating it if it doesn't already exist.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- ensure-wallet-dir
+  [app-name]
+  (let [wallet-dirp (wallet-dir app-name)]
+    (when-not (.existsSync fs wallet-dirp)
+      (.mkdirSync fs wallet-dirp))
+    wallet-dirp))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return the path to a wallet given the owning application name and wallet name.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- name-&gt;path
+  [app-name wallet-name]
+  (let [wallet-path (wallet-dir app-name)
+        wallet-path (.join path wallet-path wallet-name)]
+    wallet-path))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return true if the named wallet has the correct permissions, false otherwise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- valid-perms?
+  [app-name wallet-name]
+  (let [read-ok (.. fs -constants -R_OK)
+        write-ok (.. fs -constants -W_OK)
+        perms (bit-or read-ok write-ok)
+        wallet-path (name-&gt;path app-name wallet-name)]
+    (try
+      (.accessSync fs wallet-path read-ok)
+      (catch js/Error e
+        false))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>TODO allow wallet re-creation from mnemonicTODO allow wallet listingTODO allow wallet deletion
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return true if the named wallet already exists.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn has-wallet?
+  [app-name wallet-name]
+  (let [wallet-path (name-&gt;path app-name wallet-name)]
+    (.existsSync fs wallet-path)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return true if the wallet can be successfully decrypted with the supplied password, and false otherwise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn can-decrypt?
+  [app-name wallet-name password]
+  (if (has-wallet? app-name wallet-name)
+    (let [wallet-path (name-&gt;path app-name wallet-name)
+          wallet-str (.readFileSync fs wallet-path)]
+      (try
+        (.fromEncryptedJsonSync Wallet wallet-str password)
+        true
+        (catch js/Error e
+          ;; Error: invalid password
+          false)))
+    false))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn init
+  [app-name wallet-name password]
+  (let [;; Create the wallet directory if it doesn't already exist.
+        wallet-dirp (ensure-wallet-dir app-name)]
+    ;; It's an error to initialize an existing wallet.
+    (when (has-wallet? app-name wallet-name)
+      (let [message (str &quot;wallet &quot; wallet-name &quot; already exists&quot;)]
+        (lib.error/error message)))
+    ;; Wallet doesn't yet exist, so create it!
+    (let [wallet-path (.join path wallet-dirp wallet-name)]
+      (go
+        (let [eth-wallet (.createRandom Wallet)
+              wallet-js (&lt;p! (.encrypt eth-wallet password))]
+          (.writeFileSync fs wallet-path wallet-js)))
+      ;; TODO return a map
+      wallet-path)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn load
+  [app-name wallet-name password]
+  (let [wallet-dirp (ensure-wallet-dir app-name)]
+    (when-not (has-wallet? app-name wallet-name)
+      (let [message (str &quot;wallet &quot; wallet-name &quot; doesn't exist&quot;)]
+        (lib.error/error message)))
+    ;; Load the wallet JSON
+    (let [wallet-path (name-&gt;path app-name wallet-name)
+          wallet-str (.readFileSync fs wallet-path)]
+      (go
+        (let [eth-wallet (.fromEncryptedJsonSync Wallet wallet-str password)
+              address (.-address eth-wallet)
+              sign-fn (make-sign-fn eth-wallet)]
+          {:com.kubelt/type :kubelt.type/wallet
+           :wallet/address address
+           :wallet/sign-fn sign-fn})))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return a list of wallet names.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn ls
+  [app-name]
+  (let [wallet-dirp (ensure-wallet-dir app-name)
+        wallet-files (.readdirSync fs wallet-dirp)]
+    (js-&gt;clj wallet-files)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Delete a wallet.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn delete!
+  [app-name wallet-name]
+  (let [wallet-path (name-&gt;path app-name wallet-name)]
+    (.unlinkSync fs wallet-path)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn create
+  []
+  :fixme
+  ;; (&lt;! (random-wallet))
+  #_(let [sign-fn (make-sign-fn eth-wallet)]
+    {:wallet/address :fixme
+     :wallet/sign-fn sign-fn}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

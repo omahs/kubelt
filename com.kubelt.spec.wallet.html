@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.spec.wallet</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Defines a spec for a wallet data structure representing the available cross-platform key management and crypto facilities.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.spec.wallet
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [com.kubelt.spec.common :as spec.common]
+   [com.kubelt.spec.core :as spec.core]
+   [com.kubelt.spec.crypto :as spec.crypto]
+   [com.kubelt.spec.jwt :as spec.jwt]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def wallet-address
+  ;; TODO should be 0x&lt;hex string&gt;
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def key-string
+  ;; TODO hex string
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Operations</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def decrypt-fn
+  [:=&gt; {:description &quot;A decryption function that takes some encrypted data
+returns a decrypted version of the data using the public key assoicated
+with the wallet.&quot; }
+   [:cat :any :string]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def sign-fn
+  [:=&gt; {:description &quot;A signing function that takes some data and
+returns a signature generated using the private key associated with the
+wallet.&quot;}
+   [:cat :any] :string])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Wallet</h2>TODO define a derived wallet type; uses key material that we generateinternally (probably derived from external wallet key material), andthus stores secret key materal as well.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def wallet
+  [:map
+   [:com.kubelt/type [:enum :kubelt.type/wallet]]
+   [:wallet/address wallet-address]
+   ;;[:wallet/encrypt-key spec.crypto/public-key]
+   ;;[:wallet/decrypt-fn decrypt-fn]
+   [:wallet/sign-fn sign-fn]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def wallet-schema
+  [:and
+   {:name &quot;wallet&quot;
+    :description &quot;A crypto wallet&quot;
+    :example {:com.kubelt/type :kubelt.type/wallet
+              :wallet/address &quot;0x13235asdasf31312sadfasd&quot;
+              :wallet/encrypt-key {:com.kubelt/type :kubelt.type/public-key
+                                   :key/data &quot;&lt;key data&gt;&quot;}
+              :wallet/sign-fn '(fn [data] &quot;&lt;signature&gt;&quot;)}}
+   wallet])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Vault</h2>A vault is a collection of session tokens (JWTs) returned fromauthentication calls.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def vault
+  [:map
+   [:com.kubelt/type [:enum :kubelt.type/vault]]
+   [:vault/tokens [:map-of spec.core/id spec.jwt/jwt]]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def vault-schema
+  [:and
+   {:name &quot;vault&quot;
+    :description &quot;A collection of session tokens&quot;
+    :example {:com.kubelt/type :kubelt.type/vault
+              ;; TODO is this correct?
+              :vault/tokens {&quot;@acme&quot; {:com.kubelt/type :kubelt.type/jwt
+                                      ,,,}}}}
+   vault])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">request.cljc</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<h3>ERROR</h3><p>Problem parsing near line 48 <)> original reported cause is java.lang.RuntimeException: No reader function for tag js &ndash; java.lang.RuntimeException: No reader function for tag js</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">clojure.lang.LispReader.read(LispReader.java:314)
+clojure.lang.LispReader.read(LispReader.java:216)
+clojure.lang.LispReader.read(LispReader.java:205)
+sidenotes.parser\$parse_form.invokeStatic(parser.clj:216)
+sidenotes.parser\$parse_form.invoke(parser.clj:212)
+sidenotes.parser\$parse_STAR_\$fn__4182.invoke(parser.clj:274)
+clojure.core\$repeatedly\$fn__6531.invoke(core.clj:5174)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.RT.seq(RT.java:535)
+clojure.core\$seq__5467.invokeStatic(core.clj:139)
+clojure.core\$map\$fn__5935.invoke(core.clj:2763)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.Cons.next(Cons.java:39)
+clojure.lang.RT.next(RT.java:713)
+clojure.core\$next__5451.invokeStatic(core.clj:64)
+clojure.core\$concat\$cat__5560\$fn__5561.invoke(core.clj:744)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.RT.seq(RT.java:535)
+clojure.core\$seq__5467.invokeStatic(core.clj:139)
+clojure.core\$filter\$fn__5962.invoke(core.clj:2826)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.RT.seq(RT.java:535)
+clojure.core\$seq__5467.invokeStatic(core.clj:139)
+clojure.core\$take_while\$fn__5986.invoke(core.clj:2921)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.Cons.next(Cons.java:39)
+clojure.lang.RT.next(RT.java:713)
+clojure.core\$next__5451.invokeStatic(core.clj:64)
+clojure.core\$dorun.invokeStatic(core.clj:3143)
+clojure.core\$doall.invokeStatic(core.clj:3149)
+clojure.core\$doall.invoke(core.clj:3149)
+sidenotes.parser\$parse.invokeStatic(parser.clj:545)
+sidenotes.parser\$parse.invoke(parser.clj:537)
+sidenotes.parser\$parse_into_sections.invokeStatic(parser.clj:557)
+sidenotes.parser\$parse_into_sections.invoke(parser.clj:554)
+sidenotes.parser\$parse_file.invokeStatic(parser.clj:598)
+sidenotes.parser\$parse_file.invoke(parser.clj:593)
+sidenotes.core\$parse_source.invokeStatic(core.clj:56)
+sidenotes.core\$parse_source.invoke(core.clj:48)
+clojure.core\$map\$fn__5935.invoke(core.clj:2772)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.RT.seq(RT.java:535)
+clojure.core\$seq__5467.invokeStatic(core.clj:139)
+clojure.core\$map\$fn__5935.invoke(core.clj:2763)
+clojure.lang.LazySeq.sval(LazySeq.java:42)
+clojure.lang.LazySeq.seq(LazySeq.java:51)
+clojure.lang.Cons.next(Cons.java:39)
+clojure.lang.RT.next(RT.java:713)
+clojure.core\$next__5451.invokeStatic(core.clj:64)
+clojure.core\$dorun.invokeStatic(core.clj:3143)
+clojure.core\$dorun.invoke(core.clj:3134)
+sidenotes.renderer\$render.invokeStatic(renderer.clj:160)
+sidenotes.renderer\$render.invoke(renderer.clj:155)
+sidenotes.core\$generate_documentation.invokeStatic(core.clj:74)
+sidenotes.core\$generate_documentation.invoke(core.clj:66)
+sidenotes.core\$_main.invokeStatic(core.clj:94)
+sidenotes.core\$_main.doInvoke(core.clj:88)
+clojure.lang.RestFn.invoke(RestFn.java:397)
+clojure.lang.AFn.applyToHelper(AFn.java:152)
+clojure.lang.RestFn.applyTo(RestFn.java:132)
+clojure.lang.Var.applyTo(Var.java:705)
+clojure.core\$apply.invokeStatic(core.clj:667)
+clojure.main\$main_opt.invokeStatic(main.clj:514)
+clojure.main\$main_opt.invoke(main.clj:510)
+clojure.main\$main.invokeStatic(main.clj:664)
+clojure.main\$main.doInvoke(main.clj:616)
+clojure.lang.RestFn.applyTo(RestFn.java:137)
+clojure.lang.Var.applyTo(Var.java:705)
+clojure.main.main(main.java:40)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

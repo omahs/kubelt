@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ipfs.v0.dag</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Methods for working with DAGs.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ipfs.v0.dag
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:refer-clojure :exclude [get import resolve])
+  (:require
+   [com.kubelt.ipfs.spec :as ipfs.spec]
+   [com.kubelt.ipfs.util :as ipfs.util]
+   [com.kubelt.ipfs.v0 :as ipfs.v0]
+   [com.kubelt.lib.json :as lib.json]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO Extract into shared utility method.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- multipart-body
+  [param-name data]
+  (let [part-data (if (coll? data)
+                    (lib.json/edn-&gt;json-str data)
+                    data)
+        ;; TODO use media type from library.
+        media-type (if (string? part-data)
+                     &quot;text/plain&quot;
+                     &quot;application/octet-stream&quot;)]
+    {:com.kubelt/type :kubelt.type/multipart
+     :multipart
+     [{:param/name param-name
+       :part/content part-data
+       :part/media-type media-type}]}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/dag/export</h2>On success returns 200 status and a text/plain response body.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def export-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Streams the selected DAG as a .car stream on stdout.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/dag/export&quot;
+   :resource/params
+   {:dag/root
+    {:name &quot;arg&quot;
+     :description &quot;CID of a root to recursively export.&quot;
+     :required true
+     :spec :string}
+    :dag/progress?
+    {:name &quot;progress&quot;
+     :description &quot;Display progress on CLI. Defaults to true when STDERR is a TTY.&quot;
+     :required false
+     :spec :boolean}}
+   :response/types [&quot;text/plain&quot;]
+   :response/spec
+   []})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def export
+  (ipfs.util/make-http ipfs.v0/api-base export-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/dag/get</h2>On success returns 200 status and a text/plain response body.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def get-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Get a DAG node from IPFS.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/dag/get&quot;
+   :resource/params
+   {:dag/root
+    {:name &quot;arg&quot;
+     :description &quot;The object to get.&quot;
+     :required true
+     :spec :string}
+    :output/codec
+    {:name &quot;output-codec&quot;
+     :description &quot;Format the object will be encoded as. Default: dag-json.&quot;
+     :required false
+     :spec ipfs.spec/dag-codec}}
+   :response/types [&quot;text/plain&quot;]
+   ;; Whatever output codec is used, the response is always a string and
+   ;; the response type is &quot;text/plain&quot;.
+   :response/spec :string
+   :response/body-fn
+   (fn [resource body]
+     (let [codec (get-in resource [:parameter/data :output/codec])]
+       (if (= &quot;dag-cbor&quot; codec)
+         ;; Nothing to do for dag-cbor?
+         body
+         ;; If :output/codec not specified, IPFS outputs using dag-json
+         ;; codec; parse JSON string into edn.
+         (lib.json/json-str-&gt;edn body))))})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def get
+  (ipfs.util/make-http ipfs.v0/api-base get-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/dag/import</h2>On success returns 200 status and the following body:<p>{   "Root": {     "Cid": {       "/": "<cid-string>"     },     "PinErrorMsg": "<string>"   },   "Stats": {     "BlockBytesCount": "<uint64>",     "BlockCount": "<uint64>"   } }</p><p>cURL example: \$ curl -X POST -F file=@myfile "http://127.0.0.1:5001/api/v0/dag/import?pin-roots=true&silent=<value>&stats=<value>"</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def import-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Import the contents of .car files.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/dag/import&quot;
+   :resource/params
+   {:dag/pin-roots?
+    {:name &quot;pin-roots&quot;
+     :description &quot;Pin optional roots listed in the .car headers after importing. Default: true.&quot;
+     :required false
+     :spec :boolean}
+    :dag/silent?
+    {:name &quot;silent&quot;
+     :description &quot;No output.&quot;
+     :required false
+     :spec :boolean}
+    :dag/stats?
+    {:name &quot;stats&quot;
+     :description &quot;Output stats.&quot;
+     :required false
+     :spec :boolean}}
+   :resource/body
+   {:dag/data
+    {:name &quot;file&quot;
+     :description &quot;DAG data to send.&quot;
+     :required true
+     :spec #?@(:clj [bytes?]
+               ;; TODO find better constraint than :any
+               :cljs [:any])}}
+   :resource/body-fn multipart-body
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Pins&quot; [:vector :string]]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def import
+  (ipfs.util/make-http ipfs.v0/api-base import-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/dag/put</h2>On success returns 200 status and the following body:<p>{   "Cid": {     "/": "<cid-string>"   } }</p><p>cURL example: \$ curl -X POST -F file=@myfile "http://127.0.0.1:5001/api/v0/dag/put?store-codec=dag-cbor&input-codec=dag-json&pin=<value>&hash=sha2-256"</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def put-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Add a DAG node to IPFS.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/dag/put&quot;
+   :resource/params
+   {:codec/store
+    {:name &quot;store-codec&quot;
+     :description &quot;Codec that the stored object will be encoded with. Default: dag-cbor.&quot;
+     :required false
+     :spec ipfs.spec/dag-codec}
+    :codec/input
+    {:name &quot;input-codec&quot;
+     :description &quot;Codec that the input object is encoded in. Default: dag-json.&quot;
+     :required false
+     :spec ipfs.spec/dag-codec}
+    :dag/pin?
+    {:name &quot;pin&quot;
+     :description &quot;Pin this object when adding.&quot;
+     :required false
+     :spec :boolean}
+    :dag/hash
+    {:name &quot;hash&quot;
+     :description &quot;Hash function to use.&quot;
+     :required false
+     :spec ipfs.spec/dag-hash}}
+   :resource/body
+   {:dag/data
+    {:name &quot;file&quot;
+     :description &quot;DAG data to send.&quot;
+     :required true
+     :spec [:or ipfs.spec/dag-cbor ipfs.spec/dag-json]}}
+   :resource/body-fn multipart-body
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Cid&quot;
+     [:map
+      ;; TODO this should be a &lt;cid-string&gt;.
+      [&quot;/&quot; :string]]]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def put
+  (ipfs.util/make-http ipfs.v0/api-base put-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/dag/resolve</h2>On success returns 200 status and the following body:<p>{   "Cid": {     "/": "<cid-string>"   },   "RemPath": "<string>" }</p><p>cURL example: \$ curl -X POST -F "http://127.0.0.1:5001/api/v0/dag/resolve?arg=<ref>"</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def resolve-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Resolve IPLD block.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/dag/resolve&quot;
+   :resource/params
+   {:ipfs/path
+    {:name &quot;arg&quot;
+     :description &quot;The path to resolve.&quot;
+     :required true
+     :spec ipfs.spec/ipfs-path}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Cid&quot;
+     [:map
+      ;; TODO this should be a &lt;cid-string&gt;.
+      [&quot;/&quot; :string]]]
+    [&quot;RemPath&quot; :string]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def resolve
+  (ipfs.util/make-http ipfs.v0/api-base resolve-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/dag/stat</h2>On success returns 200 status and the following body:<p>{   "NumBlocks": "<int64>",   "Size": "<uint64>" }</p><p>cURL example: \$ curl -X POST -F "http://127.0.0.1:5001/api/v0/dag/stat?arg=<root>&progress=true"</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def stat-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Get stats for a DAG.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/dag/stat&quot;
+   :resource/params
+   {:dag/root
+    {:name &quot;arg&quot;
+     :description &quot;CID of a DAG root to get statistics for.&quot;
+     :required true
+     :spec ipfs.spec/content-id}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    ;; &lt;int64&gt;
+    [&quot;NumBlocks&quot; :int]
+    ;; &lt;uint64&gt;
+    [&quot;Size&quot; :int]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def stat
+  (ipfs.util/make-http ipfs.v0/api-base stat-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

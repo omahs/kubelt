@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ipfs.v0.name</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Methods for working with IPNS names.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ipfs.v0.name
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:refer-clojure :exclude [resolve])
+  (:require
+   [com.kubelt.ipfs.spec :as ipfs.spec]
+   [com.kubelt.ipfs.util :as ipfs.util]
+   [com.kubelt.ipfs.v0 :as ipfs.v0]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/name/publish</h2>On success returns 200 status and the following body:<p>{   "Name": "<string>",   "Value": "<string>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def publish-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Publish IPNS names.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/name/publish&quot;
+   :resource/params
+   {:ipfs/path
+    {:name &quot;arg&quot;
+     :description &quot;IPFS path of the object to be published.&quot;
+     :required true
+     :spec ipfs.spec/ipfs-path}
+    :resolve
+    {:name &quot;resolve&quot;
+     :description &quot;Check if the given path can be resolved before publishing. Default: true.&quot;
+     :required false
+     :spec :boolean}
+    :lifetime
+    {:name &quot;lifetime&quot;
+     :description &quot;Time duration that the record will be valid for. This accepts durations such as '300s', '1.5h', '2h45m'. Valid time units are 'ns', 'us' (or 'µs'), 'ms', 's', 'm', 'h'. Default: 24h.&quot;
+     :required false
+     :spec :string}
+    :allow-offline
+    {:name &quot;allow-offline&quot;
+     :description &quot;When offline, save the IPNS record to the local datastore without broadcasting to the network instead of simply failing.&quot;
+     :required false
+     :spec :boolean}
+    :ttl
+    {:name &quot;ttl&quot;
+     :description &quot;Time duration the record should be cached for. Uses the same syntax as the lifetime option. Caution: experimental.&quot;
+     :required false
+     :spec :string}
+    :key
+    {:name &quot;key&quot;
+     :description &quot;Name of the key to be used or a valid PeerID, as listed by 'ipfs key list -l'. Default: self.&quot;
+     :required false
+     :spec :string}
+    :quieter
+    {:name &quot;quieter&quot;
+     :description &quot;Write only final hash.&quot;
+     :required false
+     :spec :boolean}
+    :peer/id-base
+    {:name &quot;peerid-base&quot;
+     :description &quot;Encoding used for peer IDs. Can either be a multibase encoded CID or a base58btc encoded multihash. Takes b58mh|base36|k|base32|.... Default: b58mh.&quot;
+     :required false
+     :spec ipfs.spec/peerid-base}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Name&quot; ipfs.spec/key-name]
+    [&quot;Value&quot; ipfs.spec/ipfs-path]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def publish
+  (ipfs.util/make-http ipfs.v0/api-base publish-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/name/resolve</h2>On success returns 200 status and the following body:<p>{   "Path": "<string>", }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def resolve-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Resolve IPNS names.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/name/resolve&quot;
+   :resource/params
+   {:ipns/name
+    {:name &quot;arg&quot;
+     :description &quot;The IPNS name to resolve. Defaults to your node's peer ID.&quot;
+     :required false
+     :spec ipfs.spec/ipns-name}
+    :recursive
+    {:name &quot;recursive&quot;
+     :description &quot;Resolve until the result is not an IPNS name. Default: true.&quot;
+     :required false
+     :spec :boolean}
+    :nocache
+    {:name &quot;nocache&quot;
+     :description &quot;Do not use cached entries.&quot;
+     :required false
+     :spec :boolean}
+    :dht-record-count
+    {:name &quot;dht-record-count&quot;
+     :description &quot;Number of records to request for DHT resolution.&quot;
+     :required false
+     :spec :int}
+    :dht-timeout
+    {:name &quot;dht-timeout&quot;
+     :description &quot;Max time to collect values during DHT resolution, e.g. '30s'. Pass 0 for no timeout.&quot;
+     :required false
+     :spec :string}
+    :stream
+    {:name &quot;stream&quot;
+     :description &quot;Stream entries as they are found.&quot;
+     :required false
+     :spec :boolean}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Path&quot; ipfs.spec/ipfs-path]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def resolve
+  (ipfs.util/make-http ipfs.v0/api-base resolve-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

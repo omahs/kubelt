@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.sdk.v1.core</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Account management.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.sdk.v1.core
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [cljs.core.async :as async :refer [&lt;! go]])
+  (:require
+   [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.p2p :as lib.p2p]
+   [com.kubelt.lib.promise :refer [promise]]
+   [com.kubelt.lib.wallet :as lib.wallet]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>authenticate!</h2>In a browser context, this keypair is managed by an external walletprovider plugin, e.g. MetaMask. On other platforms, similarfunctionality is provided via other means.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Create an account or authorize an existing account. User identity is centered around an wallet accounts and is also the name linked to the user's Kubelt application data (aka the 'me dag').</p><p>The public key from the wallet param must be available as a hex-encoded string along with the account id. These two pieces of information together kick off a zero-knowledge authentication request.</p><p>The decryption function stored in the wallet will be used to decrypt a nonce to complete the proof</p><p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn authenticate!
+  [sys core]
+  ;; TODO add an extra arity that allows a wallet to be passed in?
+  ;; TODO validate system map (especially: ensure wallet is present)
+  ;; TODO validate core
+  (go
+    (let [;; Send the public key and the account id to gateway
+          ;; API &quot;/@core/auth&quot;. This kicks off a zero-knowledge proof
+          ;; authentication.
+          auth-result (&lt;! (lib.p2p/authenticate! sys core))]
+      (if (lib.error/error? auth-result)
+        auth-result
+        ;; We successfully retrieved a nonce, now verify it by signing
+        ;; it and sending it back.
+        (let [sign-fn (get-in sys [:crypto/wallet :wallet/sign-fn])
+              nonce (get auth-result :nonce)
+              signature (sign-fn nonce)
+              verify-result (&lt;! (lib.p2p/verify! sys core nonce signature))]
+          (if (lib.error/error? verify-result)
+            verify-result
+            ;; If successful we get back a JWT that needs to be stored
+            ;; in the system map. NB: the JWT has an expiry and encodes
+            ;; client IP to restrict renewing JWTs for other clients.
+            ;; TODO check/assert that this is true.
+            (assoc-in sys [:crypto/session core] verify-result)))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Create an account from a JavaScript context.</p><p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn authenticate-js!
+  [sys core]
+  (promise
+   (fn [resolve reject]
+     (let [auth-chan (authenticate! sys core)]
+       (async/take! auth-chan
+        (fn [auth-result]
+          (if (lib.error/error? auth-result)
+            (reject auth-result)
+            (resolve (authenticate! sys auth-result)))))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>logged-in?</h2>A predicate that returns true when the user has successfully authenticated.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO check for valid sys map.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn logged-in?
+  [sys core]
+  (let [sessions (get sys :crypto/session)]
+    ;; TODO validate the JWT using the current wallet
+    (contains? sessions core)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn logged-in-js?
+  [sys core]
+  (promise
+   (fn [resolve reject]
+     (resolve (logged-in? sys core)))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>set-wallet</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn set-wallet
+  [sys wallet]
+  (if-not (lib.wallet/valid? wallet)
+    (lib.wallet/explain wallet)
+    (assoc sys :crypto/wallet wallet)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn set-wallet-js
+  [sys wallet]
+  (promise
+   (fn [resolve reject]
+     (let [wallet-map (lib.wallet/to-edn wallet)]
+       (if (lib.error/error? wallet-map)
+         (reject wallet-map)
+         (resolve (set-wallet sys wallet-map)))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

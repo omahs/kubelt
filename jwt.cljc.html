@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">jwt.cljc</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Wrapper around jose JWT library.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.lib.jwt
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:import
+    [goog.crypt Aes Arc4 Cbc Hmac Sha256 base64])
+  (:require
+    [cljs.test :as t :refer [deftest is testing use-fixtures]]
+    [cljs.core.async :as async :refer [chan go &lt;! &gt;!]]
+    [cljs.core.async.interop :refer-macros [&lt;p!]]
+    [clojure.string :as str]
+    [clojure.walk :as walk])
+  (:require
+    [goog.json :as json]
+    [goog.crypt.base64 :refer [encodeString decodeString]]
+    [taoensso.timbre :as log])
+  #?(:node
+     (:require
+      [&quot;crypto&quot; :as crypto])))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<ul><li>iss (issuer): Issuer of the JWT</li><li>sub (subject): Subject of the JWT (the user)</li><li>aud (audience): Recipient for which the JWT is intended</li><li>exp (expiration time): Time after which the JWT expires</li><li>nbf (not before time): Time before which the JWT must not be accepted  for processing</li><li>iat (issued at time): Time at which the JWT was issued; can be used  to determine age of the JWT</li><li>jti (JWT ID): Unique identifier; can be used to prevent the JWT from  being replayed (allows a token to be used only once)</li></ul>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>TODO wallet implementation should generate keys, wrapping:<ul><li>[browser] https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey</li><li>[node] https://nodejs.org/api/crypto.html#crypto<i>class</i>keyobject</li><li>symmetric keys<ul><li>[browser] Uint8Array</li><li>[node] Buffer</li></ul></li></ul><p>TODO local implementation TODO change signature as (sign payload key algorithm type) TODO spec for JWT + validation</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>helpers ;;;;;;;;;;;;;;;;;;;</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn encode [target]
+  &quot;Encode a string with base64 URL Safe&quot;
+  (.encodeString base64 target goog.crypt.base64.BASE_64_URL_SAFE))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn decode [target]
+  &quot;Decode a string with base64 URL Safe&quot;
+  (.decodeString base64 target))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#_(defn fromBase64 [target]
+  (doto target
+    (.replace &quot;/=/g&quot; )
+    (.replace &quot;/\\\\+/g&quot; &quot;-&quot;)
+    (.replace &quot;/\\\\//g&quot; &quot;_&quot;)))
+(defn create-header [alg exp]
+  &quot;Create a JWT header specifying the algorithm used and expiry time&quot;
+  {:alg alg :exp exp})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn get-public-key [token]
+  &quot;Extract public key from the JWT payload&quot;
+  (let [payload-part (decode (get (str/split token #&quot;\\.&quot;) 1))
+        payload-json (str/replace payload-part &quot;\\ )
+        payload-map (js-&gt;clj (json/parse (decode (js-&gt;clj payload-json))) :keywordize-keys true)]
+    (decode (get payload-map :pubkey))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn prepare-key [key-material]
+  &quot;import raw private key string&quot;
+  ;; return key object
+  key-material)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn prepare-payload [claims]
+  &quot;import raw private key string&quot;
+  (encode (json/serialize (clj-&gt;js claims))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:node
+   (defn- sign-jwt [alg secret-key header-enc payload-enc]
+     &quot;Sign encoded payload and header using secret key, return digest&quot;
+     ;; sign payload+header
+     (let [signature-target (str/join  [header-enc payload-enc])
+           signature-digest (-&gt; (.createSign crypto &quot;RSA-SHA256&quot;)
+                                (.update (str/join &quot;.&quot; [header-enc payload-enc]))
+                                (.sign secret-key &quot;base64&quot;))]
+       signature-digest)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:node
+   (defn create-jwt [secret-key header payload]
+     &quot;Create a JWT token from key, header and payload&quot;
+     (let [alg (get header :alg)
+           header-enc (encode (json/serialize (clj-&gt;js header)))
+           payload-enc (encode (json/serialize (clj-&gt;js payload)))
+           signature-enc  (encode (sign-jwt alg secret-key header-enc payload-enc))]
+       (str/join &quot;.&quot; [header-enc payload-enc signature-enc]))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO this can probably extract the pubkey internally</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:node
+   (defn validate-jwt [token]
+     &quot;Validate a token against a given public key&quot;
+     (let [;; extract public key
+           pubkey (get-public-key token)
+           token-pieces (str/split token #&quot;\\.&quot;)
+           psig (get token-pieces 2)
+           verified (-&gt; (.createVerify crypto &quot;RSA-SHA256&quot;)
+                        (.update (str/join &quot;.&quot; [(get token-pieces 0) (get token-pieces 1)]))
+                        ;;(.verify pubkey, psig, &quot;base64&quot;))]
+                        (.verify pubkey (decode psig) &quot;base64&quot;))]
+       verified)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

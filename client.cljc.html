@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">client.cljc</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>IPFS cross-platform client.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ipfs.client
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [clojure.string :as cstr])
+  (:require
+   [malli.core :as malli]
+   [malli.error :as me])
+  (:require
+   [com.kubelt.ipfs.api :as ipfs.api]
+   [com.kubelt.ipfs.v0.node :as v0.node]
+   [com.kubelt.ipfs.spec :as ipfs.spec]
+   [com.kubelt.proto.http :as proto.http])
+  #?(:browser
+     (:require
+      [com.kubelt.lib.http.browser :as lib.http])
+     :node
+     (:require
+      [com.kubelt.lib.http.node :as lib.http])
+     :clj
+     (:require
+      [com.kubelt.lib.http.jvm :as lib.http])))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>TODO</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Paper over differences in go-based and JS-based IPFS nodes<blockquote><p> It's the key/import endpoint  go-ipfs takes a multipart/form key in the POST body in a variable called 'data'  js-ipfs takes it in the queryparams.  Upshot is that vanilla js-ipfs-http-client can't talk to go-ipfs nodes.  </p></blockquote></p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>params</p><ul><li>mutually exclusive parameters</li></ul>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>CLI</p><ul><li>add missing CLI commands for added API calls</li></ul>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>multiaddr</p><ul><li>accept IPFS host address supplied as a multiaddr</li></ul>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Strict Mode</p><ul><li>add client/init option to en/disable "strict mode"</li><li>in strict mode, any API calls marked as :resource/secure? require  requests be sent over :https (possibly unless host is "127.0.0.1").</li></ul>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Definitions</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def default-scheme
+  :http)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def default-host
+  &quot;127.0.0.1&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def default-port
+  5001)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Internal</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>In order of preference we use: the value supplied for this single call (if any), the value that was specified as the default during client creation (if any), or the default (if all else fails).</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- request-&gt;scheme
+  [client request]
+  (or
+   (get request :uri/scheme)
+   (get client :http/scheme)
+   default-scheme))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- request-&gt;domain
+  [client request]
+  (or
+   (get request :uri/domain)
+   (get client :http/host)
+   default-host))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- request-&gt;port
+  [client request]
+  (or
+   (get request :uri/port)
+   (get client :http/port)
+   default-port))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-id
+  [m]
+  (if-let [node-id (get m :id)]
+    node-id
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-key
+  [m]
+  (if-let [node-key (get m :public-key)]
+    node-key
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-type
+  [m]
+  (if-let [agent-version (get m :agent-version)]
+    (let [type-str (first (cstr/split agent-version #&quot;/&quot;))]
+      (keyword type-str))
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-version
+  [m]
+  (if-let [agent-version (get m :agent-version)]
+    (let [version-str (second (cstr/split agent-version #&quot;/&quot;))
+          version-parts (cstr/split version-str #&quot;\\.&quot;)]
+      (zipmap [:major :minor :revision] version-parts))
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Parse these multiaddresses.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-addresses
+  [m]
+  (if-let [addresses (get m :addresses)]
+    addresses
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-protocols
+  [m]
+  (if-let [protocols (get m :protocols)]
+    protocols
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- extract-node-proto-version
+  [m]
+  (if-let [protocol-version (get m :protocol-version)]
+    protocol-version
+    :unknown))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return true if x is an IPFS client returned from calling (init), and false otherwise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn client?
+  [x]
+  (and
+   (map? x)
+   (= :kubelt.type/ipfs-client (get x :com.kubelt/type))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return true if x is a Kubelt error map, and false otherwise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn error?
+  [x]
+  (and
+   (map? x)
+   (= :kubelt.type/error (get x :com.kubelt/type))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return the collection of oeprations provided by the API. Each vector of keywords in the returned collection represents a call that may be performed. Use the (doc) command to get a description of the API resource.</p><p>Options: flat (vector list), nested maps with filtering leave out leaf nodes return single descriptor</p><p>{:cid [:base32 :bases :codecs]  :dag [:export :get :import]} [[:cid :base32]  [:cid :bases]  [:cid :codecs]  [:dag :export]  [:dag :get]  [:dag :import]]</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn ops
+  ([]
+   ;; Return the available API versions.
+   [:v0])
+  ([version]
+   {:pre [(keyword? version)]}
+   (condp = version
+     :v0 (ipfs.api/paths ipfs.api/v0)
+     {}))
+  ([version path]
+   {:pre [(keyword? version)
+          (vector? path) (every? keyword? path)]}
+   #_(let [m (api version)]
+     (get-in m path)))
+  ([version path options]
+   {:pre [(keyword? version)
+          (vector? path) (every? keyword? path)
+          (map? options)]}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Given a vector representing an available API call, return a map that describes it.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn doc
+  [v]
+  {:pre [(vector? v)]}
+  ;; TODO)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Create and return an IPFS client. Accepts an options map that can be used to control various aspects of the interaction with a remote IPFS daemon or pinning service. Available options include: :client/validate? - check that response conforms to expected schema :client/keywordize? - make response map keys into idiomatic keywords :client/node-info? - fetch and store node information in client :client/timeout - request timeout in milliseconds :http/client - a pre-created HTTP client (must satisfy HttpClient) :http/scheme - the transport scheme to use, e.g. :http, :https :http/host - the IP address of the IPFS host :http/port - the listening port of the IPFS host</p><p>TODO make initial API call to get node info and cache response</p><ul><li>store protocol and agent version (JavaScript, go), etc.</li><li>(v0.node/id)</li><li>(v0.node/version)</li><li>(v0.node/deps)</li><li>(v0.cid/hashes)</li><li>(v0.cid/codecs)</li><li>(v0.cid/bases)Make a sequence of call descriptors and pass to a utility method thatmakes the requests in parallel, then merges the results for storagein the client map.</li></ul><p>Note that this means we probably shouldn't allow the endpoint to be overridden per-call; the user should create a new client if they need to call a different host.</p><p>TODO add timeout option (allow override per call)</p><p>TODO add connections to standard pinning services (optionally).</p><ul><li>pinata</li><li>estuary</li><li>web3.storage</li></ul>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn init
+  ([]
+   (init {}))
+  ([options]
+   (let [default-options {:http/scheme default-scheme
+                          :http/host default-host
+                          :http/port default-port
+                          :client/validate? true
+                          :client/keywordize? true}
+         options (merge default-options options)]
+     ;; Validate the options.
+     (if-not (malli/validate ipfs.spec/init-options options)
+       (let [explain (-&gt; ipfs.spec/init-options
+                         (malli/explain options)
+                         me/humanize)]
+         {:com.kubelt/type :kubelt.type/error
+          :error explain})
+       ;; Options are valid, return the client.
+       (let [{:keys [http/client]}
+             (if (contains? options :http/client)
+               (let [http-client (get options :http/client)]
+                 {:http/client http-client})
+               (let [http-client (lib.http/-&gt;HttpClient)]
+                 {:http/client http-client}))]
+         (if-not (satisfies? proto.http/HttpClient client)
+           {:com.kubelt/type :kubelt.type/error
+            :error &quot;invalid HTTP client&quot;}
+           ;; The final shape of the client map.
+           (merge
+            {:com.kubelt/type :kubelt.type/ipfs-client
+             ;;:client/options options
+             :http/client client}
+            ;; Fetch and store node information, e.g. node type (Go,
+            ;; JavaScript) unless told not to. We use this information
+            ;; to paper over differences in the various implementations.
+            (merge options
+                   (if (get options :client/node-info? true)
+                     (let [id-request (-&gt; (v0.node/id) :http/request)
+                           ;; Get the HTTP request scheme for the request.
+                           request-scheme (request-&gt;scheme options id-request)
+                           ;; Get the HTTP host for the request.
+                           request-domain (request-&gt;domain options id-request)
+                           ;; Get the HTTP port for the request.
+                           request-port (request-&gt;port options id-request)
+                           ;; We always keywordize and validate this
+                           ;; response so we're storing data in known
+                           ;; format.
+                           id-request (-&gt; id-request
+                                          (assoc :uri/scheme request-scheme)
+                                          (assoc :uri/domain request-domain)
+                                          (assoc :uri/port request-port)
+                                          (assoc :response/keywordize? true))
+                           ;; TODO validate response
+                           info (proto.http/request-sync client id-request)
+                           ;; Extract some information from the response and
+                           ;; store directly in the client. Some of these are
+                           ;; the criteria along which we expect node behaviour
+                           ;; to vary.
+                           node-id (extract-node-id info)
+                           node-key (extract-node-key info)
+                           node-type (extract-node-type info)
+                           node-version (extract-node-version info)
+                           node-addresses (extract-node-addresses info)
+                           node-proto-version (extract-node-proto-version info)
+                           node-protocols (extract-node-protocols info)]
+                       {:ipfs.node/id node-id
+                        :ipfs.node/key node-key
+                        :ipfs.node/type node-type
+                        :ipfs.node/version node-version
+                        :ipfs.node/protocol node-proto-version
+                        :ipfs.node/addresses node-addresses
+                        :ipfs.node/protocols node-protocols})
+                     {})))))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:cljs
+   (defn init-js
+     [options-obj]
+     (let [options (js-&gt;clj options-obj :keywordize true)]
+       (init options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Perform an IPFS request using the supplied client instance. The request map describes the API call to perform and should be created using an API resource function (currently, one of the functions under com.kubelt.ipfs.v0). The functions accept a map of options for the API call, as well as additional client-specific options that modify how the request is performed. The options are validated, and an error map is returned if any problems are found, e.g. a required parameter for the call that is missing.</p><p>In addition to the call-specific parameters, the additional options that can be used include: :http/method - override the HTTP request method :http/scheme - override the HTTP request scheme :http/host - override the IPFS daemon host :http/port - override the IPFS daemon port :client/validate? - perform validation of the response :client/keywordize? - convert response data into idiomatic maps :client/timeout - request timeout in milliseconds</p><p>Notably, you can provide callbacks to handle the response or any errors that might occur: :on/response - a function to invoke with processed response data :on/error - a function to invoke when an error occurs</p><p>By default, without supplying any callbacks, you'll receive a future (in Clojure) or a promise (in ClojureScript) that resolves to the result of the request.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn request
+  [client request-map]
+  (cond
+    ;; Validate that we've been given a IPFS client to make a call with.
+    (not (client? client))
+    {:com.kubelt/type :kubelt.type/error
+     :error &quot;invalid client&quot;}
+    ;; If user doesn't check the resource map to see that no error
+    ;; occurred, we'll catch it here.
+    (error? request-map)
+    request-map
+    ;; Validate request-map.
+    (not (malli/validate ipfs.spec/api-resource request-map))
+    (let [explain (-&gt; ipfs.spec/api-resource
+                      (malli/explain request-map)
+                      me/humanize)]
+      {:com.kubelt/type :kubelt.type/error
+       :error explain})
+    ;; Perform the request!
+    :else
+    (let [;; TODO allow per-request override of keywordizing?
+          keywordize? (get client :client/keywordize? true)
+          ;; TODO perform validation if asked for.
+          ;; TODO allow per-request override of validation?
+          validate? (get client :client/validate? false)
+          ;; This stored map contains the HTTP request parameters we can
+          ;; pass to our HTTP client (once we've added a few missing
+          ;; bits).
+          request (get request-map :http/request)
+          ;; Get the HTTP request scheme for the request.
+          request-scheme (request-&gt;scheme client request)
+          ;; Get the HTTP host for the request.
+          request-domain (request-&gt;domain client request)
+          ;; Get the HTTP port for the request.
+          request-port (request-&gt;port client request)
+          ;; Add the request target details to the request map, along
+          ;; with any additional parameters that control how the result
+          ;; will be performed and/or the response processed.
+          request (-&gt; request
+                      (assoc :uri/scheme request-scheme)
+                      (assoc :uri/domain request-domain)
+                      (assoc :uri/port request-port)
+                      ;; Should response body be keywordized?
+                      (assoc :response/keywordize? keywordize?)
+                      ;; Should response body be validated?
+                      (assoc :response/validate? validate?))
+          ;; TODO invoke callbacks if provided
+          ;; TODO supply promise/channel if requested
+          http-client (get client :http/client)
+          ;; By default perform synchronous request.
+          response (proto.http/request-sync http-client request)]
+      ;; TODO promise, channel
+      ;; TODO callback fns:
+      ;; - :on/response (fn [x] )
+      #_on-response #_(fn [x]
+                        (prn x))
+      ;; - :on/error (fn [x] )
+      ;; TODO parse response body
+      ;; TODO validate response body, cf. :client/validate?
+      ;; TODO transform response body, cf. :client/keywordize?
+      ;;@(proto.http/request-sync http-client request on-response)
+      (if-let [body-fn (get request-map :response/body-fn)]
+          (body-fn request-map response)
+          response))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:cljs
+   (defn request-js
+     [client request]
+     (request client request)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

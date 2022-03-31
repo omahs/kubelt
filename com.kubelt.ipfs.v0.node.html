@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ipfs.v0.node</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Methods for learning about an IPFS node.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ipfs.v0.node
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [com.kubelt.ipfs.spec :as ipfs.spec]
+   [com.kubelt.ipfs.util :as ipfs.util]
+   [com.kubelt.ipfs.v0 :as ipfs.v0]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/id</h2>On success returns 200 status and the following body:<p>{   "Addresses": [     "<string>"   ],   "AgentVersion": "<string>",   "ID": "<string>",   "ProtocolVersion": "<string>",   "Protocols": [     "<string>"   ],   "PublicKey": "<string>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def id-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Show IPFS node id info.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/id&quot;
+   :resource/params
+   {:peer/id
+    {:name &quot;arg&quot;
+     :description &quot;Peer.ID of node to look up.&quot;
+     :required false
+     :spec :string}
+    :output/format
+    {:name &quot;format&quot;
+     :description &quot;Optional output format.&quot;
+     :required false
+     :spec :string}
+    :peer/id-base
+    {:name &quot;peerid-base&quot;
+     :description &quot;Encoding used for peer IDs. Can either be a multibase encoded CID or a base58btc encoded multihash. Takes b58mh|base36|k|base32|.... Default: b58mh.&quot;
+     :required false
+     :spec ipfs.spec/peerid-base}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;ID&quot; ipfs.spec/peer-id]
+    [&quot;PublicKey&quot; ipfs.spec/public-key]
+    [&quot;Addresses&quot; ipfs.spec/addresses]
+    [&quot;AgentVersion&quot; ipfs.spec/agent-version]
+    [&quot;ProtocolVersion&quot; ipfs.spec/protocol-version]
+    [&quot;Protocols&quot; ipfs.spec/protocols]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def id
+  (ipfs.util/make-http ipfs.v0/api-base id-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/ping</h2>On success returns 200 status and the following body:<p>{   "Success": "<bool>",   "Text": "<string>",   "Time": "<duration-ns>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ping-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Send echo request packets to IPFS hosts.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/id&quot;
+   :resource/params
+   {:peer/id
+    {:name &quot;arg&quot;
+     :description &quot;Peer ID of peer to be pinged.&quot;
+     :required true
+     :spec ipfs.spec/peer-id}
+    :ping/count
+    {:name &quot;count&quot;
+     :description &quot;Number of ping messages to send. Default: 10.&quot;
+     :required false
+     :spec :int}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Success&quot; :string]
+    [&quot;Text&quot; :string]
+    [&quot;Addresses&quot; :string]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ping
+  (ipfs.util/make-http ipfs.v0/api-base ping-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/version</h2>On success returns 200 status and the following body:<p>{   "Commit": "<string>",   "Golang": "<string>",   "Repo": "<string>",   "System": "<string>",   "Version": "<string>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def version-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Show IPFS version information.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/version&quot;
+   :resource/params
+   {:node/version-only?
+    {:name &quot;number&quot;
+     :description &quot;Only show the version number.&quot;
+     :required false
+     :spec :boolean}
+    :node/commit?
+    {:name &quot;commit&quot;
+     :description &quot;Show the commit hash.&quot;
+     :required false
+     :spec :boolean}
+    :node/repo?
+    {:name &quot;repo&quot;
+     :description &quot;Show repo version.&quot;
+     :required false
+     :spec :boolean}
+    :node/all?
+    {:name &quot;all&quot;
+     :description &quot;Show all version information&quot;
+     :required false
+     :spec :boolean}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Commit&quot; :string]
+    [&quot;Golang&quot; :string]
+    [&quot;Repo&quot; :string]
+    [&quot;System&quot; :string]
+    [&quot;Version&quot; :string]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def version
+  (ipfs.util/make-http ipfs.v0/api-base version-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/version/deps</h2>On success returns 200 status and the following body:<p>{   "Path": "<string>",   "ReplacedBy": "<string>",   "Sum": "<string>",   "Version": "<string>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def deps-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Show information about dependencies used for build.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/version/deps&quot;
+   :resource/params
+   {}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Path&quot; :string]
+    [&quot;ReplacedBy&quot; :string]
+    [&quot;Sum&quot; :string]
+    [&quot;Version&quot; :string]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def deps
+  (ipfs.util/make-http ipfs.v0/api-base deps-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

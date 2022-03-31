@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ddt.options</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Common options various sub-commands.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ddt.options
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Defaults</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def host-default
+  &quot;127.0.0.1&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def port-default
+  9061)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Options</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def tls-name
+  &quot;tls&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def tls-config
+  #js {:describe &quot;make request with(out) TLS&quot;
+       :boolean true})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def host-name
+  &quot;host&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def host-config
+  #js {:alias &quot;h&quot;
+       :describe &quot;p2p service host&quot;
+       :requiresArg true
+       :demandOption &quot;service host is required&quot;
+       :string true
+       :nargs 1
+       :default host-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def port-name
+  &quot;port&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def port-config
+  #js {:alias &quot;p&quot;
+       :describe &quot;p2p service port&quot;
+       :requiresArg true
+       :demandOption &quot;service port is required&quot;
+       :number true
+       :nargs 1
+       :default port-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def wallet-name
+  &quot;wallet&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def wallet-config
+  #js {:alias &quot;w&quot;
+       :describe &quot;a wallet name&quot;
+       :requiresArg true
+       :demandOption &quot;wallet must be specified&quot;
+       :string true
+       :nargs 1})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>All of these options are required. NB: the options with supplied defaults won't cause an error if not supplied by user.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def required-options
+  #js [host-name
+       port-name
+       wallet-name])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn options
+  [yargs]
+  ;; Add --(no-)tls option
+  (.option yargs tls-name tls-config)
+  ;; Add --host option
+  (.option yargs host-name host-config)
+  ;; Add --port option
+  (.option yargs port-name port-config)
+  ;; Add --wallet option
+  (.option yargs wallet-name wallet-config)
+  ;; Indicate which options must be provided
+  (.demandOption yargs required-options)
+  ;; Pretend like this is functional
+  yargs)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

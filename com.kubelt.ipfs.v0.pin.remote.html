@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ipfs.v0.pin.remote</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Methods for pinning content remotely.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ipfs.v0.pin.remote
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [com.kubelt.ipfs.spec :as ipfs.spec]
+   [com.kubelt.ipfs.util :as ipfs.util]
+   [com.kubelt.ipfs.v0 :as ipfs.v0]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/pin/remote/add</h2>On success returns 200 status and the following body:<p>{   "Cid": "<string>",   "Name": "<string>",   "Status": "<string>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def add-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Pin object to remote pinning service.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/pin/remote/add&quot;
+   :resource/params
+   {:ipfs/path
+    {:name &quot;arg&quot;
+     :description &quot;Path to object(s) to be pinned.&quot;
+     :required true
+     :spec ipfs.spec/ipfs-path}
+    :service/name
+    {:name &quot;service&quot;
+     :description &quot;Name of the remote pinning service to use (mandatory).&quot;
+     :required true
+     :spec :string}
+    :pin/name
+    {:name &quot;name&quot;
+     :description &quot;An optional name for the pin.&quot;
+     :required false
+     :spec :string}
+    :remote/background?
+    {:name &quot;background&quot;
+     :description &quot;Add to the queue on the remote service and return immediately (does not wait for pinned status). Default: false.&quot;
+     :required false
+     :spec :boolean}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Cid&quot; :string]
+    [&quot;Name&quot; :string]
+    [&quot;Status&quot; :string]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def add
+  (ipfs.util/make-http ipfs.v0/api-base add-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/pin/remote/ls</h2>On success returns 200 status and the following body:<p>{   "Cid": "<string>",   "Name": "<string>",   "Status": "<string>" }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ls-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;List objects pinned to remote pinning service.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/pin/remote/ls&quot;
+   :resource/params
+   {:service/name
+    {:name &quot;service&quot;
+     :description &quot;Name of the remote pinning service to use (mandatory).&quot;
+     :required false
+     :spec :string}
+    :pin/name
+    {:name &quot;name&quot;
+     :description &quot;Return pins with names that contain the value provided (case-sensitive, exact match).&quot;
+     :required false
+     :spec :string}
+    :pin/cid
+    {:name &quot;cid&quot;
+     :description &quot;Return pins for the specified CIDs.&quot;
+     :required false
+     :spec [:vector :string]}
+    :pin/status
+    {:name &quot;status&quot;
+     :description &quot;Return pins with the specified statuses (queued, pinning, pinned, failed). Default: pinned.&quot;
+     :required false
+     :spec [:enum &quot;queued&quot; &quot;pinning&quot; &quot;pinned&quot; &quot;failed&quot;]}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    [&quot;Cid&quot; :string]
+    [&quot;Name&quot; :string]
+    [&quot;Status&quot; :string]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ls
+  (ipfs.util/make-http ipfs.v0/api-base ls-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/pin/remote/rm</h2>On success returns 200 status and a text/plain response body.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def rm-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Remove pins from remote pinning service.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/pin/remote/rm&quot;
+   :resource/params
+   {:service/name
+    {:name &quot;service&quot;
+     :description &quot;Name of the remote pinning service to use (mandatory).&quot;
+     :required true
+     :spec :string}
+    :pin/name
+    {:name &quot;name&quot;
+     :description &quot;Remove pins with names that contain provided value (case-sensitive, exact match).&quot;
+     :required false
+     :spec :string}
+    :pin/cid
+    {:name &quot;cid&quot;
+     :description &quot;Remove pins for the specified CIDs.&quot;
+     :required false
+     :spec [:vector :string]}
+    :pin/status
+    {:name &quot;status&quot;
+     :description &quot;Remove pins with the specified status (queued, pinning, pinned, failed). Default: pinned.&quot;
+     :required false
+     :spec [:vector :string]}
+    :remote/force
+    {:name &quot;force&quot;
+     :description &quot;Allow remove of multiple pins matching the query without additional confirmation. Default: false.&quot;
+     :required false
+     :spec :boolean}}
+   ;; TODO check that this returns a text/plain response.
+   :response/types [&quot;text/plain&quot;]
+   :response/spec
+   []})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def rm
+  (ipfs.util/make-http ipfs.v0/api-base rm-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

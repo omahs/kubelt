@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.p2p</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Entry point for p2p naming service.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.p2p
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require-macros
+   [cljs.core.async.macros :refer [go]])
+  (:require
+   [&quot;http&quot; :as http :refer [IncomingMessage ServerResponse]]
+   [&quot;process&quot; :as process]
+   [&quot;url&quot; :as url :refer [Url]]
+   [&quot;hypercore&quot; :as Hypercore]
+   [&quot;sd-notify&quot; :as sd-notify]
+   [&quot;yargs&quot; :as yargs :refer [Yargs]])
+  (:require
+    [cljs.core.async :as async :refer [&lt;! &gt;! put! chan sliding-buffer]]
+    [clojure.set :as cset]
+    [clojure.string :as str])
+  (:require
+    [datascript.core :as ds]
+    [goog.Uri]
+    [goog.object]
+    [integrant.core :as ig]
+    [reitit.core :as route]
+    [sieppari.core :as sieppari]
+    [taoensso.timbre :as log])
+  (:require
+    [com.kubelt.p2p.execute :as p2p.execute]
+    [com.kubelt.p2p.interceptor :as p2p.interceptor]
+    [com.kubelt.lib.path :as lib.path]
+    [com.kubelt.p2p.proto :as p2p.proto]
+    [com.kubelt.lib.util :as lib.util]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO D-Bus integration TODO tracing with riemann? jaeger? TODO error reporting using anomalies TODO websocket support using sente TODO generate API docs via reitit-swagger TODO refer buddy-auth for jwt TODO load config (just read environment? ig/read-string for edn config?) TODO standard middleware using reitit-middleware TODO integrate with SDK wallet implementation TODO integrate with SDK jwt implementation TODO integrate with SDK multiaddr implementation</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(comment
+  (d/transact! conn [{:db/id -1
+                      :name &quot;Maksim&quot;
+                      :age 45
+                      :aka [&quot;Max Otto von Stierlitz&quot;
+                            &quot;Jack Ryan&quot;]}])
+
+  (d/q '[:find ?n ?a
+         :where [?e :aka &quot;Max Otto von Stierlitz&quot;]
+         [?e :name ?n]
+         [?e :age ?a]]
+       @conn))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(comment
+  (route/match-by-path router &quot;/kbt/1234&quot;)
+  (route/match-by-name router ::kbt {:id 5534}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Definitions</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Environment variable name prefix for app variables.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def env-prefix
+  &quot;P2P_&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def copyright-year
+  2022)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def copyright-author
+  &quot;Kubelt Inc.&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def epilog
+  (str &quot;Copyright ©&quot; copyright-year &quot;, &quot; copyright-author))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def network-host
+  &quot;127.0.0.1&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def network-port
+  9061)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Timeout value in milliseconds for receiving the entire request from the client.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def timeout-ms
+  2000)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>The maximum number of requests socket can handle before closing keep alive connection. A value of 0 will disable the limit.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def max-socket
+  2048)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Schema for in-memory Datalog database.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def db-schema
+  {:aka {:db/cardinality :db.cardinality/many}})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>HTTP routing table. TODO enable route data validation TODO use top-level data to inject for all routes TODO malli-based coercion of path params TODO validate requests and responses TODO JWT validate TODO response type conversion TODO correlation ID (from header, or assign ULID)</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def routes
+  ;; TODO consider public name resolution vs per-user/namespaced name resolution
+  ;; TODO move validate-jwt to method/all ?
+  [[&quot;/kbt/:id&quot;
+    {:name ::kbt
+     :http.method/all [p2p.interceptor/status-ok]
+     :http.method/get {:interceptors [p2p.interceptor/kbt-resolve]}
+     :http.method/post {:interceptors [p2p.interceptor/validate-jwt
+                                       p2p.interceptor/user-namespace
+                                       p2p.interceptor/kbt-update]}}]
+   ;; TODO user registration
+   [&quot;/register&quot;
+    {:name ::register
+     :http.method/all [p2p.interceptor/validate-jwt
+                       p2p.interceptor/status-ok]
+     :http.method/post [p2p.interceptor/register]}]
+   ;; TODO collect metrics
+   [&quot;/metrics&quot;
+    {:name ::metrics
+     :http.method/all [p2p.interceptor/validate-jwt
+                       p2p.interceptor/status-ok]
+     :http.method/get [p2p.interceptor/metrics]}]
+   ;; TODO return API version
+   [&quot;/version&quot;
+    {:name ::version
+     :http.method/all [p2p.interceptor/status-ok]
+     :http.method/get [p2p.interceptor/version]}]
+   [ {:no-doc true}
+    ;; TODO set up swagger docs
+    [&quot;/api-docs&quot; ::api-docs]
+    [&quot;/swagger.json&quot; ::swagger]
+    [&quot;/health&quot;
+     ;; TODO kubernetes liveness check
+     [&quot;/live&quot;
+      {:name ::liveness-check
+       :http.method/all [p2p.interceptor/status-no-content]
+       :http.method/get [p2p.interceptor/health-live]}]
+     ;; TODO kubernetes readiness check
+     [&quot;/ready&quot;
+      {:name ::readiness-check
+       :http.method/all [p2p.interceptor/status-no-content]
+       :http.method/get [p2p.interceptor/health-ready]}]]]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>System</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>:db/memory</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/init-key :db/memory [_ {:keys [db/schema]}]
+  (log/info {:log/msg &quot;init memory database&quot;})
+  (ds/create-conn schema))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/halt-key! :db/memory [_ db]
+  (log/info {:log/msg &quot;halt memory database&quot;}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>:http/router</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/init-key :http/router [_ {:keys [http/routes]}]
+  (log/info {:log/msg &quot;init HTTP router&quot;})
+  (route/router routes))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/halt-key! :http/router [_ router]
+  (log/info {:log/msg &quot;halt HTTP router&quot;}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>:http/server</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO pause TODO resume</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO edn / transit / json support (negotiation; cf. metosin libraries) TODO place requests onto channel</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/init-key :http/server [_ value]
+  ;; Extract parameters from the given configuration.
+  (let [host (get value :net/host)
+        port (get value :net/port)
+        request-timeout (get value :request/timeout)
+        max-socket-requests (get value :request/max-socket)
+        ;; Invoked on each HTTP request handled by the server. This fn
+        ;; looks for a matching route in the route table and, if it
+        ;; finds one, sets up and executes the corresponding interceptor
+        ;; chain. The argument map contains values that will be set on
+        ;; the execution context for use by the interceptors.
+        on-request (p2p.execute/make-request-handler
+                     (select-keys value [:db/memory :http/router :hyper/bee]))
+        server (.createServer http on-request)]
+    ;; TODO Are there other server values we should set explicitly?
+    ;; - TLS certificate!
+    ;; - headersTimeout
+    ;; - maxHeadersCount
+    ;; - timeout
+    ;; - keepAliveTimeout
+    (set! (.-requestTimeout server) request-timeout)
+    (set! (.-maxRequestsPerSocket server) max-socket-requests)
+    (log/info {:log/msg &quot;init HTTP server&quot; :net/host host :net/port port})
+    (let [options #js {&quot;host&quot; host &quot;port&quot; port}]
+      (letfn [(on-listen []
+                (log/info {:log/msg &quot;listening for connections&quot;}))]
+        (doto server
+          (.listen options on-listen))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/halt-key! :http/server [_ server]
+  (letfn [(on-close []
+            (log/info {:log/msg &quot;halt HTTP server&quot;}))]
+    (.close server on-close)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>:hyper/bee</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/init-key :hyper/bee [_ value]
+  (let [feed (get value :hyper/core)
+        key-encoding (get value :key/encoding)
+        value-encoding (get value :value/encoding)
+        options #js {:keyEncoding key-encoding
+                     :valueEncoding value-encoding}]
+
+    (p2p.proto/make-kv-store feed options)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p> (p2p.proto/makeKVStore nil nil))</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/halt-key! :hyper/bee [_ bee]
+  (log/info {:log/msg &quot;halt hyperbee&quot;}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>:hyper/core</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/init-key :hyper/core [_ value]
+  (let [encoding (get value :value/encoding)
+        path (get value :path/dataset)
+        options #js {:valueEncoding encoding}]
+    (log/info {:log/msg &quot;init hypercore&quot;
+               :value/encoding encoding
+               :path/dataset path})
+    (Hypercore. path options)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defmethod ig/halt-key! :hyper/core [_ core]
+  (log/info {:log/msg &quot;halt hypercore&quot;}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>CLI</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def cli-options
+  (clj-&gt;js
+    {&quot;l&quot; {:alias &quot;log-level&quot;
+          :describe &quot;The level of log message to output&quot;
+          :type &quot;string&quot;
+          :choices #js [&quot;info&quot; &quot;debug&quot; &quot;error&quot;]
+          :nargs 1
+          :default &quot;info&quot;}
+     &quot;h&quot; {:alias &quot;host&quot;
+          :describe &quot;The host address to bind to&quot;
+          :type &quot;string&quot;
+          :nargs 1}
+     &quot;p&quot; {:alias &quot;port&quot;
+          :describe &quot;The port to listen on&quot;
+          :type &quot;number&quot;
+          :nargs 1}
+     &quot;t&quot; {:alias &quot;timeout-ms&quot;
+          :describe &quot;Duration in ms to wait for requests to complete&quot;
+          :type &quot;number&quot;
+          :nargs 1}
+     &quot;s&quot; {:alias &quot;max-socket&quot;
+          :describe &quot;Maximum number of socket requests&quot;
+          :type &quot;number&quot;
+          :nargs 1}}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO expose additional configuration options, e.g. timeout.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn parse-args
+  [args]
+  (let [js-args (clj-&gt;js (sequence args))
+        args (-&gt; ^js yargs
+                 ;; Program options.
+                 (.options cli-options)
+                 ;; Display usage string.
+                 (.usage &quot;Usage: \$0 -h [ip-address] -p [port]&quot;)
+                 ;; Show example usage.
+                 (.example &quot;\$0 -h 192.168.1.128&quot;
+                           &quot;Run using a non-default host address.&quot;)
+                 ;; Display a summary line.
+                 (.epilog epilog)
+                 ;; Display help information.
+                 (.help)
+                 ;; Reject non-explicit arguments.
+                 (.strict)
+                 ;; Parse the CLI arguments and return a #js {}.
+                 (.parse js-args))]
+    (-&gt; args
+        ;; The parsed arguments are returned as a #js object. Convert to
+        ;; a CLJS map with keywords as keys.
+        (js-&gt;clj :keywordize-keys true)
+        ;; yargs adds the keys as &quot;nil&quot; when you use .option, but :or
+        ;; works better if you don't even have the key
+        ;;(dissoc-nil :file :f :constant)
+        (cset/rename-keys {:_ :args}))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Config</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO load configuration from file? Should we use ig/read-string?</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn load-config
+  [app-name]
+  (let [data-dir (lib.path/data app-name)]
+    {:db/memory
+     {:db/schema db-schema}
+     :http/router
+     {:http/routes routes}
+     :http/server
+     {:net/host network-host
+      :net/port network-port
+      :request/timeout timeout-ms
+      :request/max-socket max-socket
+      :http/router (ig/ref :http/router)
+      :db/memory (ig/ref :db/memory)
+      :hyper/bee (ig/ref :hyper/bee)}
+     :hyper/bee
+     {:hyper/core (ig/ref :hyper/core)
+      :key/encoding &quot;utf-8&quot;
+      :value/encoding &quot;binary&quot;}
+     :hyper/core
+     {:value/encoding &quot;binary&quot;
+      :path/dataset data-dir}}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return a map of application environment variables. These are the variables that have a given prefix, determined by the prefix argument. The keys in the returned map are keywords derived from the environment variable name.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn get-environment
+  [prefix]
+  {:pre [(string? prefix)]}
+  (letfn [(has-prefix? [[s _]]
+            (str/starts-with? s prefix))
+          (strip-prefix [[s v]]
+            [(str/replace s prefix &quot;&quot;) v])
+          (to-lower [[k v]]
+            [(str/lower-case k) v])
+          (to-keyword [[k v]]
+            [(keyword k) v])]
+    (let [environment (lib.util/environment)
+          xf (comp
+               (filter has-prefix?)
+               (map strip-prefix)
+               (map to-lower)
+               (map to-keyword))]
+      (into {} xf environment))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Implementation</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Given a system config map, a map of application environment variables, and command line options, return an updated system map to start the system with.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn init-system
+  [config environment options]
+  {:pre [(every? map? [config environment options])]}
+  (let [host
+        (or (get environment :host)
+            (get options :host)
+            (get-in config [:http/server :net/host]))
+        port
+        (or (get environment :port)
+            (get options :port)
+            (get-in config [:http/server :net/port]))
+        timeout-ms
+        (or (get environment :timeout-ms)
+            (get options :timeout-ms)
+            (get-in config [:http/server :request/timeout]))
+        max-socket
+        (or (get environment :max-socket)
+            (get options :max-socket)
+            (get-in config [:http/server :request/max-socket]))
+        path-dataset
+        (or (get environment :path-dataset)
+            (get options :path-dataset)
+            (get-in config [:hyper/core :path/dataset]))]
+    (-&gt; config
+        (assoc-in [:http/server :net/host] host)
+        (assoc-in [:http/server :net/port] port)
+        (assoc-in [:http/server :request/timeout] timeout-ms)
+        (assoc-in [:http/server :request/max-socket] max-socket)
+        (assoc-in [:hyper/core :path/dataset] path-dataset))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn stop! []
+  (log/warn {:log/type :app/stop :log/msg &quot;stopping&quot;}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn start! []
+  (log/warn {:log/type :app/start :log/msg &quot;starting&quot;}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO set up signal handler; call ig/halt! for (kubernetes-)clean teardown</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn main! [&amp; cli-args]
+  (let [options (parse-args cli-args)
+        app-name (get options :\$0)
+        config (load-config app-name)
+        environ (get-environment env-prefix)
+        system (init-system config environ options)
+        sys-map (ig/init system)]
+    (letfn [(on-shutdown []
+              (log/info {:log/msg &quot;shutting down&quot;})
+              (ig/halt! sys-map))]
+      (doto process
+        (.on &quot;SIGINT&quot; on-shutdown)
+        (.on &quot;SIGTERM&quot; on-shutdown)))
+    (when-let [log-level (get options :log-level)]
+      (let [log-level (keyword log-level)]
+        (log/merge-config! {:min-level log-level})
+        (log/info {:log/msg &quot;running p2p&quot; :log/level log-level})))
+    ;; Notify systemd that we are initialized and ready to run.
+    (.ready sd-notify)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

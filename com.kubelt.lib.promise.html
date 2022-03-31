@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.lib.promise</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Promise-related utilities. These are mix of wrappers around Google Clojure promise-related functions and core.async promise-related functions; some has been directly cadged (with slight modification) from jamesmacaulay/cljs-promises.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.lib.promise
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [goog.async.promises :refer [allMapValues]])
+  (:require
+   [cljs.core.async.interop :refer-macros [&lt;p!]]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO support goog.Promise, which is the same as a native promise but can also be cancelled.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Internal</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- cast-as-array
+  [coll]
+  (if (or (array? coll)
+          (not (reduceable? coll)))
+    coll
+    (into-array coll)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns true if the argument is a JavaScript promise, and false otherwise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn promise?
+  [x]
+  (= js/Promise (type x)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return a promise that uses the given resolver function. This function must accept two arguments, a function that may be called to resolve the promise, and a second function that may be called to reject the promise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn promise
+  [resolver]
+  {:pre [(fn? resolver)]}
+  (js/Promise. resolver))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn then
+  ([promise on-fulfilled]
+   {:pre [(fn? on-fulfilled)]}
+   (.then promise on-fulfilled))
+  ([promise on-fulfilled on-rejected]
+   {:pre [(every? fn? [on-fulfilled on-rejected])]}
+   (.then promise on-fulfilled on-rejected)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn catch
+  [promise on-rejected]
+  {:pre [(fn? on-rejected)]}
+  (.catch promise on-rejected))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn finally
+  [promise on-final]
+  {:pre [(fn? on-final)]}
+  (.finally promise on-final))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return a promise that resolves to the given value.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn resolved
+  [x]
+  (.resolve js/Promise x))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return a promise that rejects to the given value.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn rejected
+  [x]
+  (.reject js/Promise x))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a promise that resolves after the given millisecond interval.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn timeout
+  [ms]
+  (promise (fn [resolve _]
+             (js/setTimeout resolve ms))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Takes an iterable of promises and returns a single promise that resolves as soon as any of the promises in the iterable fulfills, with the value of the fulfilled promise.</p><p>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn any
+  [coll]
+  (.any js/Promise (cast-as-array coll)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Takes an iterable of promises and returns a single promise that resolves to an array of the results of the input promises.</p><p>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn all
+  [coll]
+  (.all js/Promise (cast-as-array coll)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Resolves when all promise values in the map resolve. The resolved value will e a map with the same keys as the input map, but with the resolved values of the promises. Rejects with first error if any promise rejects. Like Promise.all() but for Maps.</p><p>Google Clojure library promise utilities:   https://google.github.io/closure-library/api/goog.async.promises.html JavaScript native Maps:   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn all-map
+  [js-map]
+  {:pre [(= js/Map (type js-map))] :post [(promise? %)]}
+  (allMapValues js-map))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a promise that resolves after all of the given promises have either fulfilled or rejected, with an array of objects that each describes the outcome of each promise.</p><p>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn all-settled
+  [coll]
+  (.allSettled js/Promise (cast-as-array coll)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

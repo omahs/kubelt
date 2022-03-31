@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ipfs.v0.pin.remote.service</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Methods for managing remote pinning services.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ipfs.v0.pin.remote.service
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [com.kubelt.ipfs.spec :as ipfs.spec]
+   [com.kubelt.ipfs.util :as ipfs.util]
+   [com.kubelt.ipfs.v0 :as ipfs.v0]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/pin/remote/service/add</h2>On success returns 200 status and a text/plain body.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def add-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Add remote pinning service.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/pin/remote/service/add&quot;
+   :resource/params
+   {:service/name
+    {:name &quot;arg&quot;
+     :description &quot;Service name.&quot;
+     :required true
+     :spec :string}
+    :service/endpoint
+    {:name &quot;arg&quot;
+     :description &quot;Service endpoint.&quot;
+     :required true
+     :spec :string}
+    :service/key
+    {:name &quot;arg&quot;
+     :description &quot;Service key.&quot;
+     :required true
+     :spec :string}}
+   ;; TODO check that response has text/plain body.
+   :response/types [&quot;text/plain&quot;]
+   :response/spec
+   []})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def add
+  (ipfs.util/make-http ipfs.v0/api-base add-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/pin/remote/service/ls</h2>On success returns 200 status and the following body:<p>{   "RemoteServices": [     {       "ApiEndpoint": "<string>",       "Service": "<string>",       "Stat": {         "PinCount": {           "Failed": "<int>",           "Pinned": "<int>",           "Pinning": "<int>",           "Queued": "<int>"         },         "Status": "<string>"       }     }   ] }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ls-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;List remote pinning services.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/pin/remote/service/ls&quot;
+   :resource/params
+   {:service/stat?
+    {:name &quot;stat&quot;
+     :description &quot;Try to fetch and display current pin count on remote service (queued, pinning, pinned, failed). Default: false.&quot;
+     :required false
+     :spec :boolean}}
+   :response/types [&quot;application/json&quot;]
+   :response/spec
+   [:map
+    &quot;RemoteServices&quot;
+    [:vector
+     [:map
+      [&quot;ApiEndpoint&quot; ipfs.spec/api-endpoint]
+      [&quot;Service&quot; :string]
+      [&quot;Stat&quot; {:optional true}
+       [:map
+        [&quot;PinCount&quot;
+         [:map
+          [&quot;Failed&quot; :int]
+          [&quot;Pinned&quot; :int]
+          [&quot;Pinning&quot; :int]
+          [&quot;Queued&quot; :int]]]
+        [&quot;Status&quot; :string]]]]]]})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ls
+  (ipfs.util/make-http ipfs.v0/api-base ls-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>/api/v0/pin/remote/service/rm</h2>On success returns 200 status and a text/plain response body.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def rm-desc
+  {:com.kubelt/type :kubelt.type/api-resource
+   :resource/description &quot;Remove a remote pinning service.&quot;
+   :resource/methods [:post]
+   :resource/path &quot;/pin/remote/service/rm&quot;
+   :resource/params
+   {:service/name
+    {:name &quot;arg&quot;
+     :description &quot;Name of remote pinning service to remove.&quot;
+     :required true
+     :spec :string}}
+   ;; TODO check that this returns a text/plain response.
+   :response/types [&quot;text/plain&quot;]
+   :response/spec
+   []})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def rm
+  (ipfs.util/make-http ipfs.v0/api-base rm-desc))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

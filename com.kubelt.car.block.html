@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.car.block</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Block utilities for producing Content Archives</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.car.block
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  (:require
+   [&quot;multiformats/block&quot; :as block :refer [Block]]
+   [&quot;multiformats/cid&quot; :as cid :refer [CID]]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>An IPLD Block has the form: {   value: <original data>,   bytes: Uint8Array,   cid: CID(), }</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns the raw data value from a Block.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn block-&gt;raw
+  [^Block b]
+  {:pre [(instance? Block b)]}
+  (.-value b))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns the data value from a Block as Clojure data.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn block-&gt;edn
+  [^Block b]
+  {:pre [(instance? Block b)]}
+  (js-&gt;clj (block-&gt;raw b) :keywordize-keys true))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns the encoded bytes from a Block.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn block-&gt;bytes
+  [^Block b]
+  {:pre [(instance? Block b)]}
+  (.-bytes b))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns the CID from a Block.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn block-&gt;cid
+  [^Block b]
+  {:pre [(instance? Block b)]}
+  (.-cid b))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a function that turns Clojure data into an IPLD block using the given codec and hasher implementations. The returned function accepts edn data and returns a promise that resolves to the encoded IPLD Block.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn encoder
+  [codec hasher]
+  (fn [data]
+    (let [value (clj-&gt;js data)
+          options #js {&quot;value&quot; value
+                       &quot;codec&quot; codec
+                       &quot;hasher&quot; hasher}]
+      ;; Returns a promise!
+      (.encode block options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a function that decodes a block from its binary state without performing any validation. The returned function takes an IPLD Block instance and returns a promise that resolves to the decoded block. Note that no validation of the decoded block is performed. If that's a requirement, use (validator) instead.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn decoder
+  [codec hasher]
+  (fn [^Block b]
+    (let [bytes (.-bytes b)
+          options #js {&quot;bytes&quot; bytes
+                       &quot;codec&quot; codec
+                       &quot;hasher&quot; hasher}]
+      ;; Returns a promise!
+      (.decode block options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Returns a function that decodes a block from its binary state, validating the results using a given content identifier. The returned function takes an IPLD Block instance and a corresponding CID, and returns a promise the resolves to the decoded block. If you do not require validation of the decoded block, use (decoder) instead.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn validator
+  [codec hasher]
+  (fn [^Block b ^CID cid]
+    (let [bytes (.-bytes b)
+          options #js {&quot;bytes&quot; bytes
+                       &quot;codec&quot; codec
+                       &quot;hasher&quot; hasher
+                       &quot;cid&quot; cid}]
+      ;; Returns a promise!
+      (.decode block options))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>
