@@ -56,7 +56,13 @@
    :desc &quot;Authenticate an account&quot;
    :requiresArg false
    :builder (fn [^Yargs yargs]
-              (ddt.options/options yargs)
+              (let [;; Enforce string type, otherwise yargs parses a
+                    ;; wallet address starting with &quot;0x&quot; as a big
+                    ;; integer.
+                    core-config #js {:describe &quot;a @core name&quot;
+                                     :string true}]
+                (.options yargs &quot;core&quot; core-config)
+                (ddt.options/options yargs))
               yargs)
    :handler (fn [args]
               (let [args-map (js-&gt;clj args :keywordize-keys true)
@@ -79,7 +85,8 @@
                            result (&lt;! (sdk.core/authenticate! kbt core))]
                        (if (lib.error/error? result)
                          (prn (:error kbt))
-                         ;; TODO encrypt(?) and store returned JWT)
+                         ;; TODO encrypt(?) and store returned JWT
+                         (prn result))
                        (sdk/halt! kbt)))))))})</pre>
 				</td>
 			</tr>

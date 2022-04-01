@@ -73,7 +73,7 @@
         address (get wallet :wallet/address)
         body {:address address}
         body-str (lib.json/edn-&gt;json-str body)
-        path (cstr/join &quot;/&quot; [&quot;&quot; core &quot;auth&quot;])
+        path (cstr/join &quot;&quot; [&quot;/@&quot; core &quot;/auth&quot;])
         request {:com.kubelt/type :kubelt.type/http-request
                  :http/method :post
                  :http/body body-str
@@ -102,7 +102,7 @@
         port (get-in sys [:client/p2p :p2p/write :address/port])
         body {:nonce nonce :signature signature}
         body-str (lib.json/edn-&gt;json-str body)
-        path (cstr/join &quot;/&quot; [&quot;&quot; core &quot;auth&quot; &quot;verify&quot;])
+        path (cstr/join &quot;&quot; [&quot;/@&quot; core &quot;/auth/verify&quot;])
         request {:com.kubelt/type :kubelt.type/http-request
                  :http/method :post
                  :http/body body-str
