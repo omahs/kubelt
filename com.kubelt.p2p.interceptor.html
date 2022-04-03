@@ -32,7 +32,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.p2p.interceptor
-  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;UNLICENSED&quot;}
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:import
     [goog.crypt Aes Arc4 Cbc Hmac Sha256 ])
   (:require
@@ -116,30 +116,6 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(def register
-  {:name ::register
-   :enter (fn [ctx]
-            ;; TODO register the user
-            ctx)})</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(def metrics
-  {:name ::metrics
-   :leave (fn [ctx]
-            ;; TODO return accumulated metrics.
-            ctx)})</pre>
 				</td>
 			</tr>
 			<tr>
