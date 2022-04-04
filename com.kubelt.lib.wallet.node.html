@@ -111,7 +111,11 @@
   [app-name]
   (let [wallet-dirp (wallet-dir app-name)]
     (when-not (.existsSync fs wallet-dirp)
-      (.mkdirSync fs wallet-dirp))
+      (let [mode &quot;0700&quot;
+            recursive? true
+            options #js {:mode mode
+                         :recursive recursive?}]
+        (.mkdirSync fs wallet-dirp options)))
     wallet-dirp))</pre>
 				</td>
 			</tr>
