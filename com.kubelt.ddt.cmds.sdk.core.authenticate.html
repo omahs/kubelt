@@ -60,8 +60,8 @@
                     ;; wallet address starting with &quot;0x&quot; as a big
                     ;; integer.
                     core-config #js {:describe &quot;a @core name&quot;
-                                     :string true}]
-                (.options yargs &quot;core&quot; core-config)
+                                     :type &quot;string&quot;}]
+                (.positional yargs &quot;core&quot; core-config)
                 (ddt.options/options yargs))
               yargs)
    :handler (fn [args]
