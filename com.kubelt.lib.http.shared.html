@@ -34,7 +34,7 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.http.shared
   {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as str]))</pre>
+   [clojure.string :as cstr]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -45,7 +45,7 @@
 					<pre class="brush: clojure">(defn request-&gt;method
   [m]
   {:pre [(map? m)]}
-  (str/upper-case (name (:http/method m))))</pre>
+  (cstr/upper-case (name (:http/method m))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -89,7 +89,8 @@
 					<pre class="brush: clojure">(defn request-&gt;headers
   [m]
   {:pre [(map? m)]}
-  (:http/headers m))</pre>
+  (let [headers (get m :http/headers {})]
+    headers))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -110,8 +111,28 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn request-&gt;scheme
   [m]
-    {:pre [(map? m)]}
-    (name (:uri/scheme m)))</pre>
+  {:pre [(map? m)]}
+  (name (get m :uri/scheme )))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a URL from a request map.</p><p>TODO flesh this out!</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn request-&gt;url
+  [m]
+  {:pre [(map? m)]}
+  (let [scheme (request-&gt;scheme m)
+        domain (request-&gt;domain m)
+        port (request-&gt;port m)
+        port (when port
+               (str &quot;:&quot; port))
+        path (request-&gt;path m)
+        parts [scheme &quot;://&quot; domain port path]]
+    ;; TODO return an error map when needed.
+    ;; (lib.error/error &quot;...&quot;)
+    (cstr/join &quot;&quot; (remove nil? parts))))</pre>
 				</td>
 			</tr>
 			<tr>

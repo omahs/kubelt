@@ -33,21 +33,20 @@
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.lib.jwt
   {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
-  (:import
-    [goog.crypt Aes Arc4 Cbc Hmac Sha256 base64])
-  (:require
-    [cljs.test :as t :refer [deftest is testing use-fixtures]]
-    [cljs.core.async :as async :refer [chan go &lt;! &gt;!]]
-    [cljs.core.async.interop :refer-macros [&lt;p!]]
-    [clojure.string :as str]
-    [clojure.walk :as walk])
-  (:require
-    [goog.json :as json]
-    [goog.crypt.base64 :refer [encodeString decodeString]]
-    [taoensso.timbre :as log])
   #?(:node
      (:require
-      [&quot;crypto&quot; :as crypto])))</pre>
+      [&quot;crypto&quot; :as crypto]))
+  #?(:cljs
+     (:import
+      [goog.crypt base64]))
+  #?(:cljs
+     (:require
+      [goog.json :as json]
+      [goog.crypt.base64 :refer [encodeString decodeString]]))
+  (:require
+   [clojure.string :as str])
+  (:require
+   [taoensso.timbre :as log]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -71,9 +70,7 @@
 					<p>helpers ;;;;;;;;;;;;;;;;;;;</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn encode [target]
-  &quot;Encode a string with base64 URL Safe&quot;
-  (.encodeString base64 target goog.crypt.base64.BASE_64_URL_SAFE))</pre>
+					<pre class="brush: clojure"></pre>
 				</td>
 			</tr>
 			<tr>
@@ -81,9 +78,10 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn decode [target]
-  &quot;Decode a string with base64 URL Safe&quot;
-  (.decodeString base64 target))</pre>
+					<pre class="brush: clojure">#?(:node
+   (defn encode [target]
+     &quot;Encode a string with base64 URL Safe&quot;
+     (.encodeString base64 target goog.crypt.base64.BASE_64_URL_SAFE)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -91,12 +89,18 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">#_(defn fromBase64 [target]
-  (doto target
-    (.replace &quot;/=/g&quot; )
-    (.replace &quot;/\\\\+/g&quot; &quot;-&quot;)
-    (.replace &quot;/\\\\//g&quot; &quot;_&quot;)))
-(defn create-header [alg exp]
+					<pre class="brush: clojure">#?(:node
+   (defn decode [target]
+     &quot;Decode a string with base64 URL Safe&quot;
+     (.decodeString base64 target)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn create-header [alg exp]
   &quot;Create a JWT header specifying the algorithm used and expiry time&quot;
   {:alg alg :exp exp})</pre>
 				</td>
@@ -106,12 +110,13 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn get-public-key [token]
-  &quot;Extract public key from the JWT payload&quot;
-  (let [payload-part (decode (get (str/split token #&quot;\\.&quot;) 1))
-        payload-json (str/replace payload-part &quot;\\ )
-        payload-map (js-&gt;clj (json/parse (decode (js-&gt;clj payload-json))) :keywordize-keys true)]
-    (decode (get payload-map :pubkey))))</pre>
+					<pre class="brush: clojure">#?(:node
+   (defn get-public-key [token]
+     &quot;Extract public key from the JWT payload&quot;
+     (let [payload-part (decode (get (str/split token #&quot;\\.&quot;) 1))
+           payload-json (str/replace payload-part &quot;\\ )
+           payload-map (js-&gt;clj (json/parse (decode (js-&gt;clj payload-json))) :keywordize-keys true)]
+       (decode (get payload-map :pubkey)))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -119,10 +124,11 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn prepare-key [key-material]
-  &quot;import raw private key string&quot;
-  ;; return key object
-  key-material)</pre>
+					<pre class="brush: clojure">#?(:node
+   (defn prepare-key [key-material]
+     &quot;import raw private key string&quot;
+     ;; return key object
+     key-material))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -130,9 +136,10 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn prepare-payload [claims]
-  &quot;import raw private key string&quot;
-  (encode (json/serialize (clj-&gt;js claims))))</pre>
+					<pre class="brush: clojure">#?(:node
+   (defn prepare-payload [claims]
+     &quot;import raw private key string&quot;
+     (encode (json/serialize (clj-&gt;js claims)))))</pre>
 				</td>
 			</tr>
 			<tr>
