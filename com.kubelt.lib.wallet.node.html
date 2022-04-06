@@ -51,27 +51,30 @@
   (:require
    [com.kubelt.lib.error :as lib.error]
    [com.kubelt.lib.octet :as lib.octet]
-   [com.kubelt.lib.path :as lib.path]))</pre>
+   [com.kubelt.lib.path :as lib.path]
+   [com.kubelt.lib.promise :refer [promise]]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Given an Ethereum wallet, return a signing function that uses the wallet's private key to sign the digest of some given data.</p>
+					<p>Given an Ethereum wallet, return a signing function that uses the wallet's private key to sign the digest of some given data. To match what happens in the browser, the signing function returns a promise that resolves to the signature value.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn- make-sign-fn
   [eth-wallet]
   (fn [data]
-    (let [private-key (.-privateKey eth-wallet)
-          signing-key (SigningKey. private-key)
-          data-length (count data)
-          prefix (str &quot;\\u0019Ethereum Signed Message:\\n&quot; data-length)
-          prefix+data (str prefix data)
-          data-bytes (lib.octet/as-bytes prefix+data)
-          digest (keccak256 data-bytes)
-          signature-raw (.signDigest signing-key digest private-key)
-          signature (gobj/get signature-raw &quot;compact&quot;)]
-      signature)))</pre>
+    (promise
+     (fn [resolve reject]
+       (let [private-key (.-privateKey eth-wallet)
+             signing-key (SigningKey. private-key)
+             data-length (count data)
+             prefix (str &quot;\\u0019Ethereum Signed Message:\\n&quot; data-length)
+             prefix+data (str prefix data)
+             data-bytes (lib.octet/as-bytes prefix+data)
+             digest (keccak256 data-bytes)
+             signature-raw (.signDigest signing-key digest private-key)
+             signature (gobj/get signature-raw &quot;compact&quot;)]
+         (resolve signature))))))</pre>
 				</td>
 			</tr>
 			<tr>

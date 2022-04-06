@@ -35,8 +35,6 @@
   {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.ddt.cmds.p2p.authenticate :as p2p.authenticate]
-   [com.kubelt.ddt.cmds.p2p.query :as p2p.query]
-   [com.kubelt.ddt.cmds.p2p.store :as p2p.store]
    [com.kubelt.ddt.cmds.p2p.verify :as p2p.verify]))</pre>
 				</td>
 			</tr>
@@ -52,8 +50,6 @@
               (-&gt; yargs
                   (.command (clj-&gt;js p2p.authenticate/command))
                   (.command (clj-&gt;js p2p.verify/command))
-                  (.command (clj-&gt;js p2p.query/command))
-                  (.command (clj-&gt;js p2p.store/command))
                   (.demandCommand)))})</pre>
 				</td>
 			</tr>
