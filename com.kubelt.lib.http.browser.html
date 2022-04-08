@@ -35,7 +35,8 @@
   {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [goog.net.XhrIo :as xhrio]
-   [goog.url :as gurl])
+   [goog.url :as gurl]
+   [clojure.string :as str])
   (:require
    [malli.core :as malli])
   (:require
@@ -86,13 +87,21 @@
 					<pre class="brush: clojure">(defn- make-response-fn
   [resolve]
   (fn [^js event]
-    (let [res (-&gt; event .-target .getResponseText)]
+    (let [res (-&gt; event .-target .getResponseText)
+          status (-&gt; event .-target .getStatus)
+          content-type (-&gt; event .-target (.getResponseHeader &quot;content-type&quot;))
+          ]
       ;; TODO Return a structured map containing the response data. The
       ;; structure needs to be schematized as a spec, e.g.
       ;; {:body {:text ...}}
       ;; FIXME support non-json and pass headers properly
-      (let [response {:http/status 200 :http/headers &quot;&quot;}]
-        (resolve (assoc response :http/body (lib.json/from-json res true)))))))</pre>
+      (let [response {:http/status status :http/headers &quot;&quot; }]
+        (case (str/lower-case content-type)
+          &quot;application/json; charset=utf-8&quot; 
+          (resolve (assoc response :http/body (lib.json/from-json res true)))
+          &quot;text/plain;charset=utf-8&quot;
+          (resolve (assoc response :http/body res))
+          (resolve (assoc response :http/body res)))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -119,20 +128,20 @@
 					<pre class="brush: clojure">(defrecord HttpClient []
   proto.http/HttpClient
   (request!
-    [this m]
+    [this request]
     (promise
      (fn [resolve reject]
-       (if-not (malli/validate spec.http/request m)
-         (reject (lib.error/explain spec.http/request m))
+       (if-not (malli/validate spec.http/request request)
+         (reject (lib.error/explain spec.http/request request))
          ;; The request map is valid, so fire off the request.
-         (let [url-or-error (http.shared/request-&gt;url m)]
+         (let [url-or-error (http.shared/request-&gt;url request)]
            (if (lib.error/error? url-or-error)
              ;; Constructed URL wasn't valid, return an error map.
              url-or-error
              ;; Perform the HTTP request.
-             (let [method (http.shared/request-&gt;method m)
-                   body (http.shared/request-&gt;body m)
-                   headers (http.shared/request-&gt;headers m)
+             (let [method (http.shared/request-&gt;method request)
+                   body (http.shared/request-&gt;body request)
+                   headers (http.shared/request-&gt;headers request)
                    headers-obj (clj-&gt;js headers)
                    ;; 0 means no timeout.
                    timeout-ms 0
@@ -141,7 +150,7 @@
                            on-response
                            method body
                            headers-obj
-                           timeout-ms)))))))))  </pre>
+                           timeout-ms)))))))))</pre>
 				</td>
 			</tr>
 			<tr>

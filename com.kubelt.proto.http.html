@@ -37,25 +37,12 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>TODO tighten up this protocol</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
 					<p>A simple data-first HTTP client.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defprotocol HttpClient
-  (request! [this m]
-    &quot;Performs an HTTP request described by the given request map, returning a core.async channel from which the response may be taken.&quot;)
-  (request-sync [this request]
-    &quot;Performs a synchronous HTTP request described by given request map,
-returning the response body directly.&quot; )
-  (request-cb [this request on-response]
-    &quot;Performs an HTTP request described by given request map, invoking the given callback on completion.&quot;))</pre>
+  (request! [this request]
+    &quot;Performs an HTTP request described by the given request map, returning a promise that resolves to the HTTP response.&quot;))</pre>
 				</td>
 			</tr>
 			<tr>
