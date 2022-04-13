@@ -34,6 +34,8 @@
 					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.wallet.init
   {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
+   [&quot;path&quot; :as path])
+  (:require
    [clojure.string :as cstr])
   (:require
    [com.kubelt.ddt.prompt :as ddt.prompt]
@@ -54,7 +56,8 @@
               yargs)
    :handler (fn [args]
               (let [args-map (js-&gt;clj args :keywordize-keys true)
-                    app-name (cstr/join &quot;.&quot; [&quot;com&quot; &quot;kubelt&quot; (get args-map :\$0)])
+                    base-name (.basename path (get args-map :\$0))
+                    app-name (cstr/join &quot;.&quot; [&quot;com&quot; &quot;kubelt&quot; base-name])
                     wallet-name (get args-map :name)]
                 ;; TODO check to see if wallet name is valid (using yargs)
                 ;; Check to see if named wallet already exists. Wallets
