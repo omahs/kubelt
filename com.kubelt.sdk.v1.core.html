@@ -123,9 +123,9 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn logged-in?
   [sys core]
-  (let [sessions (get sys :crypto/session)]
+  (let [session-tokens (get-in sys [:crypto/session :vault/tokens])]
     ;; TODO validate the JWT using the current wallet
-    (contains? sessions core)))</pre>
+    (contains? session-tokens core)))</pre>
 				</td>
 			</tr>
 			<tr>

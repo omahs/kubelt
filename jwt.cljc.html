@@ -35,8 +35,7 @@
   {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   #?(:node
      (:require
-      [&quot;crypto&quot; :as crypto]
-      [com.kubelt.lib.json :as lib.json]))
+      [&quot;crypto&quot; :as crypto]))
   #?(:cljs
      (:import
       [goog.crypt base64]))
@@ -50,7 +49,8 @@
    [taoensso.timbre :as log])
   (:require
    [com.kubelt.lib.base64 :as lib.base64]
-   [com.kubelt.lib.error :as lib.error]))</pre>
+   [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.json :as lib.json]))</pre>
 				</td>
 			</tr>
 			<tr>
