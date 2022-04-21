@@ -39,6 +39,14 @@
 			</tr>
 			<tr>
 				<td class="docs">
+					<p>Default logging level.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def log-level :warn)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
 					<h2>Default configuration</h2>
 				</td>
 				<td class="codes">
@@ -47,10 +55,14 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					
+					<p>By default we look for a local IPFS node.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def log-level :info)</pre>
+					<pre class="brush: clojure">(def default-ipfs
+  {:ipfs/read &quot;/ip4/127.0.0.1/tcp/5001&quot;
+   :ipfs.read/scheme :http
+   :ipfs/write &quot;/ip4/127.0.0.1/tcp/5001&quot;
+   :ipfs.write/scheme :http})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -59,8 +71,8 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def default-p2p
-  {:p2p/read &quot;/ip4/127.0.0.1/tcp/8787&quot;
-   :p2p/write &quot;/ip4/127.0.0.1/tcp/8787&quot;})</pre>
+  {:p2p/multiaddr &quot;/ip4/127.0.0.1/tcp/8787&quot;
+   :p2p/scheme :http})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -69,7 +81,16 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def default-logging
-  {:logging/min-level log-level})</pre>
+  {:log/level log-level})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>By default we have no JWTs available when initializing the SDK. When JWTs are supplied, it should be as a map from core name to corresponding JWT: {"0xF4E9A36d4D37B1F83706c58eF8e3AF559F4c1E2E" "<header>.<payload>.<signature>"}</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def default-credentials
+  {:credential/jwt {}})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -78,8 +99,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def default-config
-  (merge default-p2p
-         default-logging))</pre>
+  (merge default-ipfs
+         default-p2p
+         default-logging
+         default-credentials))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -124,7 +147,7 @@
       ;; Fix up any config map values that didn't translate from
       ;; JavaScript.
       (-&gt; config
-          (update-in [:logging/min-level] log-level-&gt;keyword)))))</pre>
+          (update-in [:log/level] log-level-&gt;keyword)))))</pre>
 				</td>
 			</tr>
 			<tr>

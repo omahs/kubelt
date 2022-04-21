@@ -184,16 +184,29 @@
      :description &quot;An existing HTTP client to use.&quot;}
     ;; TODO tighten this up; satisfies? HttpClient
     :any]
-   [:http/scheme
+   [:read/scheme
     {:optional true
      :description &quot;The protocol scheme to use to talk to IPFS&quot;
      :example :http}
     spec.http/scheme]
-   [:http/host
+   [:read/host
     {:optional true
      :description &quot;An IP address for the IPFS server&quot;}
     spec.http/host]
-   [:http/port
+   [:read/port
+    {:optional true
+     :description &quot;A TCP port for the IPFS server&quot;}
+    spec.http/port]
+   [:write/scheme
+    {:optional true
+     :description &quot;The protocol scheme to use to talk to IPFS&quot;
+     :example :http}
+    spec.http/scheme]
+   [:write/host
+    {:optional true
+     :description &quot;An IP address for the IPFS server&quot;}
+    spec.http/host]
+   [:write/port
     {:optional true
      :description &quot;A TCP port for the IPFS server&quot;}
     spec.http/port]])</pre>

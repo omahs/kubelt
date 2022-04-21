@@ -147,6 +147,41 @@
 				</td>
 			</tr>
 			<tr>
+				<td class="docs">
+					<h2>options</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return the options map representing the SDK state, allowing for the SDK to be re-instantiated.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn options
+  [system]
+  {:pre [(map? system)]}
+  (lib.init/options system))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return an options object for the SDK from a JavaScript context.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn options-js
+  [system]
+  {:pre [(map? system)] :post [(promise? %)]}
+  (promise
+   (fn [resolve reject]
+     (let [result (options system)]
+       (if (lib.error/error? result)
+         (reject (clj-&gt;js result))
+         (resolve (clj-&gt;js result)))))))</pre>
+				</td>
+			</tr>
+			<tr>
 				<td class="spacer docs">&nbsp;</td>
 				<td class="codes" />
 			</tr>

@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.sdk</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.sdk.options</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,17 +28,15 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>CLI setup for 'sdk' sub-command.</p>
+					<p>Invoke the SDK (options) method.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.options
+  {:copyright &quot;©2022 Kubelt, Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.ddt.cmds.sdk.core :as sdk.core]
-   [com.kubelt.ddt.cmds.sdk.init :as sdk.init]
-   [com.kubelt.ddt.cmds.sdk.options :as sdk.options]
-   [com.kubelt.ddt.cmds.sdk.resource :as sdk.resource]
-   [com.kubelt.ddt.cmds.sdk.workspace :as sdk.workspace]))</pre>
+   [com.kubelt.ddt.options :as ddt.options]
+   [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.sdk.v1 :as sdk]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -47,16 +45,24 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defonce command
-  {:command &quot;sdk &lt;command&gt;&quot;
-   :desc &quot;Invoke SDK methods&quot;
-   :builder (fn [^js yargs]
-              (-&gt; yargs
-                  (.command (clj-&gt;js sdk.init/command))
-                  (.command (clj-&gt;js sdk.options/command))
-                  (.command (clj-&gt;js sdk.core/command))
-                  (.command (clj-&gt;js sdk.resource/command))
-                  (.command (clj-&gt;js sdk.workspace/command))
-                  (.demandCommand)))})</pre>
+  {:command &quot;options&quot;
+   :desc &quot;Print SDK options&quot;
+   :requiresArg false
+   :builder (fn [^Yargs yargs]
+              ;; Include the common options.
+              (ddt.options/options yargs)
+              yargs)
+   :handler (fn [args]
+              (let [;; Convert command line arguments to a Clojure map.
+                    args-map (ddt.options/to-map args)
+                    ;; Transform command line arguments into an SDK options map.
+                    options (ddt.options/init-options args-map)
+                    kbt (sdk/init options)]
+                (if (lib.error/error? kbt)
+                  (prn (:error kbt))
+                  (let [options (sdk/options kbt)]
+                    (prn options)
+                    (sdk/halt! kbt)))))})</pre>
 				</td>
 			</tr>
 			<tr>

@@ -32,7 +32,11 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.ddt.options
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:require
+   [&quot;path&quot; :as path])
+  (:require
+   [clojure.string :as cstr]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -41,6 +45,24 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def scheme-default
+  &quot;http&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def scheme-choices
+  #js [&quot;http&quot; &quot;https&quot;])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -57,8 +79,17 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def port-default
-  9061)</pre>
+					<pre class="brush: clojure">(def p2p-port-default
+  8787)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-port-default
+  5001)</pre>
 				</td>
 			</tr>
 			<tr>
@@ -67,6 +98,34 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def log-level
+  &quot;log-level&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def log-config
+  #js {:describe &quot;set the logging level&quot;
+       :default &quot;warn&quot;
+       :choices #js [&quot;log&quot;
+                     &quot;trace&quot;
+                     &quot;debug&quot;
+                     &quot;info&quot;
+                     &quot;warn&quot;
+                     &quot;error&quot;
+                     &quot;fatal&quot;
+                     &quot;report&quot;
+                     &quot;spy&quot;]})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -133,7 +192,7 @@
        :demandOption &quot;service port is required&quot;
        :number true
        :nargs 1
-       :default port-default})</pre>
+       :default p2p-port-default})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -157,6 +216,165 @@
        :demandOption &quot;wallet must be specified&quot;
        :string true
        :nargs 1})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-read-scheme
+  &quot;ipfs-read-scheme&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-read-scheme-config
+  #js {:describe &quot;use http or https to talk to IPFS read instance&quot;
+       :requiresArg true
+       :demandOption &quot;scheme is required&quot;
+       :choices scheme-choices
+       :nargs 1
+       :default scheme-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-read-host
+  &quot;ipfs-read-host&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-read-host-config
+  #js {:describe &quot;host address of IPFS read instance&quot;
+       :requiresArg true
+       :demandOption &quot;address is required&quot;
+       :string true
+       :nargs 1
+       :default host-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-read-port
+  &quot;ipfs-read-port&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-read-port-config
+  #js {:describe &quot;port of IPFS read instance&quot;
+       :requiresArg true
+       :demandOption &quot;port is required&quot;
+       :number true
+       :nargs 1
+       :default ipfs-port-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-write-scheme
+  &quot;ipfs-write-scheme&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-write-scheme-config
+  #js {:describe &quot;use http or https to talk to IPFS write instance&quot;
+       :requiresArg true
+       :demandOption &quot;scheme is required&quot;
+       :choices scheme-choices
+       :nargs 1
+       :default scheme-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-write-host
+  &quot;ipfs-write-host&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-write-host-config
+  #js {:describe &quot;address of IPFS write instance&quot;
+       :requiresArg true
+       :demandOption &quot;address is required&quot;
+       :string true
+       :nargs 1
+       :default host-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-write-port
+  &quot;ipfs-write-port&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ipfs-write-port-config
+  #js {:describe &quot;port of IPFS write instance&quot;
+       :requiresArg true
+       :demandOption &quot;port is required&quot;
+       :number true
+       :nargs 1
+       :default ipfs-port-default})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def jwt-name
+  &quot;jwt&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def jwt-config
+  #js {:describe &quot;A core name and associated JWT&quot;
+       :requiresArg true
+       :array true
+       :nargs 2})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -185,18 +403,98 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn options
   [yargs]
+  ;; Add --log-level option
+  (.option yargs log-level log-config)
   ;; Add --(no-)tls option
   (.option yargs tls-name tls-config)
   ;; Add --host option
   (.option yargs host-name host-config)
   ;; Add --port option
   (.option yargs port-name port-config)
+  ;; Add --ipfs-read-scheme
+  (.option yargs ipfs-read-scheme ipfs-read-scheme-config)
+  ;; Add --ipfs-read-host option
+  (.option yargs ipfs-read-host ipfs-read-host-config)
+  ;; Add --ipfs-read-port option
+  (.option yargs ipfs-read-port ipfs-read-port-config)
+  ;; Add --ipfs-write-scheme
+  (.option yargs ipfs-write-scheme ipfs-write-scheme-config)
+  ;; Add --ipfs-write-host option
+  (.option yargs ipfs-write-host ipfs-write-host-config)
+  ;; Add --ipfs-write-port option
+  (.option yargs ipfs-write-port ipfs-write-port-config)
   ;; Add --wallet option
   (.option yargs wallet-name wallet-config)
+  ;; Add --jwt option
+  (.option yargs jwt-name jwt-config)
   ;; Indicate which options must be provided
   (.demandOption yargs required-options)
   ;; Pretend like this is functional
   yargs)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Convert arguments object to a Clojure map, ensuring that common options are transformed appropriately.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn to-map
+  [args]
+  (let [m (js-&gt;clj args :keywordize-keys true)
+        ;; Get the name of the application that was invoked; store in
+        ;; the arguments map as something that is namespace qualified,
+        ;; i.e. com.kubelt.\$name.
+        base-name (.basename path (get m :\$0))
+        app-name (cstr/join &quot;.&quot; [&quot;com&quot; &quot;kubelt&quot; base-name])
+        ;; Store the p2p service coordinates as a multiaddress.
+        host (get m :host)
+        port (get m :port)
+        tls (get m :tls)
+        p2p-maddr (cstr/join &quot;/&quot; [&quot;&quot; &quot;ip4&quot; host &quot;tcp&quot; port])
+        p2p-scheme (if tls :https :http)
+        ;; Store coordinates of IPFS read host as a multiaddress.
+        ipfs-read-host (get m :ipfs-read-host)
+        ipfs-read-port (get m :ipfs-read-port)
+        ipfs-read (cstr/join &quot;/&quot; [&quot;&quot; &quot;ip4&quot; ipfs-read-host &quot;tcp&quot; ipfs-read-port])
+        ipfs-read-scheme (keyword (get m :ipfs-read-scheme))
+        ;; Store coordinates of IPFS write host as a multiaddress.
+        ipfs-write-host (get m :ipfs-write-host)
+        ipfs-write-port (get m :ipfs-write-port)
+        ipfs-write (cstr/join &quot;/&quot; [&quot;&quot; &quot;ip4&quot; ipfs-write-host &quot;tcp&quot; ipfs-write-port])
+        ipfs-write-scheme (keyword (get m :ipfs-write-scheme))
+        ;; Turn a sequence of core names and JWT strings into a map:
+        ;; [&quot;aaa&quot; &quot;bbb&quot; &quot;ccc&quot; &quot;ddd&quot;]
+        ;; =&gt; {&quot;aaa&quot; &quot;bbb&quot;, &quot;ccc&quot; &quot;ddd&quot;}
+        jwts (get m :jwt)
+        credentials (apply hash-map jwts)]
+    (-&gt; m
+        (assoc :app-name app-name)
+        (assoc :p2p-scheme p2p-scheme)
+        (assoc :p2p-maddr p2p-maddr)
+        (assoc :ipfs-read ipfs-read)
+        (assoc :ipfs-read-scheme ipfs-read-scheme)
+        (assoc :ipfs-write ipfs-write)
+        (assoc :ipfs-write-scheme ipfs-write-scheme)
+        (assoc :credentials credentials)
+        (update :log-level keyword))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Transform an argument map into a map of options that can be used to initialize the SDK. The argument map should contain arguments provided on the command line, and have been transformed from a JavaScript object to a Clojure map using (to-map).</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn init-options
+  [m]
+  {:pre [(map? m)]}
+  {:credential/jwt (get m :credentials)
+   :log/level (get m :log-level)
+   :ipfs/read (get m :ipfs-read)
+   :ipfs.read/scheme (get m :ipfs-read-scheme)
+   :ipfs/write (get m :ipfs-write)
+   :ipfs.write/scheme (get m :ipfs-write-scheme)
+   :p2p/scheme (get m :p2p-scheme)
+   :p2p/multiaddr (get m :p2p-maddr)})</pre>
 				</td>
 			</tr>
 			<tr>
