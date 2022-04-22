@@ -34,63 +34,17 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.wallet.node
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [goog.object :as gobj])
-  (:require
    [&quot;fs&quot; :as fs]
    [&quot;path&quot; :as path])
   (:require
-   [&quot;@ethersproject/keccak256&quot; :refer [keccak256]]
-   [&quot;@ethersproject/signing-key&quot; :refer [SigningKey]]
    [&quot;@ethersproject/wallet&quot; :refer [Wallet]])
   (:require
-   [cljs.core.async :as async :refer [go take! &lt;!]]
-   [cljs.core.async.interop :refer-macros [&lt;p!]]
-   [clojure.set :as cset])
-  (:require
-   [camel-snake-kebab.core :as csk])
+   [cljs.core.async :as async :refer [go]]
+   [cljs.core.async.interop :refer-macros [&lt;p!]])
   (:require
    [com.kubelt.lib.error :as lib.error]
-   [com.kubelt.lib.octet :as lib.octet]
    [com.kubelt.lib.path :as lib.path]
-   [com.kubelt.lib.promise :refer [promise]]))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Given an Ethereum wallet, return a signing function that uses the wallet's private key to sign the digest of some given data. To match what happens in the browser, the signing function returns a promise that resolves to the signature value.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- make-sign-fn
-  [eth-wallet]
-  (fn [data]
-    (promise
-     (fn [resolve reject]
-       (let [private-key (.-privateKey eth-wallet)
-             signing-key (SigningKey. private-key)
-             data-length (count data)
-             prefix (str &quot;\\u0019Ethereum Signed Message:\\n&quot; data-length)
-             prefix+data (str prefix data)
-             data-bytes (lib.octet/as-bytes prefix+data)
-             digest (keccak256 data-bytes)
-             signature-raw (.signDigest signing-key digest private-key)
-             signature (gobj/get signature-raw &quot;compact&quot;)]
-         (resolve signature))))))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- random-wallet
-  []
-  (go
-    (let [eth-wallet (.createRandom Wallet)
-          address (&lt;p! (.getAddress eth-wallet))
-          sign-fn (make-sign-fn eth-wallet)]
-      {:com.kubelt/type :kubelt.type/wallet
-       :wallet/address address
-       :wallet/sign-fn sign-fn})))</pre>
+   [com.kubelt.lib.wallet.shared :as lib.wallet]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -136,7 +90,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Return true if the named wallet has the correct permissions, false otherwise.</p>
+					<p>Return true if the named wallet has the correct permissions, false otherwise.</p><p>Unused predicate</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn- valid-perms?
@@ -229,7 +183,7 @@
       (go
         (let [eth-wallet (.fromEncryptedJsonSync Wallet wallet-str password)
               address (.-address eth-wallet)
-              sign-fn (make-sign-fn eth-wallet)]
+              sign-fn (lib.wallet/make-sign-fn eth-wallet)]
           {:com.kubelt/type :kubelt.type/wallet
            :wallet/address address
            :wallet/sign-fn sign-fn})))))</pre>
@@ -266,8 +220,8 @@
 					<pre class="brush: clojure">(defn create
   []
   :fixme
-  ;; (&lt;! (random-wallet))
-  #_(let [sign-fn (make-sign-fn eth-wallet)]
+  ;; (&lt;! (lib.wallet/random-wallet))
+  #_(let [sign-fn (lib.wallet/make-sign-fn eth-wallet)]
     {:wallet/address :fixme
      :wallet/sign-fn sign-fn}))</pre>
 				</td>
