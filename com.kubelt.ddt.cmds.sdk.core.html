@@ -35,8 +35,7 @@
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.ddt.cmds.sdk.core.authenticate :as core.authenticate]
-   [com.kubelt.ddt.cmds.sdk.core.logged-in :as core.logged-in]
-   [com.kubelt.ddt.cmds.sdk.core.register :as core.register]))</pre>
+   [com.kubelt.ddt.cmds.sdk.core.logged-in :as core.logged-in]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -49,7 +48,6 @@
    :desc &quot;Work with Kubelt accounts&quot;
    :builder (fn [^js yargs]
               (-&gt; yargs
-                  (.command (clj-&gt;js core.register/command))
                   (.command (clj-&gt;js core.authenticate/command))
                   (.command (clj-&gt;js core.logged-in/command))
                   (.demandCommand)))})</pre>
