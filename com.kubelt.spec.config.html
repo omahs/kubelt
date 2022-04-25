@@ -74,7 +74,11 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def multiaddr
-  [:re #&quot;^(/(\\w+)/(\\w+|\\.)+)+\$&quot;])</pre>
+  [:re #?(;; cljs can't generate re values  so providing a default one
+          :cljs {:gen/fmap (fn [_] &quot;/ip4/127.0.0.1/tcp/5001&quot;)}
+          ;; TODO: add test.check dependency, required for clj env
+          :clj {})
+   #&quot;^(/(\\w+)/(\\w+|\\.)+)+\$&quot;])</pre>
 				</td>
 			</tr>
 			<tr>
