@@ -37,11 +37,16 @@
    [malli.core :as m]
    [malli.error :as me])
   (:require
-   [com.kubelt.lib.config :as lib.config]
+   [com.kubelt.lib.config.default :as lib.config.default]
+   [com.kubelt.lib.config.sdk :as lib.config.sdk]
+   [com.kubelt.lib.config.system :as lib.config.system]
+   [com.kubelt.lib.config.util :as lib.config.util]
    [com.kubelt.lib.error :as lib.error]
    [com.kubelt.lib.init :as lib.init]
    [com.kubelt.lib.promise :refer [promise promise?]]
-   [com.kubelt.spec.config :as spec.config]))</pre>
+   [com.kubelt.spec.config :as spec.config])
+  (:require-macros
+   [com.kubelt.spec :as kspec]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -68,18 +73,28 @@
 					<pre class="brush: clojure">(defn init
   ;; The 0-arity implementation uses the default configuration.
   ([]
-   {:post [(map? %)]}
-   (let [config lib.config/default-config]
-     (if (m/validate spec.config/config config)
-       (lib.init/init config)
-       (lib.error/explain spec.config/config config))))
+   (init {}))
   ;; The 1-arity implementation expects a configuration map.
   ([config]
    {:pre [(map? config)] :post [(map? %)]}
-   (if (m/validate spec.config/config config)
-     (let [config (merge lib.config/default-config config)]
-       (lib.init/init config))
-     (lib.error/explain spec.config/config config))))</pre>
+   ;; Check that the user-provided options map is valid. If not, an
+   ;; error map is returned. Note that these configuration options are
+   ;; not required, so we provide defaults for those values that aren't
+   ;; provided.
+   (kspec/conform
+    spec.config/optional-sdk-config config
+    (let [sdk-config (merge lib.config.default/sdk config)]
+      ;; Check that the final options map (defaults combined with
+      ;; user-provided options) is valid.
+      (kspec/conform
+       spec.config/sdk-config sdk-config
+       (let [;; Construct a system configuration map from the default
+             ;; configuration combined with the options provided by the
+             ;; user.
+             system-config (lib.config.system/config lib.config.default/system sdk-config)]
+         (kspec/conform
+          spec.config/system-config system-config
+          (lib.init/init system-config))))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -91,16 +106,11 @@
   ;; The 0-arity implementation uses the default configuration.
   ([]
    {:post [(promise? %)]}
-   (promise
-    (fn [resolve reject]
-      (let [result (init)]
-        (if (lib.error/error? result)
-          (reject (clj-&gt;js result))
-          (resolve result))))))
+   (init-js #js{}))
   ;; The 1-arity implementation uses expects a configuration object.
   ([config]
    {:pre [(object? config)] :post [(promise? %)]}
-   (let [config (lib.config/obj-&gt;map config)]
+   (let [config (lib.config.util/obj-&gt;map config)]
      (promise
       (fn [resolve reject]
         (let [result (init config)]
@@ -162,7 +172,7 @@
 					<pre class="brush: clojure">(defn options
   [system]
   {:pre [(map? system)]}
-  (lib.init/options system))</pre>
+  (lib.config.sdk/options system))</pre>
 				</td>
 			</tr>
 			<tr>
