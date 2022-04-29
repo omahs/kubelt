@@ -93,6 +93,18 @@
 				</td>
 			</tr>
 			<tr>
+				<td class="docs">
+					<p>Return an error map from a js/Error object.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:cljs
+  (defn from-obj
+    [o]
+    (let [message (.-message o)]
+      (error message))))</pre>
+				</td>
+			</tr>
+			<tr>
 				<td class="spacer docs">&nbsp;</td>
 				<td class="codes" />
 			</tr>

@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.wallet.init</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.wallet.import</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,10 +28,10 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Invoke the wallet (init) method.</p>
+					<p>Invoke the wallet (import) method.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.wallet.init
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.wallet.import
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.ddt.options :as ddt.options]
@@ -46,32 +46,37 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defonce command
-  {:command &quot;init &lt;name&gt;&quot;
-   :desc &quot;Initialize local wallet&quot;
+  {:command &quot;import &lt;name&gt;&quot;
+   :desc &quot;Import wallet providing a name, mnemonic phrase and password&quot;
    :requiresArg false
    :builder (fn [^Yargs yargs]
               yargs)
    :handler (fn [args]
               (let [args-map (ddt.options/to-map args)
                     app-name (get args-map :app-name)
-                    ;; TODO check to see if wallet name is valid (using yargs)
                     wallet-name (get args-map :name)]
+                ;; TODO check to see if wallet name is valid (using yargs)
                 ;; Check to see if named wallet already exists. Wallets
                 ;; can't be overwritten so throw an error if so.
-                (if (lib.wallet/has-wallet? app-name wallet-name)
+                (when (lib.wallet/has-wallet? app-name wallet-name)
                   (let [message (str &quot;wallet '&quot; wallet-name &quot;' already exists&quot;)]
                     (ddt.util/exit-if message)))
-                (ddt.prompt/confirm-password!
+                (ddt.prompt/ask-mnemonic!
                  (fn [err result]
-                   (when err
-                     (ddt.util/exit-if err))
-                   (let [password (.-password result)]
-                     (let [wallet (lib.wallet/init app-name wallet-name password)
-                           wallet-name (get wallet :wallet/name)
-                           ;; NB: Also available are the mnemonic path, locale.
-                           mnemonic (get wallet :wallet.mnemonic/phrase)]
-                       (println &quot;initialized wallet:&quot; wallet-name)
-                       (println &quot;-&gt; mnemonic:&quot; mnemonic)))))))})</pre>
+                   (let [mnemonic (.-mnemonic result)]
+                     (ddt.prompt/confirm-password!
+                      (fn [err result]
+                        (when err
+                          (ddt.util/exit-if err))
+                        (let [password (.-password result)
+                              result&amp; (lib.wallet/import app-name wallet-name mnemonic password)]
+                          (-&gt; result&amp;
+                              (.then (fn [{:keys [wallet/name wallet/path]}]
+                                       (let [message (str &quot;wallet '&quot; name &quot;' successfully imported&quot;)]
+                                         (println message))))
+                              (.catch (fn [error]
+                                        (let [message (:error error)]
+                                          (println message)))))))))))))})</pre>
 				</td>
 			</tr>
 			<tr>

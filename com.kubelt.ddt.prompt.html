@@ -65,6 +65,22 @@
 					
 				</td>
 				<td class="codes">
+					<pre class="brush: clojure">(def mnemonic-config
+  {:mnemonic
+   {:description &quot;Enter your mnemonic phrase&quot;
+    :type &quot;string&quot;
+    :message &quot;Password must be 12 words&quot;
+    :hidden true
+    :replace &quot;*&quot;
+    :required true
+    :before pw-clean}})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
 					<pre class="brush: clojure">(def password-config
   {:password
    {:description &quot;Enter your password&quot;
@@ -112,9 +128,19 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def ask-schema
+					<pre class="brush: clojure">(def ask-pw-schema
   (clj-&gt;js
    {:properties password-config}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ask-mnemonic-schema
+  (clj-&gt;js
+   {:properties mnemonic-config}))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -184,14 +210,36 @@
 					<p>Prompt the user for their password. Expects a callback function that accepts an error and a result parameter: (fn [err result] ...).</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn ask-password!
-  [callback]
+					<pre class="brush: clojure">(defn ask!
+  [callback ask-schema]
   {:pre [(fn? callback)]}
   ;; Remove the preliminary prompt set by default in &quot;prompt&quot; library.
   (set! (.-message prompt) &quot;&quot;)
   ;; Prompt the user for their wallet password.
   (.start prompt)
   (.get prompt ask-schema callback))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Prompt the user for their password. Expects a callback function that accepts an error and a result parameter: (fn [err result] ...).</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn ask-mnemonic!
+  [callback]
+  {:pre [(fn? callback)]}
+  (ask! callback ask-mnemonic-schema))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Prompt the user for their password. Expects a callback function that accepts an error and a result parameter: (fn [err result] ...).</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn ask-password!
+  [callback]
+  {:pre [(fn? callback)]}
+  (ask! callback ask-pw-schema))</pre>
 				</td>
 			</tr>
 			<tr>

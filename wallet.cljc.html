@@ -41,6 +41,7 @@
   (:require
    [com.kubelt.lib.error :as lib.error]
    [com.kubelt.spec.wallet :as spec.wallet])
+  (:refer-clojure :exclude [import])
   #?(:node
      (:require
       [com.kubelt.lib.wallet.node :as wallet.node])))</pre>
@@ -209,6 +210,18 @@
 					<pre class="brush: clojure">(defn create
   []
   #?(:node (wallet.node/create)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Import a wallet and store it encrypted. Returns a promise that rejects with an error map if a problem occurs, or resolves to the name of the newly imported wallet on success.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn import
+  [app-name wallet-name mnemonic password]
+  {:pre [(string? app-name) (string? wallet-name) (string? mnemonic) (string? password)]}
+  #?(:node
+     (wallet.node/import app-name wallet-name mnemonic password)))</pre>
 				</td>
 			</tr>
 			<tr>

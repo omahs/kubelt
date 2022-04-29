@@ -34,6 +34,7 @@
 					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.wallet
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
+   [com.kubelt.ddt.cmds.wallet.import :as wallet.import]
    [com.kubelt.ddt.cmds.wallet.init :as wallet.init]
    [com.kubelt.ddt.cmds.wallet.ls :as wallet.ls]
    [com.kubelt.ddt.cmds.wallet.rm :as wallet.rm]
@@ -51,6 +52,7 @@
    :builder (fn [^js yargs]
               (-&gt; yargs
                   (.command (clj-&gt;js wallet.init/command))
+                  (.command (clj-&gt;js wallet.import/command))
                   (.command (clj-&gt;js wallet.ls/command))
                   (.command (clj-&gt;js wallet.rm/command))
                   (.command (clj-&gt;js wallet.sign/command))
