@@ -150,14 +150,33 @@
 			</tr>
 			<tr>
 				<td class="docs">
+					<p>(defn set-wallet   [sys wallet]   (let [wallet-map (lib.wallet/to-edn wallet)]        (if (lib.error/error? wallet-map)          (reject wallet-map)          (resolve (set-wallet sys wallet-map)))))</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>(defn set-wallet-js   [sys wallet]   (promise    (fn [resolve reject]      (if-not (lib.wallet/valid? wallet)        (lib.wallet/explain wallet)        (assoc sys :crypto/wallet wallet)))))</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
 					
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn set-wallet
   [sys wallet]
-  (if-not (lib.wallet/valid? wallet)
-    (lib.wallet/explain wallet)
-    (assoc sys :crypto/wallet wallet)))</pre>
+  (lib.promise/promise
+   (fn [resolve reject]
+     (if-not (lib.wallet/valid? wallet)
+       (reject (lib.wallet/explain wallet))
+       (let [sys' (assoc sys :crypto/wallet wallet)]
+         (resolve sys'))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -167,12 +186,8 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn set-wallet-js
   [sys wallet]
-  (promise
-   (fn [resolve reject]
-     (let [wallet-map (lib.wallet/to-edn wallet)]
-       (if (lib.error/error? wallet-map)
-         (reject wallet-map)
-         (resolve (set-wallet sys wallet-map)))))))</pre>
+  (let [wallet-map (lib.wallet/to-edn wallet)]
+    (set-wallet sys wallet-map)))</pre>
 				</td>
 			</tr>
 			<tr>

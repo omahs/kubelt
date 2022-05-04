@@ -32,7 +32,12 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.lib.config.system
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:require
+   [com.kubelt.spec.config :as spec.config]
+   [com.kubelt.lib.config.default :as lib.config.default])
+  (:require-macros
+   [com.kubelt.spec :as kubelt.spec]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -64,6 +69,30 @@
                  (if-let [data (get options opts-kw default)]
                    (assoc s sys-kw data)
                    s)) system-config)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return a system configuration map including defaults where options were not supplied by the user. In any of the supplied values did not conform to the options schema, an error map is returned.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn config-&gt;system
+  [config-map]
+  (kubelt.spec/conform
+   spec.config/optional-sdk-config config-map
+   (let [sdk-config (merge lib.config.default/sdk config-map)]
+     ;; Check that the final options map (defaults combined with
+     ;; user-provided options) is valid.
+     (kubelt.spec/conform
+      spec.config/sdk-config sdk-config
+      (let [;; Construct a system configuration map from the default
+            ;; configuration combined with the options provided by the
+            ;; user.
+            system-config (config lib.config.default/system sdk-config)]
+        (kubelt.spec/conform
+         spec.config/system-config system-config
+         ;; Returns the system configuration map, or an error map.
+         system-config))))))</pre>
 				</td>
 			</tr>
 			<tr>

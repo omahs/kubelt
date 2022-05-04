@@ -36,6 +36,7 @@
   (:require
    [&quot;path&quot; :as path])
   (:require
+   [clojure.set :as cset]
    [clojure.string :as cstr]))</pre>
 				</td>
 			</tr>
@@ -440,7 +441,12 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn to-map
   [args]
-  (let [m (js-&gt;clj args :keywordize-keys true)
+  (let [;; The parsed arguments are returned as a #js object. Convert to
+        ;; a CLJS map with keywords as keys.
+        m (js-&gt;clj args :keywordize-keys true)
+        ;; The string array of arguments is provided with the
+        ;; key &quot;_&quot;. Rename it to something a bit friendlier.
+        m (cset/rename-keys m {:_ :args})
         ;; Get the name of the application that was invoked; store in
         ;; the arguments map as something that is namespace qualified,
         ;; i.e. com.kubelt.\$name.

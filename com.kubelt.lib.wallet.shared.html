@@ -33,14 +33,13 @@
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.lib.wallet.shared
   (:require
-   [goog.object :as gobj])
+   [goog.object :as gobj]
+   [com.kubelt.lib.octet :as lib.octet]
+   [com.kubelt.lib.promise :as lib.promise])
   (:require
    [&quot;@ethersproject/keccak256&quot; :refer [keccak256]]
    [&quot;@ethersproject/signing-key&quot; :refer [SigningKey]]
-   [&quot;@ethersproject/wallet&quot; :refer [Wallet]])
-  (:require
-   [com.kubelt.lib.octet :as lib.octet]
-   [com.kubelt.lib.promise :refer [promise]]))</pre>
+   [&quot;@ethersproject/wallet&quot; :refer [Wallet]]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -51,7 +50,7 @@
 					<pre class="brush: clojure">(defn make-sign-fn
   [eth-wallet]
   (fn [data]
-    (promise
+    (lib.promise/promise
      (fn [resolve _reject]
        (let [private-key (.-privateKey eth-wallet)
              signing-key (SigningKey. private-key)
@@ -72,7 +71,7 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn random-wallet
   []
-  (promise
+  (lib.promise/promise
    (fn [resolve _reject]
      (let [eth-wallet (.createRandom Wallet)
            sign-fn (make-sign-fn eth-wallet)]

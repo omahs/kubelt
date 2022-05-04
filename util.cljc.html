@@ -96,40 +96,6 @@
 				</td>
 			</tr>
 			<tr>
-				<td class="docs">
-					<p>Return true if this is a browser-based execution environment, false otherwise.</p><p>TODO test me</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn browser?
-  []
-  ;; User agent string is not empty when running in browser.
-  (not (str/blank? (.getUserAgentString goog.userAgent))))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Return true if this is a node-based execution environment, false otherwise.</p><p>TODO test me</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn node?
-  []
-  ;; User agent string is empty when not running in browser.
-  (str/blank? (.getUserAgentString goog.userAgent)))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Return a keyword representing the current platform (which is either node or browser).</p><p>TODO test me</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn platform
-  []
-  (cond
-    (browser?) :platform.type/browser
-    true :platform.type/node))</pre>
-				</td>
-			</tr>
-			<tr>
 				<td class="spacer docs">&nbsp;</td>
 				<td class="codes" />
 			</tr>

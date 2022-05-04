@@ -34,7 +34,7 @@
 					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.core.logged-in
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.promise :as lib.promise]
    [com.kubelt.sdk.v1 :as sdk]))</pre>
 				</td>
 			</tr>
@@ -50,12 +50,17 @@
    :builder (fn [^Yargs yargs]
               yargs)
    :handler (fn [args]
-              (let [kbt (sdk/init)]
-                (if (lib.error/error? kbt)
-                  (prn (:error kbt))
-                  ;; TODO check if user has a stored JWT for a session.
-                  (println &quot;logged-in: not yet implemented&quot;))
-                (sdk/halt! kbt)))})</pre>
+              (-&gt; (sdk/init)
+                  (lib.promise/then
+                   (fn [kbt]
+                     ;; TODO check if user has a stored JWT for a session.
+                     (-&gt; (sdk/halt! kbt)
+                         (lib.promise/then
+                          (fn []
+                            (println &quot;logged-in: not yet implemented&quot;))))))
+                  (lib.promise/catch
+                      (fn [e]
+                        (prn (:error e))))))})</pre>
 				</td>
 			</tr>
 			<tr>

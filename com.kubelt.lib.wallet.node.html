@@ -175,25 +175,30 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					
+					<p>Return a promise that resolves to a wallet map, or that rejects with an error map if a problem occurs.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn load
   [app-name wallet-name password]
   (let [wallet-dirp (ensure-wallet-dir app-name)]
-    (when-not (has-wallet? app-name wallet-name)
-      (let [message (str &quot;wallet &quot; wallet-name &quot; doesn't exist&quot;)]
-        (lib.error/error message)))
-    ;; Load the wallet JSON
-    (let [wallet-path (name-&gt;path app-name wallet-name)
-          wallet-str (.readFileSync fs wallet-path)]
-      (go
-        (let [eth-wallet (.fromEncryptedJsonSync Wallet wallet-str password)
-              address (.-address eth-wallet)
-              sign-fn (lib.wallet/make-sign-fn eth-wallet)]
-          {:com.kubelt/type :kubelt.type/wallet
-           :wallet/address address
-           :wallet/sign-fn sign-fn})))))</pre>
+    (lib.promise/promise
+     (fn [resolve reject]
+       (when-not (has-wallet? app-name wallet-name)
+         (let [message (str &quot;wallet &quot; wallet-name &quot; doesn't exist&quot;)]
+           (reject (lib.error/error message))))
+       ;; Load the wallet JSON
+       (let [wallet-path (name-&gt;path app-name wallet-name)]
+         (.readFile fs wallet-path &quot;utf8&quot;
+          (fn [err wallet-str]
+            (if err
+              (reject (lib.error/error err))
+              (let [eth-wallet (.fromEncryptedJsonSync Wallet wallet-str password)
+                    address (.-address eth-wallet)
+                    sign-fn (lib.wallet/make-sign-fn eth-wallet)]
+                (resolve
+                 {:com.kubelt/type :kubelt.type/wallet
+                  :wallet/address address
+                  :wallet/sign-fn sign-fn}))))))))))</pre>
 				</td>
 			</tr>
 			<tr>

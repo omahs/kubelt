@@ -34,13 +34,13 @@
 					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.core.authenticate
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [cljs.core.async :as async :refer [&lt;!]]
    [clojure.string :as cstr])
   (:require
    [com.kubelt.ddt.options :as ddt.options]
    [com.kubelt.ddt.prompt :as ddt.prompt]
    [com.kubelt.ddt.util :as ddt.util]
    [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.promise :as lib.promise]
    [com.kubelt.lib.wallet :as lib.wallet]
    [com.kubelt.sdk.v1 :as sdk]
    [com.kubelt.sdk.v1.core :as sdk.core]))</pre>
@@ -63,27 +63,33 @@
               (ddt.prompt/ask-password!
                (fn [err result]
                  (ddt.util/exit-if err)
-                 (async/go
-                   (let [args-map (ddt.options/to-map args)
-                         ;; Load the wallet.
-                         app-name (get args-map :app-name)
-                         wallet-name (get args-map :wallet)
-                         password (.-password result)
-                         wallet (&lt;! (lib.wallet/load app-name wallet-name password))
-                         ;; Transform command line arguments into an SDK options map.
-                         options (-&gt; args-map
-                                     ddt.options/init-options
-                                     (assoc :crypto/wallet wallet))
-                         kbt (sdk/init options)
-                         address (:wallet/address wallet)]
-                     (-&gt; (sdk.core/authenticate! kbt address)
-                         (.then (fn [result]
-                                  (prn result)))
-                         (.catch (fn [e]
-                                   (println (ex-message e))
-                                   (prn (ex-data e))))
-                         (.finally (fn []
-                                     (sdk/halt! kbt)))))))))})</pre>
+                 (let [args-map (ddt.options/to-map args)
+                       ;; Load the wallet.
+                       app-name (get args-map :app-name)
+                       wallet-name (get args-map :wallet)
+                       password (.-password result)]
+                   (-&gt; (lib.wallet/load app-name wallet-name password)
+                       (lib.promise/then
+                        (fn [wallet]
+                          (let [;; Transform command line arguments into an SDK options map.
+                                options (-&gt; args-map
+                                            ddt.options/init-options
+                                            (assoc :crypto/wallet wallet))
+                                address (:wallet/address wallet)]
+                            (-&gt; (sdk/init options)
+                                (lib.promise/then
+                                 (fn [kbt]
+                                   (-&gt; (sdk.core/authenticate! kbt address)
+                                       (lib.promise/then
+                                        (fn [result]
+                                          (prn result)))
+                                       (lib.promise/catch
+                                           (fn [e]
+                                             (println (ex-message e))
+                                             (prn (ex-data e))))
+                                       (lib.promise/finally
+                                         (fn []
+                                           (sdk/halt! kbt)))))))))))))))})</pre>
 				</td>
 			</tr>
 			<tr>

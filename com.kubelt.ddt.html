@@ -39,7 +39,8 @@
    [clojure.set :as cset]
    [clojure.string :as str])
   (:require
-   [com.kubelt.ddt.cmds :as ddt.cmds]))</pre>
+   [com.kubelt.ddt.cmds :as ddt.cmds]
+   [com.kubelt.lib.promise :as lib.promise]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -100,28 +101,20 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn parse-args
   [args]
-  (let [js-args (clj-&gt;js (sequence args))
-        args (-&gt; ^js yargs
-                 ;; Set up our commands.
-                 (ddt.cmds/init)
-                 ;; Display a summary line.
-                 (.epilogue epilogue)
-                 ;; Display help information.
-                 (.help)
-                 ;; Reject non-explicit arguments.
-                 (.strict)
-                 ;; Tell us what command to run!
-                 (.demandCommand 1)
-                 ;; Parse the CLI arguments and return a #js {}.
-                 (.parse js-args))]
-    (-&gt; args
-        ;; The parsed arguments are returned as a #js object. Convert to
-        ;; a CLJS map with keywords as keys.
-        (js-&gt;clj :keywordize-keys true)
-        ;; yargs adds the keys as &quot;nil&quot; when you use .option, but :or
-        ;; works better if you don't even have the key
-        ;;(dissoc-nil :file :f :constant)
-        (cset/rename-keys {:_ :args}))))</pre>
+  (let [js-args (clj-&gt;js (sequence args))]
+    (-&gt; ^js yargs
+        ;; Set up our commands.
+        (ddt.cmds/init)
+        ;; Display a summary line.
+        (.epilogue epilogue)
+        ;; Display help information.
+        (.help)
+        ;; Reject non-explicit arguments.
+        (.strict)
+        ;; Tell us what command to run!
+        (.demandCommand 1)
+        ;; Parse the CLI arguments and return a #js {}.
+        (.parse js-args))))</pre>
 				</td>
 			</tr>
 			<tr>
