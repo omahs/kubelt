@@ -136,10 +136,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:node
-   (defn has-wallet?
+   (defn has-wallet?&amp;
      [app-name wallet-name]
      {:pre [(every? string? [app-name wallet-name])]}
-     (wallet.node/has-wallet? app-name wallet-name)))</pre>
+     (wallet.node/has-wallet?&amp; app-name wallet-name)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -148,10 +148,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:node
-   (defn can-decrypt?
+   (defn can-decrypt?&amp;
      [app-name wallet-name password]
      {:pre [(every? string? [app-name wallet-name password])]}
-     (wallet.node/can-decrypt? app-name wallet-name password)))</pre>
+     (wallet.node/can-decrypt?&amp; app-name wallet-name password)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -160,10 +160,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:node
-   (defn init
+   (defn init&amp;
      [app-name wallet-name password]
      {:pre [(every? string? [app-name wallet-name password])]}
-     (wallet.node/init app-name wallet-name password)))</pre>
+     (wallet.node/init&amp; app-name wallet-name password)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -172,10 +172,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:node
-   (defn load
+   (defn load&amp;
      [app-name wallet-name password]
      {:pre [(every? string? [app-name wallet-name password])]}
-     (wallet.node/load app-name wallet-name password)))</pre>
+     (wallet.node/load&amp; app-name wallet-name password)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -184,10 +184,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:node
-   (defn ls
+   (defn ls&amp;
      [app-name]
      {:pre [(string? app-name)]}
-     (wallet.node/ls app-name)))</pre>
+     (wallet.node/ls&amp; app-name)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -196,10 +196,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:node
-   (defn delete!
+   (defn delete!&amp;
      [app-name wallet-name]
      {:pre [(every? string? [app-name wallet-name])]}
-     (wallet.node/delete! app-name wallet-name)))</pre>
+     (wallet.node/delete!&amp; app-name wallet-name)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -217,11 +217,11 @@
 					<p>Import a wallet and store it encrypted. Returns a promise that rejects with an error map if a problem occurs, or resolves to the name of the newly imported wallet on success.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn import
+					<pre class="brush: clojure">(defn import&amp;
   [app-name wallet-name mnemonic password]
   {:pre [(string? app-name) (string? wallet-name) (string? mnemonic) (string? password)]}
   #?(:node
-     (wallet.node/import app-name wallet-name mnemonic password)))</pre>
+     (wallet.node/import&amp; app-name wallet-name mnemonic password)))</pre>
 				</td>
 			</tr>
 			<tr>
