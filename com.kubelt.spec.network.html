@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.lib.config</h1>
+							<h1 class="project-name">com.kubelt.spec.network</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,58 +28,22 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Configuration-related support.</p>
+					<p>Schemas for network-related data.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.lib.config
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
-  (:require
-   [clojure.string :as str]))</pre>
+					<pre class="brush: clojure">(ns com.kubelt.spec.network
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Internal</h2>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Convert a log level string (e.g. 'info', ':info') to a keyword.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- log-level-&gt;keyword
-  [s]
-  (if (string? s)
-    (keyword (str/replace s #&quot;^:&quot; &quot;&quot;))
-    log-level))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Public</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Convert a JavaScript configuration object to a Clojure config map.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn obj-&gt;map
-  [o]
-  {:pre [(object? o)]}
-  (let [config (js-&gt;clj o :keywordize-keys true)]
-    (if (empty? config)
-      default-config
-      ;; Fix up any config map values that didn't translate from
-      ;; JavaScript.
-      (-&gt; config
-          (update-in [:log/level] log-level-&gt;keyword)))))</pre>
+					<pre class="brush: clojure">#_(def dotted-quad
+  #&quot;^([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\\\\.([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\\\\.([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\\\\.([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\$&quot;)
+(def dotted-quad
+  #&quot;(\\\\.|\\\\d)*&quot;)</pre>
 				</td>
 			</tr>
 			<tr>

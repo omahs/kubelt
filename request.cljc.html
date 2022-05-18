@@ -28,84 +28,137 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<h3>ERROR</h3><p>Problem parsing near line 48 <)> original reported cause is java.lang.RuntimeException: No reader function for tag js &ndash; java.lang.RuntimeException: No reader function for tag js</p>
+					<p>Miscellaneous HTTP request utilties.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">clojure.lang.LispReader.read(LispReader.java:314)
-clojure.lang.LispReader.read(LispReader.java:216)
-clojure.lang.LispReader.read(LispReader.java:205)
-sidenotes.parser\$parse_form.invokeStatic(parser.clj:216)
-sidenotes.parser\$parse_form.invoke(parser.clj:212)
-sidenotes.parser\$parse_STAR_\$fn__4182.invoke(parser.clj:274)
-clojure.core\$repeatedly\$fn__6531.invoke(core.clj:5174)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.RT.seq(RT.java:535)
-clojure.core\$seq__5467.invokeStatic(core.clj:139)
-clojure.core\$map\$fn__5935.invoke(core.clj:2763)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.Cons.next(Cons.java:39)
-clojure.lang.RT.next(RT.java:713)
-clojure.core\$next__5451.invokeStatic(core.clj:64)
-clojure.core\$concat\$cat__5560\$fn__5561.invoke(core.clj:744)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.RT.seq(RT.java:535)
-clojure.core\$seq__5467.invokeStatic(core.clj:139)
-clojure.core\$filter\$fn__5962.invoke(core.clj:2826)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.RT.seq(RT.java:535)
-clojure.core\$seq__5467.invokeStatic(core.clj:139)
-clojure.core\$take_while\$fn__5986.invoke(core.clj:2921)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.Cons.next(Cons.java:39)
-clojure.lang.RT.next(RT.java:713)
-clojure.core\$next__5451.invokeStatic(core.clj:64)
-clojure.core\$dorun.invokeStatic(core.clj:3143)
-clojure.core\$doall.invokeStatic(core.clj:3149)
-clojure.core\$doall.invoke(core.clj:3149)
-sidenotes.parser\$parse.invokeStatic(parser.clj:545)
-sidenotes.parser\$parse.invoke(parser.clj:537)
-sidenotes.parser\$parse_into_sections.invokeStatic(parser.clj:557)
-sidenotes.parser\$parse_into_sections.invoke(parser.clj:554)
-sidenotes.parser\$parse_file.invokeStatic(parser.clj:598)
-sidenotes.parser\$parse_file.invoke(parser.clj:593)
-sidenotes.core\$parse_source.invokeStatic(core.clj:56)
-sidenotes.core\$parse_source.invoke(core.clj:48)
-clojure.core\$map\$fn__5935.invoke(core.clj:2772)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.RT.seq(RT.java:535)
-clojure.core\$seq__5467.invokeStatic(core.clj:139)
-clojure.core\$map\$fn__5935.invoke(core.clj:2763)
-clojure.lang.LazySeq.sval(LazySeq.java:42)
-clojure.lang.LazySeq.seq(LazySeq.java:51)
-clojure.lang.Cons.next(Cons.java:39)
-clojure.lang.RT.next(RT.java:713)
-clojure.core\$next__5451.invokeStatic(core.clj:64)
-clojure.core\$dorun.invokeStatic(core.clj:3143)
-clojure.core\$dorun.invoke(core.clj:3134)
-sidenotes.renderer\$render.invokeStatic(renderer.clj:160)
-sidenotes.renderer\$render.invoke(renderer.clj:155)
-sidenotes.core\$generate_documentation.invokeStatic(core.clj:74)
-sidenotes.core\$generate_documentation.invoke(core.clj:66)
-sidenotes.core\$_main.invokeStatic(core.clj:94)
-sidenotes.core\$_main.doInvoke(core.clj:88)
-clojure.lang.RestFn.invoke(RestFn.java:397)
-clojure.lang.AFn.applyToHelper(AFn.java:152)
-clojure.lang.RestFn.applyTo(RestFn.java:132)
-clojure.lang.Var.applyTo(Var.java:705)
-clojure.core\$apply.invokeStatic(core.clj:667)
-clojure.main\$main_opt.invokeStatic(main.clj:514)
-clojure.main\$main_opt.invoke(main.clj:510)
-clojure.main\$main.invokeStatic(main.clj:664)
-clojure.main\$main.doInvoke(main.clj:616)
-clojure.lang.RestFn.applyTo(RestFn.java:137)
-clojure.lang.Var.applyTo(Var.java:705)
-clojure.main.main(main.java:40)</pre>
+					<pre class="brush: clojure">(ns com.kubelt.lib.http.request
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  #?(:cljs
+     (:require
+      [goog.Uri]
+      [goog.object]))
+  ;; NB: extra per-target reader conditionals are a shadow-cljs *only*
+  ;; feature.
+  #?(:node
+     (:require
+      [&quot;stream&quot; :refer [Duplex]]
+      [&quot;http&quot; :as http :refer [IncomingMessage]]))
+  (:require
+   [clojure.string :as str]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO malli schemas for request and response maps</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Public</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn get?
+  [m]
+  (= :get (:http/method m)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn patch?
+  [m]
+  (= :patch (:http/method m)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn post?
+  [m]
+  (= :post (:http/method m)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn put?
+  [m]
+  (= :put (:http/method m)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn delete?
+  [m]
+  (= :delete (:http/method m)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Convert a Node.js HTTP request (an IncomingMessage instance) into a data map of its component parts.</p><p>TODO convert to .cljc TODO test me</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#?(:cljs
+   (defn req-&gt;map
+     [^IncomingMessage req]
+     (let [method (keyword (str/lower-case (.-method req)))
+           version (.-httpVersion req)
+           headers (.-headers req)
+           trailers (.-trailers req)
+           status (.-statusCode req)
+           body &quot;fixme&quot;
+           ;; Extract data from the request URL.
+           req-url (goog.Uri. (.-url req))
+           req-host (goog.object/getValueByKeys req #js [&quot;headers&quot; &quot;host&quot;])
+           ;; Use the request's socket &quot;encrypted&quot; flag to determine we the
+           ;; request was transmitted via TLS or not.
+           req-scheme (if (. ^Duplex (. req -socket) -encrypted) &quot;https://&quot; &quot;http://&quot;)
+           req-base (goog.Uri. (str req-scheme req-host))
+           uri (goog.Uri.resolve req-base req-url)
+           ;; Extract components from the URI.
+           port (.getPort uri)
+           path (.getPath uri)
+           fragment (.getFragment uri)
+           ;; TODO turn into map (query-data-&gt;map)
+           ;;query-data (.getQueryData uri) -&gt; goog.Uri.QueryData
+           query (.getDecodedQuery uri)
+           scheme (.getScheme uri)
+           domain (.getDomain uri)
+           user (.getUserInfo uri)]
+       {:kubelt/type :kubelt.type/uri
+        :http/method method
+        :http/version version
+        :http/headers headers
+        :http/trailers trailers
+        :http/status status
+        :http/body body
+        :uri/scheme scheme
+        :uri/port port
+        :uri/path path
+        :uri/fragment fragment
+        :uri/query query
+        :uri/domain domain
+        :uri/user user})))</pre>
 				</td>
 			</tr>
 			<tr>
