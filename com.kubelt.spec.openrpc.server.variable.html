@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.util</h1>
+							<h1 class="project-name">com.kubelt.spec.openrpc.server.variable</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,20 +28,43 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Misc utilities.</p>
+					<p>A schema for an OpenRPC Server Variable object.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.util
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
-  (:require
-   [clojure.string :as cstr])
-  (:require
-   [&quot;process&quot; :as process]))</pre>
+					<pre class="brush: clojure">(ns com.kubelt.spec.openrpc.server.variable
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def default
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def description
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def enum
+  [:vector :string])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Server Variable</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -49,19 +72,34 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>If the given error is truthy, print it out and end the program with an error result code.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn exit-if
-  [err]
-  (when err
-    (println (str &quot;error: &quot; err))
-    (.exit process 1)))</pre>
+					<pre class="brush: clojure">(def variable
+  [:map
+   {:closed true
+    :description &quot;An object representing a Server Variable for server
+URL template substitution.&quot;}
+   [:default
+    {:description &quot;The default value to use for the substitution, which
+SHALL be sent if an alternate value is *not* supplied. Note that this
+behaviour is different than the Schema Object's treatment of default
+values, because in those cases parameter values are optional.&quot;}
+    default]
+   [:description
+    {:optional true
+     :description &quot;An optional description for the server variable.&quot;}
+    description]
+   [:enum
+    {:optional true
+     :description &quot;An enumeration of string values to be used if the
+substitution options are from a limited set.&quot;}
+    enum]])</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>rpc-name->path</h2>
+					<h2>[Server Variable]</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -69,15 +107,11 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Given a string composed of a sequence of concatenated keywords, parse the string to return a vector of the keywords. E.g. ':foo:bar' will be returned as [:foo :bar].</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn rpc-name-&gt;path
-  [s]
-  {:pre [(string? s)]}
-  (-&gt;&gt; (cstr/split s #&quot;:&quot;)
-       (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+					<pre class="brush: clojure">(def variables
+  [:map-of :string variable])</pre>
 				</td>
 			</tr>
 			<tr>

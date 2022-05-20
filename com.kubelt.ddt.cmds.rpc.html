@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.sdk.core.authenticate</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.rpc</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,16 +28,14 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Invoke the 'sdk core authenticate' method.</p>
+					<p>CLI setup for 'rpc' sub-command.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.core.authenticate
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc
+  {:author &quot;Proof Zero Inc.&quot;}
   (:require
-   [com.kubelt.ddt.auth :as ddt.auth]
-   [com.kubelt.ddt.options :as ddt.options]
-   [com.kubelt.ddt.prompt :as ddt.prompt]
-   [com.kubelt.ddt.util :as ddt.util]))</pre>
+   [com.kubelt.ddt.cmds.rpc.call :as rpc.call]
+   [com.kubelt.ddt.cmds.rpc.ls :as rpc.ls]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -46,21 +44,13 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defonce command
-  {:command &quot;authenticate&quot;
-   :desc &quot;Authenticate an account&quot;
-   :requiresArg false
-   :builder (fn [^Yargs yargs]
-              ;; Include the common options.
-              (ddt.options/options yargs)
-              yargs)
-   :handler (fn [args]
-              (ddt.prompt/ask-password!
-               (fn [err result]
-                 (ddt.util/exit-if err)
-                 (ddt.auth/authenticate
-                  (ddt.options/to-map args)
-                  (.-password result)
-                  (fn [result] (prn result))))))})</pre>
+  {:command &quot;rpc &lt;command&gt;&quot;
+   :desc &quot;Work with RPC APIs&quot;
+   :builder (fn [^js yargs]
+              (-&gt; yargs
+                  (.command (clj-&gt;js rpc.call/command))
+                  (.command (clj-&gt;js rpc.ls/command))
+                  (.demandCommand)))})</pre>
 				</td>
 			</tr>
 			<tr>

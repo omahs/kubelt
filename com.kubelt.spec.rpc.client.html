@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.util</h1>
+							<h1 class="project-name">com.kubelt.spec.rpc.client</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,20 +28,19 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Misc utilities.</p>
+					<p>An RPC client map.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.util
+					<pre class="brush: clojure">(ns com.kubelt.spec.rpc.client
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:refer-clojure :exclude [methods])
   (:require
-   [clojure.string :as cstr])
-  (:require
-   [&quot;process&quot; :as process]))</pre>
+   [com.kubelt.spec.rpc.init :as spec.rpc.init]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					<h2>http-client</h2>TODO this should be something that conforms to com.kubelt.proto.http/HttpClient
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -49,19 +48,16 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>If the given error is truthy, print it out and end the program with an error result code.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn exit-if
-  [err]
-  (when err
-    (println (str &quot;error: &quot; err))
-    (.exit process 1)))</pre>
+					<pre class="brush: clojure">(def http-client
+  :any)</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>rpc-name->path</h2>
+					<h2>prefix</h2>Every schema used by the client has an associated prefix that is usedto namespace it from other schemas in the same client.
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -69,15 +65,73 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Given a string composed of a sequence of concatenated keywords, parse the string to return a vector of the keywords. E.g. ':foo:bar' will be returned as [:foo :bar].</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn rpc-name-&gt;path
-  [s]
-  {:pre [(string? s)]}
-  (-&gt;&gt; (cstr/split s #&quot;:&quot;)
-       (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+					<pre class="brush: clojure">(def prefix
+  :keyword)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>schemas</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO flesh these specs out to describe the RPC client map that results from the (rpc/init) call.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def version :string)
+(def metadata :map)
+(def servers [:vector :any])
+(def methods :map)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def schema
+  [:map
+   [:rpc/version version]
+   [:rpc/metadata metadata]
+   [:rpc/servers servers]
+   [:rpc/methods methods]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def schemas
+  [:map-of prefix schema])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>client</h2>An RPC client.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def client
+  [:map
+   [:com.kubelt/type [:enum :kubelt.type/rpc.client]]
+   [:init/options spec.rpc.init/options]
+   [:http/client http-client]
+   [:rpc/schemas schemas]])</pre>
 				</td>
 			</tr>
 			<tr>

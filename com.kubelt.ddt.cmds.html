@@ -41,6 +41,7 @@
    [com.kubelt.ddt.cmds.jwt :as ddt.jwt]
    [com.kubelt.ddt.cmds.path :as ddt.path]
    [com.kubelt.ddt.cmds.rdf :as ddt.rdf]
+   [com.kubelt.ddt.cmds.rpc :as ddt.rpc]
    [com.kubelt.ddt.cmds.sdk :as ddt.sdk]
    [com.kubelt.ddt.cmds.wallet :as ddt.wallet]))</pre>
 				</td>
@@ -75,6 +76,8 @@
       (.command (clj-&gt;js ddt.path/command))
       ;; \$DDT rdf &lt;command&gt;
       (.command (clj-&gt;js ddt.rdf/command))
+      ;; \$DDT rpc &lt;command&gt;
+      (.command (clj-&gt;js ddt.rpc/command))
       ;; \$DDT sdk &lt;command&gt;
       (.command (clj-&gt;js ddt.sdk/command))
       ;; \$DDT wallet &lt;command&gt;

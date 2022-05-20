@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.sdk.core.authenticate</h1>
+							<h1 class="project-name">com.kubelt.spec.rpc.discover</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,16 +28,19 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Invoke the 'sdk core authenticate' method.</p>
+					<p>Schemas related to com.kubelt.rpc/discover function.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.core.authenticate
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
-  (:require
-   [com.kubelt.ddt.auth :as ddt.auth]
-   [com.kubelt.ddt.options :as ddt.options]
-   [com.kubelt.ddt.prompt :as ddt.prompt]
-   [com.kubelt.ddt.util :as ddt.util]))</pre>
+					<pre class="brush: clojure">(ns com.kubelt.spec.rpc.discover
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>url</h2>The init call takes a provider URL (RPC endpoint) as a parameter.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
 				</td>
 			</tr>
 			<tr>
@@ -45,22 +48,25 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defonce command
-  {:command &quot;authenticate&quot;
-   :desc &quot;Authenticate an account&quot;
-   :requiresArg false
-   :builder (fn [^Yargs yargs]
-              ;; Include the common options.
-              (ddt.options/options yargs)
-              yargs)
-   :handler (fn [args]
-              (ddt.prompt/ask-password!
-               (fn [err result]
-                 (ddt.util/exit-if err)
-                 (ddt.auth/authenticate
-                  (ddt.options/to-map args)
-                  (.-password result)
-                  (fn [result] (prn result))))))})</pre>
+					<pre class="brush: clojure">(def url
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>options</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def options
+  :map)</pre>
 				</td>
 			</tr>
 			<tr>

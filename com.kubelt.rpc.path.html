@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.rpc.path</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Path-related utilities.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.rpc.path
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:require
+   [clojure.string :as cstr])
+  (:require
+   [malli.core :as malli])
+  (:require
+   [com.kubelt.spec.rpc :as spec.rpc]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>path?</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return true if the argument is an RPC path, i.e. a method name that has been converted into structured data (a vector of keywords), and false otherwise.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn path?
+  [x]
+  (malli/validate spec.rpc/path x))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>path->str</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Convert a path, a structured data value representing the name of an RPC call, into the string equivalent.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn path-&gt;str
+  ([path]
+   (let [separator &quot;_&quot;]
+     (path-&gt;str path separator)))
+  ([path separator]
+   (cstr/join separator (map name path))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>filter-depth</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Take a sequence of paths and trim each path be of the given length. Returns a set.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn filter-depth
+  [paths depth]
+  (letfn [(trim-depth [v path]
+            ;; If depth is greater than the length of the path, we
+            ;; include the path without any further processing.
+            (if (&gt; depth (count path))
+              (conj v path)
+              (let [path (vec (first (partition depth path)))]
+                (conj v path))))]
+    (reduce trim-depth #{} paths)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>filter-search</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Filter a sequence of paths to include only those containing a given search string. Returns a set.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn filter-search
+  [paths search]
+  {:pre [(string? search)]}
+  (let [pattern (re-pattern (str &quot;.*&quot; search &quot;.*&quot;))]
+    (letfn [(match-kw [kw]
+              (re-matches pattern (name kw)))
+            (matches? [path]
+              (not-empty (filter match-kw path)))
+            (match-search [a-set path]
+              (if (matches? path)
+                (conj a-set path)
+                a-set))]
+      (reduce match-search #{} paths))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>filter-prefix</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Return only those paths that have the given path prefix. For example, if path contains [:foo :bar], only paths that begin with that sequence of keywords will be returned, e.g. [:foo :bar :baz].</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn filter-prefix
+  [paths prefix]
+  (letfn [(pair= [[a b]]
+            (= a b))
+          (has-prefix? [prefix path]
+            (let [pairs (partition 2 (interleave prefix path))]
+              (every? pair= pairs)))
+          (match-path [a-set path]
+            (if (has-prefix? prefix path)
+              (conj a-set path)
+              a-set))]
+    (reduce match-path #{} paths)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

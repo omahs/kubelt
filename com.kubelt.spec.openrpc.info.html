@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.util</h1>
+							<h1 class="project-name">com.kubelt.spec.openrpc.info</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,20 +28,55 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Misc utilities.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.util
+					<pre class="brush: clojure">(ns com.kubelt.spec.openrpc.info
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as cstr])
-  (:require
-   [&quot;process&quot; :as process]))</pre>
+   [com.kubelt.spec.openrpc.info.contact :as info.contact]
+   [com.kubelt.spec.openrpc.info.license :as info.license]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def version
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def title
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def description
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def terms
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Info</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -49,35 +84,35 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>If the given error is truthy, print it out and end the program with an error result code.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn exit-if
-  [err]
-  (when err
-    (println (str &quot;error: &quot; err))
-    (.exit process 1)))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>rpc-name->path</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Given a string composed of a sequence of concatenated keywords, parse the string to return a vector of the keywords. E.g. ':foo:bar' will be returned as [:foo :bar].</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn rpc-name-&gt;path
-  [s]
-  {:pre [(string? s)]}
-  (-&gt;&gt; (cstr/split s #&quot;:&quot;)
-       (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+					<pre class="brush: clojure">(def info
+  [:map
+   {:closed true}
+   [:version
+    {:description &quot;The version of the OpenRPC document (which is
+distinct from the OpenRPC Specification version or the API
+implementation version.&quot;}
+    version]
+   [:title
+    {:description &quot;The title of the application.&quot;}
+    title]
+   [:description
+    {:optional true
+     :description &quot;A verbose description of the application.&quot;}
+    description]
+   [:terms-of-service
+    {:optional true
+     :description &quot;A URL to the Terms of Service for the API. MUST be in
+the format of a URL.&quot;}
+    terms]
+   [:contact
+    {:optional true}
+    info.contact/contact]
+   [:license
+    {:optional true}
+    info.license/license]])</pre>
 				</td>
 			</tr>
 			<tr>

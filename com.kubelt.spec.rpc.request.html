@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.sdk.core.authenticate</h1>
+							<h1 class="project-name">com.kubelt.spec.rpc.request</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,16 +28,21 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Invoke the 'sdk core authenticate' method.</p>
+					<p>Schemas related to RPC requests.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.core.authenticate
+					<pre class="brush: clojure">(ns com.kubelt.spec.rpc.request
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.ddt.auth :as ddt.auth]
-   [com.kubelt.ddt.options :as ddt.options]
-   [com.kubelt.ddt.prompt :as ddt.prompt]
-   [com.kubelt.ddt.util :as ddt.util]))</pre>
+   [com.kubelt.spec.http :as spec.http]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>options</h2>The options map that may be passed to RPC client (request) function.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
 				</td>
 			</tr>
 			<tr>
@@ -45,22 +50,28 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defonce command
-  {:command &quot;authenticate&quot;
-   :desc &quot;Authenticate an account&quot;
-   :requiresArg false
-   :builder (fn [^Yargs yargs]
-              ;; Include the common options.
-              (ddt.options/options yargs)
-              yargs)
-   :handler (fn [args]
-              (ddt.prompt/ask-password!
-               (fn [err result]
-                 (ddt.util/exit-if err)
-                 (ddt.auth/authenticate
-                  (ddt.options/to-map args)
-                  (.-password result)
-                  (fn [result] (prn result))))))})</pre>
+					<pre class="brush: clojure">(def options
+  ;; TODO
+  :map)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>request</h2>An RPC request map.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>NB: we re-use the HTTP request map schema.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def request
+  [:map
+   [:com.kubelt/type [:enum :kubelt.type/rpc.request]]
+   [:http/request   spec.http/request]])</pre>
 				</td>
 			</tr>
 			<tr>

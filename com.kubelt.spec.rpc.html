@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.sdk.core.authenticate</h1>
+							<h1 class="project-name">com.kubelt.spec.rpc</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,16 +28,19 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Invoke the 'sdk core authenticate' method.</p>
+					<p>A schema for RPC client configuration.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.sdk.core.authenticate
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
-  (:require
-   [com.kubelt.ddt.auth :as ddt.auth]
-   [com.kubelt.ddt.options :as ddt.options]
-   [com.kubelt.ddt.prompt :as ddt.prompt]
-   [com.kubelt.ddt.util :as ddt.util]))</pre>
+					<pre class="brush: clojure">(ns com.kubelt.spec.rpc
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>path</h2>RPC calls as defined in an OpenRPC schema are strings. We prefer touse a vector of keywords, which we get by breaking apart the callname at each underscore and converting the resulting strings tokeywords. Converting to structured data makes them nicer tomanipulate when we want to do things like adding a prefix.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
 				</td>
 			</tr>
 			<tr>
@@ -45,22 +48,26 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defonce command
-  {:command &quot;authenticate&quot;
-   :desc &quot;Authenticate an account&quot;
-   :requiresArg false
-   :builder (fn [^Yargs yargs]
-              ;; Include the common options.
-              (ddt.options/options yargs)
-              yargs)
-   :handler (fn [args]
-              (ddt.prompt/ask-password!
-               (fn [err result]
-                 (ddt.util/exit-if err)
-                 (ddt.auth/authenticate
-                  (ddt.options/to-map args)
-                  (.-password result)
-                  (fn [result] (prn result))))))})</pre>
+					<pre class="brush: clojure">(def path
+  [:vector :keyword])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>params</h2>This is the definition of the parameter map for an RPC request. Thisis a basic check, but a more detailed parameter map schema for aspecific call lives inside the client as part of the transformedschema.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def params
+  ;; TODO
+  :map)</pre>
 				</td>
 			</tr>
 			<tr>

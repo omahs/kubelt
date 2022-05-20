@@ -34,10 +34,12 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.p2p
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
+   [taoensso.timbre :as log]
    [clojure.string :as cstr])
   (:require
-   [com.kubelt.lib.json :as lib.json]
-   [com.kubelt.proto.http :as http]))</pre>
+   [&quot;@ethersproject/providers&quot; :refer [JsonRpcProvider]]
+   [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.promise :as lib.promise]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -50,35 +52,63 @@
 			</tr>
 			<tr>
 				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- connection-uri [sys core]
+  (let [scheme (get-in sys [:client/p2p :http/scheme])
+        host (get-in sys [:client/p2p :http/host])
+        port (get-in sys [:client/p2p :http/port])
+        path (cstr/join  [&quot;/@&quot; core &quot;/jsonrpc&quot;])
+        uri (str (name scheme) &quot;://&quot; host &quot;:&quot; port path)]
+    (log/debug {::connection-uri uri})
+    uri))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- json-rpc-provider [sys core]
+  (JsonRpcProvider. (connection-uri sys core)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- send
+  ([provider method]
+   (send provider method []))
+  ([provider method params]
+   (log/debug {::send {:method method :params params}})
+   (-&gt; (.send provider method (clj-&gt;js params))
+       (lib.promise/then
+        (fn [x]
+          (js-&gt;clj x :keywordize-keys true)))
+       (lib.promise/catch
+        (fn [e]
+          (lib.error/from-obj e))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
 					<p>Authenticate a user against a core. The account is a map that contains the public key from the keypair that represents the user's account.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn authenticate!
   [sys core]
   {:pre [(string? core)]}
-  (let [client (get sys :client/http)
-        scheme (get-in sys [:client/p2p :http/scheme])
-        host (get-in sys [:client/p2p :http/host])
-        port (get-in sys [:client/p2p :http/port])
-        wallet (get sys :crypto/wallet)
-        address (get wallet :wallet/address)
-        body {:address address}
-        body-str (lib.json/edn-&gt;json-str body)
-        path (cstr/join &quot;&quot; [&quot;/@&quot; core &quot;/auth&quot;])
-        request {:com.kubelt/type :kubelt.type/http-request
-                 :http/method :post
-                 :http/body body-str
-                 :uri/scheme scheme
-                 :uri/domain host
-                 :uri/port port
-                 :uri/path path}]
-    ;; Make an HTTP request to p2p system, passing along the user's
+  (let [address (get-in sys [:crypto/wallet :wallet/address])]
+    ;; Make an JsonRpc call to p2p system, passing along the user's
     ;; wallet address. Expect a nonce in return, which should be signed
     ;; and returned to prove ownership of provided key and complete
     ;; registration.
     ;;
     ;; Returns a promise.
-    (http/request! client request)))</pre>
+    (send (json-rpc-provider sys core) &quot;kb_auth&quot; [address])))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -89,21 +119,28 @@
 					<pre class="brush: clojure">(defn verify!
   [sys core nonce signature]
   {:pre [(every? string? [core nonce])]}
-  (let [client (get sys :client/http)
-        scheme (get-in sys [:client/p2p :http/scheme])
-        host (get-in sys [:client/p2p :http/host])
-        port (get-in sys [:client/p2p :http/port])
-        body {:nonce nonce :signature signature}
-        body-str (lib.json/edn-&gt;json-str body)
-        path (cstr/join &quot;&quot; [&quot;/@&quot; core &quot;/auth/verify&quot;])
-        request {:com.kubelt/type :kubelt.type/http-request
-                 :http/method :post
-                 :http/body body-str
-                 :uri/scheme scheme
-                 :uri/domain host
-                 :uri/port port
-                 :uri/path path}]
-    (http/request! client request)))</pre>
+  ;; Returns a promise.
+  (send (json-rpc-provider sys core) &quot;kb_auth_verify&quot; [nonce signature]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn rpc-api [sys core]
+  {:pre [(string? core)]}
+  (send (json-rpc-provider sys core) &quot;rpc.discover&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn call-rpc-method [sys core method args]
+  {:pre [(string? core) (string? method) (vector? args)]}
+  (send (json-rpc-provider sys core) method args))</pre>
 				</td>
 			</tr>
 			<tr>

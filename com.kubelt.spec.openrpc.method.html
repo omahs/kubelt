@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.spec.openrpc.method</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>A schema for an OpenRPC Method object.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.spec.openrpc.method
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:refer-clojure :exclude [methods name])
+  (:require
+   [com.kubelt.spec.openrpc.content :as openrpc.content]
+   [com.kubelt.spec.openrpc.error :as openrpc.error]
+   [com.kubelt.spec.openrpc.external :as openrpc.external]
+   [com.kubelt.spec.openrpc.link :as openrpc.link]
+   [com.kubelt.spec.openrpc.pairing :as openrpc.pairing]
+   [com.kubelt.spec.openrpc.reference :as openrpc.reference]
+   [com.kubelt.spec.openrpc.server :as openrpc.server]
+   [com.kubelt.spec.openrpc.tag :as openrpc.tag]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def name
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def summary
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def description
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def deprecated
+  :boolean)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def params
+  [:vector [:or openrpc.reference/reference openrpc.content/descriptor]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def result
+  [:or openrpc.reference/reference openrpc.content/descriptor])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def param-structure
+  [:enum &quot;by-name&quot; &quot;by-position&quot; &quot;either&quot;])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Method</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def method
+  [:map
+   {:closed true
+    :description &quot;Describes the interface for the given method name. The
+method name is used as the 'method' field of the JSON-RPC body. It
+therefore MUST be unique.&quot;}
+   [:name
+    {:description &quot;The canonical name for the method. The name MUST be
+ unique within the methods array.&quot;}
+    name]
+   [:params
+    {:description &quot;A list of parameters that are applicable for this
+method. The list MUST NOT include duplicated parameters and therefore
+require 'name' to be unique. The list can use the Reference object to
+link to parameters that are defined by the Content Descriptor
+object. All optional params MUST be positioned after all required params
+in the list.&quot;}
+    params]
+   [:result
+    {:description &quot;The description of the result returned by the
+method. It MUST be a Content Descriptor.&quot;}
+    result]
+   [:summary
+    {:optional true
+     :description &quot;A short summary of what the method does.&quot;}
+    summary]
+   [:description
+    {:optional true
+     :description &quot;A verbose explanation of the method behaviour.&quot;}
+    description]
+   [:deprecated
+    {:optional true
+     :description &quot;Declares this method to be deprecated. Consumers
+SHOULD refrain from usage of the declared method. Default value is
+false.&quot;}
+    deprecated]
+   [:external-docs
+    {:optional true
+     :description &quot;Additional external documentation for this method.&quot;}
+    openrpc.external/docs]
+   [:tags
+    {:optional true
+     :description &quot;A list of tags for API documentation control. Tags can
+be used for logical grouping of methods by resources or any other
+qualifier.&quot;}
+    openrpc.tag/tags]
+   [:servers
+    {:optional true
+     :description &quot;An alternative 'servers' array to service this
+method. If an alternative 'servers' array is specified at the root
+level, it will be overridden by this value.&quot;}
+    openrpc.server/servers]
+   [:errors
+    {:optional true
+     :description &quot;A list of custom application defined errors that MAY
+be returned. The errors MUST have unique error codes.&quot;}
+    openrpc.error/errors]
+   [:links
+    {:optional true
+     :description &quot;A list of possible links from this method call.&quot;}
+    openrpc.link/links]
+   [:param-structure
+    {:optional true
+     :description &quot;The expected format of the parameters. As per the
+JSON-RPC 2.0 specification, the params of a JSON-RPC request object may
+be an array, object, or either (represented as 'by-position', 'by-name',
+and 'either' respectively). When a method has a 'paramStructure' value
+of 'by-name', callers of the method MUST send a JSON-RPC request object
+whose 'params' field is an object. Further, the key names of the
+'params' object MUST be the same as the 'contentDescriptor.name's for
+the given method. Defaults to 'either'.&quot;}
+    param-structure]
+   [:examples
+    {:optional true
+     :description &quot;Array of Example Pairing object where each example
+includes a valid params-to-result Content Descriptor pairing.&quot;}
+    openrpc.pairing/examples]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>[Method]</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def methods
+  [:vector [:or openrpc.reference/reference method]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

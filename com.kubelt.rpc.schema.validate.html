@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.util</h1>
+							<h1 class="project-name">com.kubelt.rpc.schema.validate</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,20 +28,44 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Misc utilities.</p>
+					<p>Validate an OpenRPC schema.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.util
+					<pre class="brush: clojure">(ns com.kubelt.rpc.schema.validate
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as cstr])
-  (:require
-   [&quot;process&quot; :as process]))</pre>
+   [com.kubelt.lib.error :as lib.error]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					<p>Return a set of all references (\$ref) found in the schema.</p><p>TODO make this fn private</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn refs
+  [schema]
+  (let [f (fn [a x])]
+    ;; TODO walk the schema and collect a set of all the refs that are
+    ;; found.
+    (reduce f #{} schema)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Find all \$ref and look them up to confirm that they're provided in the schema. Return a vector of just the missing refs.</p><p>TODO make fn private</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn missing-refs
+  [schema]
+  (let [ref-set (refs schema)]
+    ;; TODO look up each ref to confirm that it exists
+    ;; TODO return only the missing items
+    #{}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>validate</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -49,35 +73,16 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>If the given error is truthy, print it out and end the program with an error result code.</p>
+					<p>Check that the schema is well-formed as well as being syntactically valid. Returns the unmodified schema if no issues were detected, or an error map describing any issues that were found.</p><p>Error checking</p><ul><li>check that all referenced (\$ref) values exist</li></ul>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn exit-if
-  [err]
-  (when err
-    (println (str &quot;error: &quot; err))
-    (.exit process 1)))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>rpc-name->path</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Given a string composed of a sequence of concatenated keywords, parse the string to return a vector of the keywords. E.g. ':foo:bar' will be returned as [:foo :bar].</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn rpc-name-&gt;path
-  [s]
-  {:pre [(string? s)]}
-  (-&gt;&gt; (cstr/split s #&quot;:&quot;)
-       (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+					<pre class="brush: clojure">(defn validate
+  [schema]
+  ;; TODO use guards
+  (let [missing (missing-refs schema)]
+    (if-not (empty? missing)
+      (lib.error/error {:message &quot;missing \$refs&quot; :missing missing})
+      schema)))</pre>
 				</td>
 			</tr>
 			<tr>

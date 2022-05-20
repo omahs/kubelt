@@ -355,7 +355,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Return true if x is an IPFS client returned from calling (init), and false otherwise.</p>
+					<p>Return true if x is an IPFS client returned from calling (init), and false otherwise.</p><p>TODO validate with malli.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn client?
@@ -367,7 +367,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Return true if x is a Kubelt error map, and false otherwise.</p>
+					<p>Return true if x is a Kubelt error map, and false otherwise.</p><p>TODO validate with malli. TODO move to lib.error.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn error?
@@ -379,7 +379,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Return the collection of oeprations provided by the API. Each vector of keywords in the returned collection represents a call that may be performed. Use the (doc) command to get a description of the API resource.</p><p>Options: flat (vector list), nested maps with filtering leave out leaf nodes return single descriptor</p><p>{:cid [:base32 :bases :codecs]  :dag [:export :get :import]} [[:cid :base32]  [:cid :bases]  [:cid :codecs]  [:dag :export]  [:dag :get]  [:dag :import]]</p>
+					<p>Return the collection of operations provided by the API. Each vector of keywords in the returned collection represents a call that may be performed. Use the (doc) command to get a description of the API resource.</p><p>Options: flat (vector list), nested maps with filtering leave out leaf nodes return single descriptor</p><p>{:cid [:base32 :bases :codecs]  :dag [:export :get :import]} [[:cid :base32]  [:cid :bases]  [:cid :codecs]  [:dag :export]  [:dag :get]  [:dag :import]]</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn ops

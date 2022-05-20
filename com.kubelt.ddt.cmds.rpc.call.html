@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.call</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Make an RPC call.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.call
+  {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:require
+   [clojure.string :as cstr]
+   [com.kubelt.ddt.auth :as ddt.auth]
+   [com.kubelt.ddt.options :as ddt.options]
+   [com.kubelt.ddt.prompt :as ddt.prompt]
+   [com.kubelt.ddt.util :as ddt.util]
+   [com.kubelt.lib.promise :as lib.promise]
+   [com.kubelt.rpc :as rpc]
+   [com.kubelt.rpc.schema :as rpc.schema]
+   [com.kubelt.sdk.v1.core :as sdk.core]
+   [taoensso.timbre :as log]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ethers-rpc-name
+  &quot;ethers-rpc&quot;)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ethers-rpc-config
+  #js {:describe &quot;Use ethers lib to make rpc calls&quot;
+       :boolean true
+       :alias &quot;e&quot;
+       :default false})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defonce command
+  {:command &quot;call &lt;method&gt;&quot;
+   :desc &quot;Make an RPC call.&quot;
+   :requiresArg true
+   :builder (fn [^Yargs yargs]
+              ;; Include the common options.
+              (ddt.options/options yargs)
+              ;; A generic --param option is used to collect RPC call
+              ;; parameters.
+              (let [config #js {:alias &quot;x&quot;
+                                :describe &quot;An RPC parameter (&lt;name&gt;=&lt;value&gt;)&quot;
+                                :array true
+                                :nargs 1}]
+                (.option yargs &quot;param&quot; config))
+              (.option yargs ethers-rpc-name ethers-rpc-config)
+              ;; Return a parameter map rather than an array
+              ;; of &quot;&lt;name&gt;=&lt;value&gt;&quot; strings.
+              (let [param-fn
+                    (fn [m s]
+                      (let [[k v] (cstr/split s #&quot;=&quot;)
+                            kw (keyword k)]
+                        (assoc m kw v)))]
+                (.coerce yargs &quot;param&quot;
+                         (fn [params]
+                           (js-&gt;clj (reduce param-fn {} params))))))
+   ;; RPC calls are represented as keyword vectors,
+   ;; e.g. [:foo :bar]. For convenience on the command line, we ask the
+   ;; user to provide this value as a colon-separated string,
+   ;; e.g. :foo:bar.
+   :handler (fn [args]
+              (let [args-map (ddt.options/to-map args)
+                    method (-&gt; args-map :method ddt.util/rpc-name-&gt;path)
+                    params (get args-map :param {})
+                    rpc-client-type (get args-map (keyword ethers-rpc-name))]
+                (ddt.prompt/ask-password!
+                 (fn [err result]
+                   (ddt.util/exit-if err)
+                   (ddt.auth/authenticate
+                    args-map
+                    (.-password result)
+                    (fn [sys]
+                      (-&gt; (sdk.core/rpc-api sys (-&gt; sys :crypto/wallet :wallet/address))
+                          (lib.promise/then
+                           (fn [api]
+                             (let [wallet-address (-&gt; sys :crypto/wallet :wallet/address)
+                                   client (-&gt; {:uri/domain (-&gt; sys :client/p2p :http/host)
+                                               :uri/port (-&gt; sys :client/p2p :http/port)
+                                               :uri/path (cstr/join  [&quot;/@&quot; wallet-address &quot;/jsonrpc&quot;])
+                                               :http/client (:client/http sys)}
+                                              rpc/init
+                                              (rpc.schema/schema api))
+                                   request (rpc/prepare client method (or params {}))
+                                   rpc-method (:method/name (:rpc/method request))
+                                   rpc-params (:rpc/params request)]
+                               (if rpc-client-type
+                                 (-&gt; (sdk.core/call-rpc-method sys wallet-address rpc-method (into [] (vals rpc-params)))
+                                     (lib.promise/then
+                                      (fn [r]
+                                        (println &quot;Response: &quot; r)))
+                                     (lib.promise/catch
+                                         (fn [e]
+                                           (println &quot;ERROR: &quot; e))))
+                                 (-&gt; (rpc/execute client request)
+                                     (lib.promise/then
+                                      (fn [r]
+                                        (println &quot;Response: &quot; (-&gt; r :http/body :result))))
+                                     (lib.promise/catch
+                                         (fn [e]
+                                           (println &quot;ERROR: &quot; e))))))))
+                          (lib.promise/catch
+                           (fn [e]
+                             (println (ex-message e))
+                             (prn (ex-data e)))))))))))})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

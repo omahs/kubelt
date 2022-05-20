@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.util</h1>
+							<h1 class="project-name">com.kubelt.rpc.client</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,20 +28,21 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Misc utilities.</p>
+					<p>RPC client utilities.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.util
+					<pre class="brush: clojure">(ns com.kubelt.rpc.client
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as cstr])
+   [malli.core :as malli])
   (:require
-   [&quot;process&quot; :as process]))</pre>
+   [com.kubelt.rpc.schema :as rpc.schema]
+   [com.kubelt.spec.rpc.client :as spec.rpc.client]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					<h2>client?</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -49,19 +50,17 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>If the given error is truthy, print it out and end the program with an error result code.</p>
+					<p>Returns true if the argument has the expected shape of an RPC client, and false otherwise.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn exit-if
-  [err]
-  (when err
-    (println (str &quot;error: &quot; err))
-    (.exit process 1)))</pre>
+					<pre class="brush: clojure">(defn client?
+  [x]
+  (malli/validate spec.rpc.client/client x))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>rpc-name->path</h2>
+					<h2>init</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -69,15 +68,43 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Given a string composed of a sequence of concatenated keywords, parse the string to return a vector of the keywords. E.g. ':foo:bar' will be returned as [:foo :bar].</p>
+					<p>Initialize an RPC client.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn rpc-name-&gt;path
-  [s]
-  {:pre [(string? s)]}
-  (-&gt;&gt; (cstr/split s #&quot;:&quot;)
-       (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+					<pre class="brush: clojure">(defn init
+  [http-client options]
+  {:com.kubelt/type :kubelt.type/rpc.client
+   :init/options options
+   :http/client http-client
+   :rpc/schemas {}})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>find-method</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Look up the method associated with a path in the client.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn find-method
+  [client path]
+  ;; Does unaltered path exist in default schema? If so, return the
+  ;; corresponding method, and otherwise look for the path in the
+  ;; schemas that are prefixed.
+  (let [lookup-path
+        (fn [client prefix path]
+          (get-in client [:rpc/schemas prefix :rpc/methods path]))]
+    (if-let [method (lookup-path client ::rpc.schema/default path)]
+      method
+      (let [prefix (first path)
+            path (vec (rest path))]
+        (lookup-path client prefix path)))))</pre>
 				</td>
 			</tr>
 			<tr>

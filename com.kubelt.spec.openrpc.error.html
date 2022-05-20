@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.util</h1>
+							<h1 class="project-name">com.kubelt.spec.openrpc.error</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,20 +28,45 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Misc utilities.</p>
+					<p>A schema for an OpenRPC Error object.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.util
+					<pre class="brush: clojure">(ns com.kubelt.spec.openrpc.error
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as cstr])
-  (:require
-   [&quot;process&quot; :as process]))</pre>
+   [com.kubelt.spec.openrpc.reference :as openrpc.reference]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def code
+  :int)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def message
+  :string)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def data
+  :any)</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Error</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -49,19 +74,35 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>If the given error is truthy, print it out and end the program with an error result code.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn exit-if
-  [err]
-  (when err
-    (println (str &quot;error: &quot; err))
-    (.exit process 1)))</pre>
+					<pre class="brush: clojure">(def error
+  [:map
+   {:closed true
+    :description &quot;Defines an application level error.&quot;}
+   [:code
+    {:description &quot;A Number that indicates the error type that
+occurred. This MUST be an integer. The error codes from and including
+-32768 to -32000 are reserved for pre-defined errors. These pre-defined
+errors SHOULD be assumed to be returned from any JSON-RPC API.&quot;}
+    code]
+   [:message
+    {:description &quot;A short description of the error. The message SHOULD
+be limited to a concise single sentence.&quot;}
+    message]
+   [:data
+    {:optional true
+     :description &quot;A primitive or structured value that contains
+additional information about the error. This may be omitted. The value
+of this member is defined by the server, e.g. detailed error
+information, nested errors, etc.&quot;}
+    data]])</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>rpc-name->path</h2>
+					<h2>[Error]</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -69,15 +110,11 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Given a string composed of a sequence of concatenated keywords, parse the string to return a vector of the keywords. E.g. ':foo:bar' will be returned as [:foo :bar].</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn rpc-name-&gt;path
-  [s]
-  {:pre [(string? s)]}
-  (-&gt;&gt; (cstr/split s #&quot;:&quot;)
-       (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+					<pre class="brush: clojure">(def errors
+  [:vector [:or openrpc.reference/reference error]])</pre>
 				</td>
 			</tr>
 			<tr>
