@@ -34,6 +34,7 @@
 					<pre class="brush: clojure">(ns com.kubelt.ddt.util
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
+   [camel-snake-kebab.core :as csk]
    [clojure.string :as cstr])
   (:require
    [&quot;process&quot; :as process]))</pre>
@@ -77,7 +78,7 @@
   {:pre [(string? s)]}
   (-&gt;&gt; (cstr/split s #&quot;:&quot;)
        (filter (complement cstr/blank?))
-       (mapv keyword)))</pre>
+       (mapv csk/-&gt;kebab-case-keyword)))</pre>
 				</td>
 			</tr>
 			<tr>
