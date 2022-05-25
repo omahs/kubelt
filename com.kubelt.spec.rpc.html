@@ -54,7 +54,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>params</h2>This is the definition of the parameter map for an RPC request. Thisis a basic check, but a more detailed parameter map schema for aspecific call lives inside the client as part of the transformedschema.
+					<h2>params</h2>This is the definition of the collection of parameters supplied foran RPC request. If a vector of values is supplied, the values areassumed to be in the order defined by the schema's parameter list forthe method. If a map of parameters is supplied, the keys are assumedto be the parameter names and the corresponding values are theparameter values.<p>NB: a schema for each parameter may be specified, in which it case it will (eventually) be used to validate the supplied parameter value.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -66,8 +66,9 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def params
-  ;; TODO
-  :map)</pre>
+  [:or
+   [:map-of :keyword :any]
+   [:vector :any]])</pre>
 				</td>
 			</tr>
 			<tr>

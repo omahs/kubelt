@@ -34,13 +34,13 @@
 					<pre class="brush: clojure">(ns com.kubelt.spec.openrpc.component
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
+   [com.kubelt.spec.openrpc.content :as openrpc.content]
    [com.kubelt.spec.openrpc.error :as openrpc.error]
    [com.kubelt.spec.openrpc.example :as openrpc.example]
    [com.kubelt.spec.openrpc.link :as openrpc.link]
    [com.kubelt.spec.openrpc.pairing :as openrpc.pairing]
    [com.kubelt.spec.openrpc.schema :as openrpc.schema]
-   [com.kubelt.spec.openrpc.tag :as openrpc.tag]
-   [com.kubelt.spec.openrpc.content :as openrpc.content]))</pre>
+   [com.kubelt.spec.openrpc.tag :as openrpc.tag]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -49,7 +49,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def errors
-  [:map-of :string openrpc.error/error])</pre>
+  [:map-of :keyword openrpc.error/error])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -58,7 +58,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def pairing
-  [:map-of :string openrpc.pairing/example])</pre>
+  [:map-of :keyword openrpc.pairing/example])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -67,7 +67,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def tags
-  [:map-of :string openrpc.tag/tag])</pre>
+  [:map-of :keyword openrpc.tag/tag])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -76,7 +76,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def links
-  [:map-of :string openrpc.link/link])</pre>
+  [:map-of :keyword openrpc.link/link])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -94,7 +94,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(def examples
-  [:map-of :string openrpc.example/example])</pre>
+  [:map-of :keyword openrpc.example/example])</pre>
 				</td>
 			</tr>
 			<tr>

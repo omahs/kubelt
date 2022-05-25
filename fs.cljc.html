@@ -127,8 +127,9 @@
                   (lib.promise/catch reject))))
      :clj
      (let [json-str (read-file&amp; filename)
-           keywordize? true]
-       (conform (lib.json/from-json json-str keywordize?)))))</pre>
+           keywordize? true
+           edn (lib.json/from-json json-str keywordize?)]
+       (conform edn))))</pre>
 				</td>
 			</tr>
 			<tr>

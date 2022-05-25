@@ -34,7 +34,8 @@
 					<pre class="brush: clojure">(ns com.kubelt.spec.core.config.general
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:refer-clojure :exclude [alias])
-  (:require [com.kubelt.spec.core.config.security :as security]))</pre>
+  (:require
+   [com.kubelt.spec.core.config.security :as security]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -50,8 +51,9 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def id [:map
-         [:alias alias]])</pre>
+					<pre class="brush: clojure">(def id
+  [:map
+   [:alias alias]])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -59,7 +61,8 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def media-type [:enum &quot;application/json&quot;])</pre>
+					<pre class="brush: clojure">(def media-type
+  [:enum &quot;application/json&quot;])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -67,9 +70,10 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def client [:map
-             [:ttl security/ttl]
-             [:media-type media-type]])</pre>
+					<pre class="brush: clojure">(def client
+  [:map
+   [:ttl security/ttl]
+   [:media-type media-type]])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -85,10 +89,11 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def aliases [:vector
-              [:map
-               [:alias alias]
-               [:provider provider]]])</pre>
+					<pre class="brush: clojure">(def aliases
+  [:vector
+   [:map
+    [:alias alias]
+    [:provider provider]]])</pre>
 				</td>
 			</tr>
 			<tr>

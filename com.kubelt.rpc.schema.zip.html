@@ -179,6 +179,25 @@
 			</tr>
 			<tr>
 				<td class="docs">
+					<h2>ref-loc?</h2>A reference is a map with a :\$ref key, whose value is a stringreference to another location in the schema, e.g.{:\$ref "#/components/examples/fooBar"}.
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn ref-loc?
+  [loc]
+  (let [node (zip/node loc)]
+    (and (map? node) (contains? node :\$ref))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
 					<h2>schema-zip</h2>
 				</td>
 				<td class="codes">
