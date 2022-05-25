@@ -138,7 +138,7 @@
                         (if (lib.error/error? result)
                           [param-kw result]
                           pair))
-                      [param-kw (lib.error/error &quot;no such parameter&quot; :parameter param-kw)]))
+                      [param-kw (lib.error/error &quot;no such parameter&quot; {:parameter param-kw})]))
                   params))))</pre>
 				</td>
 			</tr>

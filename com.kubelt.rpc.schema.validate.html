@@ -103,7 +103,7 @@
   ;; TODO use guards
   (let [missing-set (missing-refs schema)]
     (if-not (empty? missing-set)
-      (lib.error/error {:message &quot;missing \$refs&quot; :missing missing-set})
+      (lib.error/error &quot;missing \$refs&quot; {:missing missing-set})
       schema)))</pre>
 				</td>
 			</tr>

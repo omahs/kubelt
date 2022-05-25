@@ -47,35 +47,6 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(comment
-  (key (clojure.lang.MapEntry/create :schema {:xxx true}))
-  (first (clojure.lang.MapEntry/create :schema {:xxx true}))
-
-  (val (clojure.lang.MapEntry/create :schema {:xxx true}))
-  (second (clojure.lang.MapEntry/create :schema {:xxx true}))
-
-  (seq (val (clojure.lang.MapEntry/create :schema {:xxx true})))
-
-  (empty (clojure.lang.MapEntry/create :schema {:xxx true}))
-
-  (seq (clojure.lang.MapEntry/create :schema {:xxx true}))
-
-  (first (rest (seq (clojure.lang.MapEntry/create :schema {:xxx true}))))
-
-  (reverse (seq (clojure.lang.MapEntry/create :schema {:xxx true})))
-
-  (let [me (clojure.lang.MapEntry/create :schema {:xxx true})]
-    (into
-     (empty (seq me))
-     (seq me)))
-  )</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
 					<h2>map-entry</h2>Construct a map entry.
 				</td>
 				<td class="codes">
@@ -89,7 +60,8 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn- map-entry
   [k v]
-  (clojure.lang.MapEntry/create k v))</pre>
+  #?(:clj (clojure.lang.MapEntry/create k v)
+     :cljs (cljs.core/MapEntry. k v nil)))</pre>
 				</td>
 			</tr>
 			<tr>

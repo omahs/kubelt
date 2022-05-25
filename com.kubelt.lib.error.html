@@ -90,9 +90,16 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn error
-  [e]
-  {:com.kubelt/type :kubelt.type/error
-   :error e})</pre>
+  ([message]
+   (error message nil))
+  ([message data]
+   (error message data nil))
+  ([message data cause]
+   (cond-&gt;
+    {:com.kubelt/type :kubelt.type/error
+     :error message}
+     data (assoc :data data)
+     cause (assoc :cause cause))))</pre>
 				</td>
 			</tr>
 			<tr>
