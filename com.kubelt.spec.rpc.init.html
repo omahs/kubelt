@@ -32,7 +32,9 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.spec.rpc.init
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:require
+   [com.kubelt.spec.jwt :as spec.jwt]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -85,7 +87,8 @@
 					<pre class="brush: clojure">(def options
   [:map
    [:http/client {:optional true} http-client]
-   [:http/user-agent {:optional true} user-agent]])</pre>
+   [:http/user-agent {:optional true} user-agent]
+   [:rpc/jwt {:optional true} spec.jwt/jwt]])</pre>
 				</td>
 			</tr>
 			<tr>

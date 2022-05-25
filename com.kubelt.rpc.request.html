@@ -52,8 +52,11 @@
         ;; All RPC calls use POST.
         method :post
         user-agent (get options :http/user-agent )
-        headers {&quot;Content-Type&quot; &quot;application/json&quot;
-                 &quot;User-Agent&quot; user-agent}
+        headers (merge
+                 {&quot;Content-Type&quot; &quot;application/json&quot;
+                  &quot;User-Agent&quot; user-agent}
+                 (when-let [jwt (:rpc/jwt options)]
+                   {&quot;KBT-Access-JWT-Assertion&quot; jwt}))
         trailers {}
         scheme :http
         domain (:uri/domain options &quot;example.com&quot;)

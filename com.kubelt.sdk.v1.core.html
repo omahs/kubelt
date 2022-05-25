@@ -34,8 +34,6 @@
 					<pre class="brush: clojure">(ns com.kubelt.sdk.v1.core
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [cljs.core.async :as async :refer [&lt;! go]])
-  (:require
    [com.kubelt.lib.error :as lib.error]
    [com.kubelt.lib.http.status :as http.status]
    [com.kubelt.lib.jwt :as lib.jwt]
@@ -100,7 +98,13 @@
                  ;; it and sending it back.
                  (let [decoded-jwt (lib.jwt/decode verify-result)]
                    ;; TODO verify jwt
-                   (assoc-in sys [:crypto/session :vault/tokens core] decoded-jwt)))))))))))</pre>
+                   ;; TODO once we are able to inject a
+                   ;; platform-specific storage capability, use that to
+                   ;; allow the SDK state (or possibly just a subset,
+                   ;; e.g. tokens) to be frozen and thawed back out
+                   (-&gt; sys
+                       (assoc-in [:crypto/session :vault/tokens core] decoded-jwt)
+                       (assoc-in [:crypto/session :vault/tokens* core] verify-result))))))))))))</pre>
 				</td>
 			</tr>
 			<tr>

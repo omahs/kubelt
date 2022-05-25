@@ -34,16 +34,17 @@
 					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.call
   {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as cstr]
+   [clojure.string :as cstr])
+  (:require
    [com.kubelt.ddt.auth :as ddt.auth]
    [com.kubelt.ddt.options :as ddt.options]
    [com.kubelt.ddt.prompt :as ddt.prompt]
    [com.kubelt.ddt.util :as ddt.util]
+   [com.kubelt.lib.json :as lib.json]
    [com.kubelt.lib.promise :as lib.promise]
    [com.kubelt.rpc :as rpc]
    [com.kubelt.rpc.schema :as rpc.schema]
-   [com.kubelt.sdk.v1.core :as sdk.core]
-   [taoensso.timbre :as log]))</pre>
+   [com.kubelt.sdk.v1.core :as sdk.core]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -65,6 +66,50 @@
        :boolean true
        :alias &quot;e&quot;
        :default false})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn rpc-args [args]
+  (let [args-map (ddt.options/to-map args)
+        method (ddt.util/rpc-name-&gt;path (get args-map :method ))
+        params (get args-map :param {})
+        rpc-client-type (get args-map (keyword ethers-rpc-name))]
+    (assoc args-map
+           :method method
+           :params params
+           :rpc-client-type rpc-client-type)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn rpc-call&amp; [sys api args]
+  (lib.promise/promise
+   (fn [resolve reject]
+     (let [wallet-address (-&gt; sys :crypto/wallet :wallet/address)
+           client (-&gt; {:uri/domain (-&gt; sys :client/p2p :http/host)
+                       :uri/port (-&gt; sys :client/p2p :http/port)
+                       :uri/path (cstr/join  [&quot;/@&quot; wallet-address &quot;/jsonrpc&quot;])
+                       :http/client (:client/http sys)
+                       :rpc/jwt (get-in sys [:crypto/session :vault/tokens* wallet-address])}
+                      rpc/init
+                      (rpc.schema/schema api))
+           request (rpc/prepare client (:method args) (or (:params args) {}))
+           rpc-method (:method/name (:rpc/method request))
+           rpc-params (:rpc/params request)]
+       (if (:rpc-client-type args)
+         (-&gt; (sdk.core/call-rpc-method sys wallet-address rpc-method (into [] (vals rpc-params)))
+             (lib.promise/then resolve)
+             (lib.promise/catch reject))
+         (-&gt; (rpc/execute client request)
+             (lib.promise/then #(resolve (-&gt; % :http/body :result)))
+             (lib.promise/catch reject)))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -102,45 +147,20 @@
    ;; user to provide this value as a colon-separated string,
    ;; e.g. :foo:bar.
    :handler (fn [args]
-              (let [args-map (ddt.options/to-map args)
-                    method (-&gt; args-map :method ddt.util/rpc-name-&gt;path)
-                    params (get args-map :param {})
-                    rpc-client-type (get args-map (keyword ethers-rpc-name))]
+              (let [args (rpc-args args)]
                 (ddt.prompt/ask-password!
                  (fn [err result]
                    (ddt.util/exit-if err)
                    (ddt.auth/authenticate
-                    args-map
+                    args
                     (.-password result)
                     (fn [sys]
                       (-&gt; (sdk.core/rpc-api sys (-&gt; sys :crypto/wallet :wallet/address))
                           (lib.promise/then
                            (fn [api]
-                             (let [wallet-address (-&gt; sys :crypto/wallet :wallet/address)
-                                   client (-&gt; {:uri/domain (-&gt; sys :client/p2p :http/host)
-                                               :uri/port (-&gt; sys :client/p2p :http/port)
-                                               :uri/path (cstr/join  [&quot;/@&quot; wallet-address &quot;/jsonrpc&quot;])
-                                               :http/client (:client/http sys)}
-                                              rpc/init
-                                              (rpc.schema/schema api))
-                                   request (rpc/prepare client method (or params {}))
-                                   rpc-method (:method/name (:rpc/method request))
-                                   rpc-params (:rpc/params request)]
-                               (if rpc-client-type
-                                 (-&gt; (sdk.core/call-rpc-method sys wallet-address rpc-method (into [] (vals rpc-params)))
-                                     (lib.promise/then
-                                      (fn [r]
-                                        (println &quot;Response: &quot; r)))
-                                     (lib.promise/catch
-                                         (fn [e]
-                                           (println &quot;ERROR: &quot; e))))
-                                 (-&gt; (rpc/execute client request)
-                                     (lib.promise/then
-                                      (fn [r]
-                                        (println &quot;Response: &quot; (-&gt; r :http/body :result))))
-                                     (lib.promise/catch
-                                         (fn [e]
-                                           (println &quot;ERROR: &quot; e))))))))
+                             (-&gt; (rpc-call&amp; sys api args)
+                                 (lib.promise/then #(println &quot;-&gt; &quot; %))
+                                 (lib.promise/catch #(println &quot;ERROR-&gt; &quot; %)))))
                           (lib.promise/catch
                            (fn [e]
                              (println (ex-message e))

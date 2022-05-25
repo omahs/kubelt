@@ -87,7 +87,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Create a JSON-RPC client.</p>
+					<p>Create a JSON-RPC client. Supported options include:</p><ul><li>:http/client, the HTTP client to use; must reify the HttpClient protocol</li><li>:http/user-agent, a User Agent string to include when making requests</li><li>:rpc/jwt, a JWT to include with any requests that are performed</li></ul>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn init
@@ -296,6 +296,7 @@
     [spec.rpc.execute/options options]
     (let [http-client (get client :http/client)
           http-request (get request :http/request)]
+      (tap&gt; [::execute http-request])
       ;; TODO validate result
       ;; :node/browser Returns a promise.
       ;; :jvm Returns a future.
