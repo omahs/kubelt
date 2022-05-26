@@ -128,7 +128,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">#?(:clj (alter-var-root #'lookup memoize)
-   :cljs (def lookup (memoize lookup) ))</pre>
+   :cljs (set! lookup (memoize lookup)))</pre>
 				</td>
 			</tr>
 			<tr>
