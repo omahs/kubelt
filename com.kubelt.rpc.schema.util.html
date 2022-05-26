@@ -100,7 +100,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>lookup</h2>TODO memoize
+					<h2>lookup</h2>NB We memoize the lookup function to avoid repeating the workof (possibly recursively) looking up the definition of a \$ref. Thisis done via alter-var-root, which atomically alters the root bindingof a var by applying a function and any arguments. The advantage isthat it leaves the original fn available for development and testing,without needing to account for the complications in these areas thatarise from memoization.
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -117,11 +117,17 @@
   (loop [components (get schema :components)
          ref-path (ref-&gt;path \$ref)
          ref-val (get-in schema ref-path)]
-    ;;(prn ref-path)
-    ;;(prn ref-val)
     (if-not (contains? ref-val :\$ref)
       ref-val
       (recur components ref-path ref-val))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(alter-var-root #'lookup memoize)</pre>
 				</td>
 			</tr>
 			<tr>
