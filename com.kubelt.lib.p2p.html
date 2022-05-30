@@ -99,8 +99,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn authenticate!
-  [sys core]
-  {:pre [(string? core)]}
+  [sys]
   (let [address (get-in sys [:crypto/wallet :wallet/address])]
     ;; Make an JsonRpc call to p2p system, passing along the user's
     ;; wallet address. Expect a nonce in return, which should be signed
@@ -108,7 +107,7 @@
     ;; registration.
     ;;
     ;; Returns a promise.
-    (send (json-rpc-provider sys core) &quot;kb_auth&quot; [address])))</pre>
+    (send (json-rpc-provider sys address) &quot;kb_auth&quot; [address])))</pre>
 				</td>
 			</tr>
 			<tr>
