@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.core</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.core.profile</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -31,11 +31,11 @@
 					<p>RPC core options</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.core
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.core.profile
   {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.ddt.cmds.rpc.core.config :as core.config]
-   [com.kubelt.ddt.cmds.rpc.core.profile :as core.profile]))</pre>
+   [com.kubelt.ddt.cmds.rpc.core.profile.get :as core.profile.get]
+   [com.kubelt.ddt.cmds.rpc.core.profile.set :as core.profile.set]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -44,12 +44,12 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defonce command
-  {:command &quot;core &lt;command&gt;&quot;
-   :desc &quot;Work with RPC core APIs&quot;
+  {:command &quot;profile&quot;
+   :desc &quot;Work with RPC core profile APIs&quot;
    :builder (fn [^js yargs]
               (-&gt; yargs
-                  (.command (clj-&gt;js core.config/command))
-                  (.command (clj-&gt;js core.profile/command))
+                  (.command (clj-&gt;js core.profile.get/command))
+                  (.command (clj-&gt;js core.profile.set/command))
                   (.demandCommand)))})</pre>
 				</td>
 			</tr>

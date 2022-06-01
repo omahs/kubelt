@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.core</h1>
+							<h1 class="project-name">com.kubelt.lib.rpc</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,14 +28,18 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>RPC core options</p>
+					<p>Play with rpc.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.core
+					<pre class="brush: clojure">(ns com.kubelt.lib.rpc
   {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.ddt.cmds.rpc.core.config :as core.config]
-   [com.kubelt.ddt.cmds.rpc.core.profile :as core.profile]))</pre>
+   [clojure.string :as cstr])
+  (:require
+   [com.kubelt.lib.promise :as lib.promise]
+   [com.kubelt.rpc :as rpc]
+   [com.kubelt.rpc.schema :as rpc.schema]
+   [com.kubelt.sdk.v1.core :as sdk.core]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -43,14 +47,28 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defonce command
-  {:command &quot;core &lt;command&gt;&quot;
-   :desc &quot;Work with RPC core APIs&quot;
-   :builder (fn [^js yargs]
-              (-&gt; yargs
-                  (.command (clj-&gt;js core.config/command))
-                  (.command (clj-&gt;js core.profile/command))
-                  (.demandCommand)))})</pre>
+					<pre class="brush: clojure">(defn rpc-call&amp; [sys api args]
+  (lib.promise/promise
+   (fn [resolve reject]
+     (let [wallet-address (-&gt; sys :crypto/wallet :wallet/address)
+           client (-&gt; {:uri/domain (-&gt; sys :client/p2p :http/host)
+                       :uri/port (-&gt; sys :client/p2p :http/port)
+                       :uri/scheme (-&gt; sys :client/p2p :http/scheme)
+                       :uri/path (cstr/join  [&quot;/@&quot; wallet-address &quot;/jsonrpc&quot;])
+                       :http/client (:client/http sys)
+                       :rpc/jwt (get-in sys [:crypto/session :vault/tokens* wallet-address])}
+                      rpc/init
+                      (rpc.schema/schema api))
+           request (rpc/prepare client (:method args) (or (:params args) {}))
+           rpc-method (:method/name (:rpc/method request))
+           rpc-params (:rpc/params request)]
+       (if (:rpc-client-type args)
+         (-&gt; (sdk.core/call-rpc-method sys wallet-address rpc-method (into [] (vals rpc-params)))
+             (lib.promise/then resolve)
+             (lib.promise/catch reject))
+         (-&gt; (rpc/execute client request)
+             (lib.promise/then #(resolve (-&gt; % :http/body :result)))
+             (lib.promise/catch reject)))))))</pre>
 				</td>
 			</tr>
 			<tr>
