@@ -114,24 +114,6 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Return a no-op wallet that can be used as a placeholder.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn no-op
-  []
-  {:post [(valid? %)]}
-  (let [null-address &quot;0x00000000000000000000&quot;
-        null-key {:com.kubelt.type :kubelt.type/public-key
-                  :key/data &quot;&quot;}]
-    {:com.kubelt/type :kubelt.type/wallet
-     :wallet/address null-address
-     :wallet/encrypt-key null-key
-     :wallet/decrypt-fn identity
-     :wallet/sign-fn identity}))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
 					<p>Return true if named wallet exists, and false otherwise.</p>
 				</td>
 				<td class="codes">
@@ -204,7 +186,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Create a platform-appropriate wallet.</p><p>TODO</p>
+					<p>Create a platform-appropriate wallet.</p><p>TODO support browser, jvm</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn create
@@ -220,8 +202,7 @@
 					<pre class="brush: clojure">(defn import&amp;
   [app-name wallet-name mnemonic password]
   {:pre [(string? app-name) (string? wallet-name) (string? mnemonic) (string? password)]}
-  #?(:node
-     (wallet.node/import&amp; app-name wallet-name mnemonic password)))</pre>
+  #?(:node (wallet.node/import&amp; app-name wallet-name mnemonic password)))</pre>
 				</td>
 			</tr>
 			<tr>

@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds</h1>
+							<h1 class="project-name">com.kubelt.spec.storage</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,30 +28,11 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Define ddt command hierarchy.</p>
+					<p>Schema for configuration storage.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
-  (:require
-   [com.kubelt.ddt.cmds.http :as ddt.http]
-   [com.kubelt.ddt.cmds.ipfs :as ddt.ipfs]
-   [com.kubelt.ddt.cmds.json-ld :as ddt.json-ld]
-   [com.kubelt.ddt.cmds.jwt :as ddt.jwt]
-   [com.kubelt.ddt.cmds.path :as ddt.path]
-   [com.kubelt.ddt.cmds.rdf :as ddt.rdf]
-   [com.kubelt.ddt.cmds.rpc :as ddt.rpc]
-   [com.kubelt.ddt.cmds.sdk :as ddt.sdk]
-   [com.kubelt.ddt.cmds.storage :as ddt.storage]
-   [com.kubelt.ddt.cmds.wallet :as ddt.wallet]))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Public</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
+					<pre class="brush: clojure">(ns com.kubelt.spec.storage
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -59,29 +40,39 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn init
-  [yargs]
-  (-&gt; yargs
-      ;; \$DDT http &lt;command&gt;
-      (.command (clj-&gt;js ddt.http/command))
-      ;; \$DDT ipfs &lt;command&gt;
-      (.command (clj-&gt;js ddt.ipfs/command))
-      ;; \$DDT json-ld &lt;command&gt;
-      (.command (clj-&gt;js ddt.json-ld/command))
-      ;; \$DDT jwt &lt;command&gt;
-      (.command (clj-&gt;js ddt.jwt/command))
-      ;; \$DDT path &lt;command&gt;
-      (.command (clj-&gt;js ddt.path/command))
-      ;; \$DDT rdf &lt;command&gt;
-      (.command (clj-&gt;js ddt.rdf/command))
-      ;; \$DDT rpc &lt;command&gt;
-      (.command (clj-&gt;js ddt.rpc/command))
-      ;; \$DDT sdk &lt;command&gt;
-      (.command (clj-&gt;js ddt.sdk/command))
-      ;; \$DDT storage &lt;command&gt;
-      (.command (clj-&gt;js ddt.storage/command))
-      ;; \$DDT wallet &lt;command&gt;
-      (.command (clj-&gt;js ddt.wallet/command))))</pre>
+					<pre class="brush: clojure">(def store-fn
+  [:=&gt; {:description &quot;A storage function that takes a map of SDK state
+and writes it to platform storage. Returns an error map on error.&quot;}
+   ;; TODO return error map and the stored value on success?
+   [:cat :any] [:or :string :map]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def restore-fn
+  [:=&gt; {:description &quot;A storage function that returns an SDK instance
+using state loaded from platform storage, or an error map if an error
+occurs.&quot;}
+   ;; TODO returns a system map (use more precise spec once available)
+   [:cat :any] :map])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def storage
+  [:and {:description &quot;A wrapper around platform storage for storing
+   some SDK configuration state. Note that we use an &amp; suffix to denote
+   a function that returns a delayed computation (future, promise).&quot;}
+   [:map
+    [:com.kubelt/type [:enum :kubelt.type/storage]]
+    [:storage/store-fn store-fn]
+    [:storage/restore-fn restore-fn]]])</pre>
 				</td>
 			</tr>
 			<tr>

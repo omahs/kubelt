@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.storage.create</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,30 +28,15 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Define ddt command hierarchy.</p>
+					<p>Invoke the SDK (init) method.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.storage.create
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.ddt.cmds.http :as ddt.http]
-   [com.kubelt.ddt.cmds.ipfs :as ddt.ipfs]
-   [com.kubelt.ddt.cmds.json-ld :as ddt.json-ld]
-   [com.kubelt.ddt.cmds.jwt :as ddt.jwt]
-   [com.kubelt.ddt.cmds.path :as ddt.path]
-   [com.kubelt.ddt.cmds.rdf :as ddt.rdf]
-   [com.kubelt.ddt.cmds.rpc :as ddt.rpc]
-   [com.kubelt.ddt.cmds.sdk :as ddt.sdk]
-   [com.kubelt.ddt.cmds.storage :as ddt.storage]
-   [com.kubelt.ddt.cmds.wallet :as ddt.wallet]))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Public</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
+   [com.kubelt.ddt.options :as ddt.options]
+   [com.kubelt.lib.promise :as lib.promise]
+   [com.kubelt.lib.storage :as lib.storage]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -59,29 +44,16 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn init
-  [yargs]
-  (-&gt; yargs
-      ;; \$DDT http &lt;command&gt;
-      (.command (clj-&gt;js ddt.http/command))
-      ;; \$DDT ipfs &lt;command&gt;
-      (.command (clj-&gt;js ddt.ipfs/command))
-      ;; \$DDT json-ld &lt;command&gt;
-      (.command (clj-&gt;js ddt.json-ld/command))
-      ;; \$DDT jwt &lt;command&gt;
-      (.command (clj-&gt;js ddt.jwt/command))
-      ;; \$DDT path &lt;command&gt;
-      (.command (clj-&gt;js ddt.path/command))
-      ;; \$DDT rdf &lt;command&gt;
-      (.command (clj-&gt;js ddt.rdf/command))
-      ;; \$DDT rpc &lt;command&gt;
-      (.command (clj-&gt;js ddt.rpc/command))
-      ;; \$DDT sdk &lt;command&gt;
-      (.command (clj-&gt;js ddt.sdk/command))
-      ;; \$DDT storage &lt;command&gt;
-      (.command (clj-&gt;js ddt.storage/command))
-      ;; \$DDT wallet &lt;command&gt;
-      (.command (clj-&gt;js ddt.wallet/command))))</pre>
+					<pre class="brush: clojure">(defonce command
+  {:command &quot;create&quot;
+   :desc &quot;Initialize SDK storage&quot;
+   :requiresArg false
+   :builder (fn [^Yargs yargs]
+              yargs)
+   :handler (fn [args]
+              (let [args-map (ddt.options/to-map args)
+                    app-name (get args-map :app-name)]
+                (lib.storage/create app-name)))})</pre>
 				</td>
 			</tr>
 			<tr>
