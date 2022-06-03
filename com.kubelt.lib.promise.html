@@ -28,15 +28,19 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Promise-related utilities. These are mix of wrappers around Google Clojure promise-related functions and core.async promise-related functions; some has been directly cadged (with slight modification) from jamesmacaulay/cljs-promises.</p>
+					<p>Promise-related utilities. Wrapper around funcool/promesa lib ... macros cloned</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.lib.promise
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:refer-clojure :exclude [delay promise
+                            map
+                            let
+                            -&gt; -&gt;&gt; as-&gt; do])
   (:require
-   [goog.async.promises :refer [allMapValues]])
-  (:require
-   [cljs.core.async.interop :refer-macros [&lt;p!]]))</pre>
+   [promesa.protocols :as pt]
+   [clojure.core :as c]
+   [promesa.core :as p]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -45,27 +49,6 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Internal</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- cast-as-array
-  [coll]
-  (if (or (array? coll)
-          (not (reduceable? coll)))
-    coll
-    (into-array coll)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -83,7 +66,7 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn promise?
   [x]
-  (= js/Promise (type x)))</pre>
+  (p/promise? x))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -94,7 +77,7 @@
 					<pre class="brush: clojure">(defn promise
   [resolver]
   {:pre [(fn? resolver)]}
-  (js/Promise. resolver))</pre>
+  (p/create resolver))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -103,12 +86,9 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn then
-  ([promise on-fulfilled]
-   {:pre [(fn? on-fulfilled)]}
-   (.then promise on-fulfilled))
-  ([promise on-fulfilled on-rejected]
-   {:pre [(every? fn? [on-fulfilled on-rejected])]}
-   (.then promise on-fulfilled on-rejected)))</pre>
+  [promise on-fulfilled]
+  {:pre [(fn? on-fulfilled)]}
+  (p/then promise on-fulfilled))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -119,7 +99,7 @@
 					<pre class="brush: clojure">(defn catch
   [promise on-rejected]
   {:pre [(fn? on-rejected)]}
-  (.catch promise on-rejected))</pre>
+  (p/catch promise on-rejected))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -130,7 +110,7 @@
 					<pre class="brush: clojure">(defn finally
   [promise on-final]
   {:pre [(fn? on-final)]}
-  (.finally promise on-final))</pre>
+  (p/finally promise on-final))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -140,7 +120,7 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn resolved
   [x]
-  (.resolve js/Promise x))</pre>
+  (p/promise x))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -150,59 +130,63 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn rejected
   [x]
-  (.reject js/Promise x))</pre>
+  (p/rejected x))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Returns a promise that resolves after the given millisecond interval.</p>
+					<p>Returns a cancellable promise that will be fulfilled with this promise's fulfillment value or rejection reason.  However, if this promise is not fulfilled or rejected within <code>ms</code> milliseconds, the returned promise is cancelled with a TimeoutError</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn timeout
-  [ms]
-  (promise (fn [resolve _]
-             (js/setTimeout resolve ms))))</pre>
+  [p ms]
+  (p/timeout p ms))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Takes an iterable of promises and returns a single promise that resolves as soon as any of the promises in the iterable fulfills, with the value of the fulfilled promise.</p><p>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any</p>
+					<p>Given a timeout in miliseconds and optional value, returns a promise that will fulfilled with provided value (or nil) after the time is reached.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn delay
+  [ms]
+  (p/delay ms))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Given an array of promises, return a promise that is fulfilled when first one item in the array is fulfilled.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn any
   [coll]
-  (.any js/Promise (cast-as-array coll)))</pre>
+  (p/any coll))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Takes an iterable of promises and returns a single promise that resolves to an array of the results of the input promises.</p><p>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all</p>
+					<p>Given an array of promises, return a promise that is fulfilled  when all the items in the array are fulfilled.</p><p>Example:</p><p>(-> (all [(promise :first-promise)           (promise :second-promise)]     (then (fn [[first-result second-result]]))      (println (str first-result ", " second-result)</p><p>Will print out :first-promise, :second-promise.</p><p>If at least one of the promises is rejected, the resulting promise will be rejected.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn all
   [coll]
-  (.all js/Promise (cast-as-array coll)))</pre>
+  (p/all coll))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Resolves when all promise values in the map resolve. The resolved value will be a map with the same keys as the input map, but with the resolved values of the promises. Rejects with first error if any promise rejects. Like Promise.all() but for Maps.</p><p>Google Clojure library promise utilities:   https://google.github.io/closure-library/api/goog.async.promises.html JavaScript native Maps:   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map</p>
+					<p>cloned of [funcool/promesa 8.0.450]</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn all-map
-  [js-map]
-  {:pre [(= js/Map (type js-map))] :post [(promise? %)]}
-  (allMapValues js-map))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Returns a promise that resolves after all of the given promises have either fulfilled or rejected, with an array of objects that each describes the outcome of each promise.</p><p>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn all-settled
-  [coll]
-  (.allSettled js/Promise (cast-as-array coll)))</pre>
+					<pre class="brush: clojure">(defmacro let
+  [bindings &amp; body]
+  `(pt/-bind
+    (pt/-promise nil)
+    (fn [_#]
+      ~(c/-&gt;&gt; (reverse (partition 2 bindings))
+              (reduce (fn [acc [l r]]
+                        `(pt/-bind (pt/-promise ~r) (fn [~l] ~acc)))
+                      `(do! ~@body))))))</pre>
 				</td>
 			</tr>
 			<tr>
