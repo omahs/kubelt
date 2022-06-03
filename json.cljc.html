@@ -96,10 +96,13 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Public</h2>
+					<p>json parseable from js env (without transit, so eg: no keyword support)</p><h2>Public</h2>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure"></pre>
+					<pre class="brush: clojure">(defn edn-&gt;json-forjs-str
+  [x]
+  #?(:clj (json/write-value-as-string x)
+     :cljs  (js/JSON.stringify (clj-&gt;js x))))</pre>
 				</td>
 			</tr>
 			<tr>
