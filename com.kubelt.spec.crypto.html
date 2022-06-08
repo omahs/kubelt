@@ -39,11 +39,20 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>TODO Match against a regex</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def hex-string
-  :string)</pre>
+					<pre class="brush: clojure">(def hex-64-string
+  (spec.common/hex 64))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def hex-128-string
+  (spec.common/hex 128))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -77,7 +86,7 @@
    [:digest/byte-length spec.common/byte-length]
    [:digest/bit-length spec.common/bit-length]
    [:digest/bytes spec.common/byte-data]
-   [:digest/hex-string hex-string]])</pre>
+   [:digest/hex-string hex-64-string]])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -85,7 +94,7 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def digest-spec
+					<pre class="brush: clojure">#_(def digest-spec
   [:and
    {:name &quot;Digest&quot;
     :description &quot;A cryptographic digest.&quot;
@@ -95,29 +104,17 @@
               :com.kubelt/type :kubelt.type/digest
               :digest/bytes [0 0 0]
               :digest/hex-string &quot;c3ab...0c4f2&quot;}}
-   digest])</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Seed</h2>Defines the schema for a crypto seed.
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(def seed
+   digest])
+;; Seed
+;; -----------------------------------------------------------------------------
+;; Defines the schema for a crypto seed.
+(def seed
   [:map
    [:com.kubelt/type [:enum :kubelt.type/crypto.seed]]
    [:digest/byte-length spec.common/byte-length]
    [:digest/bit-length spec.common/bit-length]
    [:digest/algorithm digest-algorithm]
-   [:seed/hex-string hex-string]
+   [:seed/hex-string hex-64-string]
    [:seed/bytes spec.common/byte-data]])</pre>
 				</td>
 			</tr>
@@ -241,7 +238,7 @@
   [:map
    [:com.kubelt/type [:enum :kubelt.type/crypto.signature]]
    [:signature/algorithm keypair-algorithm]
-   [:signature/hex-string hex-string]
+   [:signature/hex-string hex-128-string]
    [:signature/bytes spec.common/byte-data]
    [:signature/length spec.common/byte-length]])</pre>
 				</td>

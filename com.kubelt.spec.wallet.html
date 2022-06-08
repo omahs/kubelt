@@ -36,7 +36,6 @@
   (:require
    [com.kubelt.spec.common :as spec.common]
    [com.kubelt.spec.core :as spec.core]
-   [com.kubelt.spec.crypto :as spec.crypto]
    [com.kubelt.spec.jwt :as spec.jwt]))</pre>
 				</td>
 			</tr>
@@ -45,9 +44,21 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def wallet-address
-  ;; TODO should be 0x&lt;hex string&gt;
-  :string)</pre>
+					<pre class="brush: clojure">(defn- hex-0x-pattern [length]
+  (str &quot;0[xX]&quot; (spec.common/hex-pattern length)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>string length +2 thus it's prefixed with 0x</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn hex-0x
+  [length]
+  [:and
+   [:re
+    (re-pattern (hex-0x-pattern length))]
+   [:string {:max (+ 2 length) :min (+ 2 length)}]])</pre>
 				</td>
 			</tr>
 			<tr>
@@ -55,9 +66,9 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def key-string
-  ;; TODO hex string
-  :string)</pre>
+					<pre class="brush: clojure">(def wallet-address
+  (let [length 40]
+    (hex-0x length)))</pre>
 				</td>
 			</tr>
 			<tr>

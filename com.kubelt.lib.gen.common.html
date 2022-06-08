@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.spec.common</h1>
+							<h1 class="project-name">com.kubelt.lib.gen.common</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,19 +28,13 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Specs for commonly used types of data.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.spec.common
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;})</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Common</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
+					<pre class="brush: clojure">(ns com.kubelt.lib.gen.common
+  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+  (:require [malli.util :as mu]
+            [malli.core :as m]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -48,8 +42,8 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def byte-length
-  :int)</pre>
+					<pre class="brush: clojure">(def hex-digit
+  (set &quot;0123456789abcdefABCDEF&quot;))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -57,19 +51,8 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def bit-length
-  :int)</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>A portable spec for byte data. Per environment we expect:</p><ul><li>[CLJ] a primitive byte array</li><li>[CLJS] an Uint8Array instance</li></ul>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(def byte-data
-  #?(:clj bytes?
-     ;; TODO should be a Uint8Array
-     :cljs :any))</pre>
+					<pre class="brush: clojure">(defn rand-hex []
+  (rand-nth (vec hex-digit)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -77,8 +60,18 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn hex-pattern [length]
-  (str &quot;[\\\\da-fA-F]{&quot; length &quot;}&quot;))</pre>
+					<pre class="brush: clojure">(defn generate-hex [length]
+  (apply str (repeatedly length rand-hex)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>malli helper to define :re schema using gen/fmap  Pay attention that [:string {:min xx :max xx} goes after [:re …....] spec]  otherwise malli will raise following error: "Couldn't satisfy such-that predicate after 100 tries."</p><p>Example:     [:and       [:re<h1>?(:cljs {:gen/fmap (gen-fmap-hex 10)})</h1>        (re-pattern (hex-pattern 10))]       [:string {:min 10 :max 10}]]</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn gen-fmap-hex
+  [length]
+  #(generate-hex length))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -86,11 +79,31 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn hex [length]
-  [:and
-   [:re
-    (re-pattern (hex-pattern length))]
-   [:string {:max length :min length}]])</pre>
+					<pre class="brush: clojure">(defn re-gen [re-schema gen]
+  (mu/update-in
+   re-schema [0]
+   (fn [x]
+     (mu/update-properties
+      x merge gen))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn re-length [schema]
+  (-&gt; (mu/get-in schema [1]) (m/properties) :max))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn hex [schema]
+  (let [length (re-length schema)]
+    (re-gen schema {:gen/fmap (gen-fmap-hex length)})))</pre>
 				</td>
 			</tr>
 			<tr>
