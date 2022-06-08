@@ -34,9 +34,10 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.http.browser
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
+   [clojure.string :as cstr])
+  (:require
    [goog.net.XhrIo :as xhrio]
-   [goog.url :as gurl]
-   [clojure.string :as str])
+   [goog.url :as gurl])
   (:require
    [malli.core :as malli])
   (:require
@@ -81,14 +82,14 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Only lower-case when content-type exists. Calling <code>str/lower-case</code> on <code>nil</code> throws an error.</p>
+					<p>Only lower-case when content-type exists. Calling <code>cstr/lower-case</code> on <code>nil</code> throws an error.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn- validate-content-type
   [content-type]
   (when (and content-type
-             (not (str/blank? content-type)))
-    (str/lower-case content-type)))</pre>
+             (not (cstr/blank? content-type)))
+    (cstr/lower-case content-type)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -120,6 +121,21 @@
 			</tr>
 			<tr>
 				<td class="docs">
+					<p>We are generally not allowed to set certain headers from browser. Returns the given map of headers with any disallowed headers removed.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn- strip-forbidden-headers
+  [headers]
+  {:pre [(map? headers)]}
+  (let [forbidden #{&quot;user-agent&quot;}]
+    (into {} (remove (fn [[header _]]
+                       (let [header (-&gt; header cstr/trim cstr/lower-case)]
+                         (contains? forbidden header)))
+                     headers))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
 					<h2>Public</h2>
 				</td>
 				<td class="codes">
@@ -147,7 +163,12 @@
              ;; Perform the HTTP request.
              (let [method (http.shared/request-&gt;method request)
                    body (http.shared/request-&gt;body request)
-                   headers (http.shared/request-&gt;headers request)
+                   headers (-&gt; request
+                               http.shared/request-&gt;headers
+                               ;; Some headers may not be sent from a
+                               ;; browser context, so we'll remove them
+                               ;; here.
+                               strip-forbidden-headers)
                    headers-obj (clj-&gt;js headers)
                    ;; 0 means no timeout.
                    timeout-ms 0
