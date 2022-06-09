@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">config_test.cljc</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Test SDK configuration maps.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns lib.config-test
+  #?(:clj
+     (:require
+      [clojure.test :as t :refer [deftest is testing use-fixtures]])
+     :cljs
+     (:require
+      [cljs.test :as t :refer [deftest is testing use-fixtures]]))
+  (:require
+   [clojure.string :as str])
+  (:require
+   [malli.core :as malli])
+  (:require
+   [com.kubelt.lib.config.default :as lib.config.default]
+   [com.kubelt.spec.config :as spec.config]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn with-defaults [conf]
+  (merge lib.config.default/sdk conf))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest config-test
+  (testing &quot;default config is valid&quot;
+    (is (malli/validate spec.config/sdk-config lib.config.default/sdk)
+        &quot;default options must be valid&quot;))
+  (testing &quot;logging levels&quot;
+    (testing &quot;log level&quot;
+      (let [options (with-defaults {:log/level :log})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :log is valid&quot;)))
+    (testing &quot;trace level&quot;
+      (let [options (with-defaults {:log/level :trace})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :trace is valid&quot;)))
+    (testing &quot;debug level&quot;
+      (let [options (with-defaults {:log/level :debug})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :debug is valid&quot;)))
+    (testing &quot;info level&quot;
+      (let [options (with-defaults {:log/level :info})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :info is valid&quot;)))
+    (testing &quot;warn level&quot;
+      (let [options (with-defaults {:log/level :warn})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :warn is valid&quot;)))
+    (testing &quot;error level&quot;
+      (let [options (with-defaults {:log/level :error})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :error is valid&quot;)))
+    (testing &quot;fatal level&quot;
+      (let [options (with-defaults {:log/level :fatal})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;logging min-level of :fatal is valid&quot;))))
+  (testing &quot;ipfs settings&quot;
+    (testing &quot;valid address&quot;
+      (testing &quot;read address&quot;
+        (let [options (with-defaults {:ipfs.read/host &quot;192.168.1.1&quot;})]
+          (is (malli/validate spec.config/sdk-config options)
+              &quot;a dotted-quad string is a valid host&quot;))
+        (let [options (with-defaults {:ipfs.read/port 1234})]
+          (is (malli/validate spec.config/sdk-config options)
+              &quot;an integer is a valid port&quot;)))
+      (testing &quot;write address&quot;
+        (let [options (with-defaults {:ipfs.write/host &quot;192.168.1.1&quot;})]
+          (is (malli/validate spec.config/sdk-config options)
+              &quot;a dotted-quad string is a valid host&quot;))
+        (let [options (with-defaults {:ipfs.write/port 1234})]
+          (is (malli/validate spec.config/sdk-config options)
+              &quot;an integer is a valid port&quot;))))
+    (testing &quot;invalid scheme&quot;
+      (let [options (with-defaults {:ipfs.read/scheme :foobar})]
+        (is (not (malli/validate spec.config/sdk-config options))
+            &quot;scheme should be :http or :https&quot;))
+      (let [options (with-defaults {:ipfs.write/scheme :foobar})]
+        (is (not (malli/validate spec.config/sdk-config options))))))
+  (testing &quot;p2p settings&quot;
+    (testing &quot;valid address&quot;
+      (let [options (with-defaults {:p2p/host &quot;127.0.0.1&quot;})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;a dotted-quad string is a valid host&quot;))
+      (let [options (with-defaults {:p2p/port 1234})]
+        (is (malli/validate spec.config/sdk-config options)
+            &quot;an integer is a valid port&quot;)))
+    (testing &quot;invalid scheme&quot;
+      (let [options (with-defaults {:p2p/scheme :foobar})]
+        (is (not (malli/validate spec.config/sdk-config options))
+            &quot;scheme should be :http or :https&quot;)))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

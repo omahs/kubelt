@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">rdf.jsonld-test</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Test the parsing of JSON-LD into RDF/cljs data values.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns rdf.jsonld-test
+  (:require
+   [cljs.test :as t :refer [deftest is testing use-fixtures]]
+   [clojure.string :as str])
+  (:require
+   [malli.core :as malli])
+  (:require
+   [com.kubelt.lib.rdf.json-ld :as rdf.json-ld]
+   [com.kubelt.spec.quad :as spec.quad]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Utilities</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a blank node map, as would be returned by parsing JSON-LD data using the jsonld library.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn blank-node
+  [value]
+  {:pre [(string? value)]}
+  {:termType &quot;BlankNode&quot;
+   :value value})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a default graph map, as would be returned by parsing JSON-LD data using the jsonld library.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn default-graph
+  []
+  {:termType &quot;DefaultGraph&quot; :value &quot;&quot;})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a literal map, as would be returned by parsing JSON-LD data using the jsonld library. Providing the language is optional.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn literal
+  ([value datatype]
+   {:pre [(string? value) (map? datatype)]}
+   {:termType &quot;Literal&quot;
+    :value value
+    :datatype datatype})
+  ([value language datatype]
+   {:pre [(string? value) (string? language) (map? datatype)]}
+   {:termType &quot;Literal&quot;
+    :value value
+    :language language
+    :datatype datatype}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a named node map, as would be returned by parsing JSON-LD data using the jsonld library.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn named-node
+  [value]
+  {:pre [(string? value)]}
+  {:termType &quot;NamedNode&quot;
+   :value value})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a variable map, as would be returned by parsing JSON-LD data using the jsonld library.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn variable
+  [value]
+  {:pre [(string? value)]}
+  {:termType &quot;Variable&quot; :value value})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Construct a quad map, as would be returned by parsing JSON-LD data using the jsonld library.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn quad
+  [m]
+  {:pre [(map? m)]}
+  (merge {:termType &quot;Quad&quot;} m))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Fixtures</h2>A fixture can run :once (before and after <em>all</em> tests are executed),or :each (before and after each individual test).
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#_(use-fixtures :once
+  {:before (fn [] (println &quot;start all&quot;))
+   :after (fn [] (println &quot;done all&quot;))})
+#_(use-fixtures :each
+  {:before (fn [] (println &quot;start test&quot;))
+   :after (fn [] (println &quot;done test&quot;))})
+;; Data
+;; -----------------------------------------------------------------------------
+(def datatype-string
+  {:termType &quot;NamedNode&quot;,
+   :value &quot;http://www.w3.org/2001/XMLSchema#string&quot;})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def blank-b0
+  (blank-node &quot;_:b0&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def blank-b1
+  (blank-node &quot;_:b1&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def blank-b2
+  (blank-node &quot;_:b2&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def named-image
+  (named-node &quot;http://schema.org/image&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def named-name
+  (named-node &quot;http://schema.org/name&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def named-url
+  (named-node &quot;http://schema.org/url&quot;))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def literal-name
+  (literal &quot;Kubelt&quot; &quot;en&quot; datatype-string))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def graph
+  (default-graph))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def quad-one
+  (quad {:subject blank-b0
+         :predicate named-image
+         :object blank-b1
+         :graph graph}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def quad-two
+  (quad {:subject blank-b0
+         :predicate named-name
+         :object literal-name
+         :graph graph}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def quad-three
+  (quad {:subject blank-b0
+         :predicate named-url
+         :object blank-b2
+         :graph graph}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>An example of the data returned by the jsonld library when parsing JSON-LD data. Note that this is all JavaScript data.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def doc
+  #js [(clj-&gt;js quad-one)
+       (clj-&gt;js quad-two)
+       (clj-&gt;js quad-three)])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<h2>Tests</h2>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Ensure that an RDF/js named node is correctly converted to RDF/cljs.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest named-node-test
+  (let [value &quot;https://schema.org/url&quot;
+        node (named-node value)
+        term (rdf.json-ld/named-node-&gt;value node)]
+    (is (map? term))
+    (is (malli/validate spec.quad/named-node term))
+    (is (= (:rdf/type term) :rdf.term/named-node))
+    (is (= (:value term) value))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Ensure that an RDF/js literal is correctly converted to RDF/cljs.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest literal-test
+  (let [value &quot;Kubelt&quot;
+        language &quot;en&quot;
+        node (literal value language datatype-string)
+        term (rdf.json-ld/literal-&gt;value node)]
+    (is (map? term))
+    (is (malli/validate spec.quad/literal term))
+    (is (= (:rdf/type term) :rdf.term/literal))
+    (is (= (:language term) language))
+    (is (= (:value term) value))
+    ;; Check that the datatype map is converted to a RDF/cljs named node
+    ;; map with the expected type URI (in this case, of an XML String).
+    (let [string-uri (:value datatype-string)
+          term-datatype (:datatype term)]
+      (is (map? term-datatype))
+      (is (malli/validate spec.quad/named-node term-datatype))
+      (is (= (:rdf/type term-datatype) :rdf.term/named-node))
+      (is (= (:value term-datatype) string-uri)))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Ensure that an RDF/js default graph is correctly converted to RDF/cljs.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest default-graph-test
+  (let [node (default-graph)
+        term (rdf.json-ld/default-graph-&gt;value node)]
+    (is (map? term))
+    (is (malli/validate spec.quad/default-graph term))
+    (is (= (:rdf/type term) :rdf.term/default-graph))
+    (is (= (:value term) ))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Ensure that an RDF/js blank node is correctly converted to RDF/cljs.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest blank-node-test
+  (testing &quot;with a non-prefixed blank node name&quot;
+    ;; Test using a non-prefixed blank node name.
+    (let [value &quot;b0&quot;
+          node (blank-node value)
+          term (rdf.json-ld/blank-node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/blank-node term))
+      (is (= (:rdf/type term) :rdf.term/blank-node))
+      (is (= (:value term) value))))
+  (testing &quot;with a prefixed blank node name&quot;
+    ;; Test using a prefixed node name (having a prefix of &quot;_:&quot;). The
+    ;; stored name value should be stripped of its prefix.
+    (let [name &quot;b0&quot;
+          prefixed (str/join &quot;:&quot; [&quot;_&quot; name])
+          node (blank-node prefixed)
+          term (rdf.json-ld/blank-node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/blank-node term))
+      (is (= (:rdf/type term) :rdf.term/blank-node))
+      (is (= (:value term) name)))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Ensure that an RDF/js variable is correctly converted to RDF/cljs.</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest variable-test
+  (let [value &quot;foobar&quot;
+        node (variable value)
+        term (rdf.json-ld/variable-&gt;value node)]
+    (is (map? term))
+    (is (malli/validate spec.quad/variable term))
+    (is (= (:rdf/type term) :rdf.term/variable))
+    (is (= (:value term) value))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest quad-test
+  (let [quad {:subject blank-b0
+              :predicate named-image
+              :object blank-b1
+              :graph graph}
+        term (rdf.json-ld/quad-&gt;value quad)]
+    (is (map? term))
+    (is (malli/validate spec.quad/quad term))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest node-test
+  (testing &quot;with blank node&quot;
+    (let [value &quot;b0&quot;
+          node (blank-node value)
+          term (rdf.json-ld/node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/blank-node term))
+      (is (= (:rdf/type term) :rdf.term/blank-node))
+      (is (= (:value term) value))))
+  (testing &quot;with default graph&quot;
+    (let [node (default-graph)
+          term (rdf.json-ld/node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/default-graph term))
+      (is (= (:rdf/type term) :rdf.term/default-graph))
+      (is (= (:value term) ))))
+  (testing &quot;with literal&quot;
+    (let [value &quot;kubelt&quot;
+          node (literal value datatype-string)
+          term (rdf.json-ld/node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/literal term))
+      (is (= (:rdf/type term) :rdf.term/literal))
+      (is (= (:value term) value))))
+  (testing &quot;with named node&quot;
+    (let [value &quot;http://schema.org/image&quot;
+          node (named-node value)
+          term (rdf.json-ld/node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/named-node term))
+      (is (= (:rdf/type term) :rdf.term/named-node))
+      (is (= (:value term) value))))
+  (testing &quot;with variable&quot;
+    (let [value &quot;?foobar&quot;
+          node (variable value)
+          term (rdf.json-ld/node-&gt;value node)]
+      (is (map? term))
+      (is (malli/validate spec.quad/variable term))
+      (is (= (:rdf/type term) :rdf.term/variable))
+      (is (= (:value term) value))))
+  (testing &quot;with quad&quot;
+    (let [quad quad-one
+          term (rdf.json-ld/node-&gt;value quad)]
+      (is (map? term))
+      (is (malli/validate spec.quad/quad term))
+      (is (= :rdf.term/quad (:rdf/type term)))
+      (testing &quot;with subject&quot;
+        (is (= :rdf.term/blank-node (get-in term [:rdf.quad/subject :rdf/type])))
+        (is (= &quot;b0&quot; (get-in term [:rdf.quad/subject :value]))))
+      (testing &quot;with predicate&quot;
+        (is (= :rdf.term/named-node (get-in term [:rdf.quad/predicate :rdf/type])))
+        (is (= &quot;http://schema.org/image&quot; (get-in term [:rdf.quad/predicate :value]))))
+      (testing &quot;with object&quot;
+        (is (= :rdf.term/blank-node (get-in term [:rdf.quad/object :rdf/type])))
+        (is (= &quot;b1&quot; (get-in term [:rdf.quad/object :value]))))
+      (testing &quot;with graph term&quot;
+        (is (= :rdf.term/default-graph (get-in term [:rdf.quad/graph :rdf/type])))
+        (is (=  (get-in term [:rdf.quad/graph :value])))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest js-test
+  (let [quads-p (rdf.json-ld/js-&gt;graph doc)]
+    (-&gt; quads-p
+        (.then (fn [graph]
+                 (is (map? graph))
+                 (is (= :rdf.type/graph (:rdf/type graph)))
+                 ;; Validate result is a RDF/cljs knowledge graph.
+                 (is (malli/validate spec.quad/knowledge-graph graph))
+                 (let [quads (:quads graph)]
+                   (is (vector? quads))
+                   ;; Three quads * 4 components.
+                   (is (= 12 (count quads)))))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

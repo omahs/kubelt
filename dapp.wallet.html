@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">dapp.wallet</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns dapp.wallet
+  (:require
+   [com.kubelt.sdk.v1 :as sdk.v1]
+   [com.kubelt.sdk.v1.core :as sdk.core]
+   [re-frame.core :as re-frame]
+   [taoensso.timbre :as log]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Helper function that dispatches an account changed event</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn accounts-changed
+  [event]
+  (re-frame/dispatch ::accounts-changed))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Helper function that dispatches a chain changed event</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn chain-changed
+  [event]
+  (re-frame/dispatch ::chain-changed))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>TODO: subscribe to accounts changed after connected (p/let [provider (detectEthereumProvider)] ((.on provider) "accountsChanged" accounts-changed) ((.on provider) "chainChanged" chain-changed)))</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Events</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p><code>::connect-account</code> isn't used but is kept for reference when working on integrating new providers Handle a connection to different wallets and kick off the zk-auth</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">#_(re-frame/reg-event-db
+ ::connect-account
+  (fn [db [_ wallet]]
+    (let [web3 ^js/Web3 (:web3 db)
+          _ (log/debug {:msg &quot;connect-account&quot; :wallet wallet :web3 web3})
+          eth (.-eth web3)]
+      (log/debug {:msg &quot;eth provider&quot; :provider (.-providers eth)})
+      (-&gt; (.requestAccounts eth)
+        (.then (fn [accounts]
+                 ; TODO:
+                 ; - check for which account is selected
+                 ; - call the SDK &quot;login&quot;
+                 (log/debug {:msg &quot;found account&quot; :account (first accounts)})
+                 (assoc db :current-account (first accounts))))))))
+
+(re-frame/reg-event-db
+ ::set-web3-modal
+ (fn [db [_ modal]]
+   (assoc db :web3-modal modal)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-db
+ ::set-current-wallet
+ (fn [db [_ wallet]]
+   (let [ctx (:sdk/ctx db)]
+     ;; `sdk.core/set-wallet` also validates the structure of `wallet`
+     (.then (sdk.core/set-wallet ctx wallet)
+            (fn [new-ctx]
+              (re-frame/dispatch [::authenticate! new-ctx])))
+     db)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-db
+ ::authenticate!
+ (fn [db [_ new-ctx]]
+   (let [wallet-address (get-in new-ctx [:crypto/wallet :wallet/address])]
+     (-&gt; (sdk.core/authenticate&amp; new-ctx)
+         (.then (fn [auth-ctx]
+                  (log/info {:message (str &quot;Authenticating a new wallet with address: &quot; wallet-address)})
+                  ;; must dispatch the next event within the promise
+                  (re-frame/dispatch [::authenticate-success auth-ctx])))
+         (.catch (fn [err]
+                   (log/error {:message (str &quot;Failed to authenticate with wallet address: &quot; wallet-address)
+                               :error err})
+                   (re-frame/dispatch [::authenticate-failure wallet-address err]))))
+     ;; needs to return `db` since this is a `reg-event-db`
+     db)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-db
+ ::authenticate-success
+ (fn [db [_ auth-ctx]]
+   (assoc db :sdk/ctx auth-ctx)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-db
+ ::authenticate-failure
+ (fn [db [_ wallet-address err]]
+   (assoc-in db [:sdk/ctx :errors wallet-address] err)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Two events for disconnect for testing async completion via re-frame-test</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-fx
+ ::disconnect
+ (fn [{:keys [db]} [_ wallet-address]]
+   (log/info {:message (str &quot;Disconnecting from address: &quot; wallet-address)})
+   ;; Clear the provider from the web3-modal object
+   (.clearCachedProvider (:web3-modal db))
+   ;; Reset the SDK context to `init` state
+   (.then (sdk.v1/init {:app/name &quot;kubelt-dapp&quot;})
+          (fn [ctx]
+            (re-frame/dispatch [:dapp.core/init-sdk ctx])))
+   {:db (assoc db :sdk/ctx {})
+    :dispatch [::disconnect-success]}))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-db
+ ::disconnect-success
+ (fn [db _]
+   (dissoc db :web3-modal)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-fx ::accounts-changed
+  (fn [coeffects event]
+    ))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-event-fx ::chain-changed
+  (fn [coeffects event]
+    ))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Effects ;;;</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					<p>Subs ;;;</p>
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure"></pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-sub
+ ::ctx
+ (fn [db]
+   (:sdk/ctx db)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-sub
+ ::wallet
+ (fn [db]
+   (get-in db [:sdk/ctx :crypto/wallet])))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(re-frame/reg-sub
+ ::logged-in?
+ :&lt;- [::ctx]
+ :&lt;- [::wallet]
+ (fn [[ctx {:wallet/keys [address] :as _wallet}] _]
+   (sdk.core/logged-in? ctx address)))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

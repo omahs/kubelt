@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">dapp.pages.dashboard</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns dapp.pages.dashboard
+  (:require
+   [dapp.components.button :as button]
+   [dapp.components.dashboard.cta :as dashboard-cta]
+   [dapp.components.dashboard.tile :as dashboard-tile]
+   [dapp.components.web3-modal :as web3-modal]
+   [re-frame.core :as re-frame]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn connect-wallet
+  []
+  [:div.connect-wallet
+   {:class &quot;flex flex-col mt-36 content-center text-center&quot;}
+   [:img
+    {:class &quot;h-8&quot;
+     :src &quot;images/wallet.svg&quot;}]
+   [:p
+    {:class &quot;text-gray-900 text-sm mt-4&quot;}
+    &quot;Connect a Wallet&quot;]
+   [:p
+    {:class &quot;text-gray-500 text-sm my-1&quot;}
+    &quot;Get started by connecting your wallet.&quot;]
+   [button/render {:id &quot;connect-a-wallet&quot;
+                   :class &quot;self-center mt-6&quot;
+                   :text &quot;Connect a Wallet&quot;
+                   :on-click (fn [e]
+                               (.preventDefault e)
+                               (web3-modal/open-modal))
+                   :variant :primary}]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn create-an-app
+  []
+  [:div.create-an-app
+   {:class &quot;flex flex-col my-8 content-center text-center&quot;}
+   [:img
+    {:class &quot;h-8&quot;
+     :src &quot;images/folder-create.svg&quot;}]
+   [:p
+    {:class &quot;text-gray-900 text-sm mt-4&quot;}
+    &quot;No apps&quot;]
+   [:p
+    {:class &quot;text-gray-500 text-sm my-1&quot;}
+    &quot;Get started by creating a new app.&quot;]
+   [button/render {:id &quot;create-an-app&quot;
+                   :class &quot;self-center mt-6&quot;
+                   :text &quot;Create an App&quot;
+                   ;; TODO: Unimplemented
+                   :on-click (fn [e]
+                               (.preventDefault e))
+                   :variant :primary}]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn root-core-details
+  []
+  [:div.root-core-details
+   [:div.metrics
+    {:class &quot;flex flex-row&quot;}
+    ;; Dashboard Metrics
+    [dashboard-tile/render
+     {:id &quot;metrics-1&quot;
+      :heading &quot;Dummy metrics&quot;
+      :metric-data {:base &quot;70,946&quot;
+                    :current &quot;71,897&quot;}}]
+    [dashboard-tile/render
+     {:id &quot;metrics-2&quot;
+      :heading &quot;Dummy metrics&quot;
+      :metric-data {:base &quot;70,946&quot;
+                    :current &quot;71,897&quot;}}]
+    [dashboard-tile/render
+     {:id &quot;metrics-3&quot;
+      :heading &quot;Dummy metrics&quot;
+      :metric-data {:base &quot;70,946&quot;
+                    :current &quot;71,897&quot;}}]]
+   ;; Dashboard calls to action
+   [:div.calls-to-action
+    {:class &quot;mt-8 flex flex-row&quot;}
+    [dashboard-cta/render
+     {:heading &quot;Join our community&quot;
+      :id &quot;community-cta&quot;
+      :image-file &quot;images/community.svg&quot;
+      :link &quot;https://discord.gg/rQdPmUyk8p&quot;
+      ;; TODO: Needs better copy
+      :paragraph &quot;Link to our Discord server&quot;}]
+    [dashboard-cta/render
+     {:heading &quot;Learn best practices&quot;
+      :id &quot;best-practices-cta&quot;
+      :image-file &quot;images/learn.svg&quot;
+      :link &quot;https://kubelt.com/docs/next/basics/introduction/&quot;
+      ;; TODO: Needs better copy
+      :paragraph &quot;Link to our docs&quot;}]]
+   ;; Create a new app OR view active apps
+   [:div.active-apps
+    {:class &quot;mt-8 flex flex-col&quot;}
+    [:h1
+     {:class &quot;ml-6 text-gray-900 font-semibold&quot;}
+     &quot;Most Active Apps&quot;]
+    [create-an-app]]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn dashboard-content
+  [logged-in?]
+  [:div.dashboard-content
+   {:class &quot;bg-gray-100 h-full flex flex-col&quot;}
+   [:h1
+    {:class &quot;mt-6 ml-6 text-xl w-auto&quot;}
+    &quot;Dashboard&quot;]
+   (if logged-in?
+     [root-core-details]
+     [connect-wallet])])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn render
+  []
+  (let [logged-in? (re-frame/subscribe [:dapp.wallet/logged-in?])]
+    (fn []
+      [:div.dashboard-container
+       {:class &quot;h-full&quot;}
+       [dashboard-content @logged-in?]])))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>

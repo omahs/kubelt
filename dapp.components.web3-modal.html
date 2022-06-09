@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" content="text/html" http-equiv="Content-Type" />
+		<meta content="" name="description" />
+		<title>Kubelt SDK Reference</title>
+ 		<link rel="stylesheet" type="text/css" href="css/shCore.css" />
+		<style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style>
+		<link rel="stylesheet" type="text/css" href="css/shThemeMarginalia.css" />
+		<link rel="stylesheet" type="text/css" href="css/marginalia.css" />
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="js/xregexp-min.js"></script>
+		<script type="text/javascript" src="js/shCore.js"></script>
+		<script type="text/javascript" src="js/shBrushClojure.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td class="docs">
+					<div class="docs-header">
+						<a class="anchor" href="#repl" name="repl">
+							<h1 class="project-name">dapp.components.web3-modal</h1>
+							<a class="toc-link" href="index.html">toc</a>
+						</a>
+					</div>
+				</td>
+				<td class="codes" />
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(ns dapp.components.web3-modal
+  (:require
+   [com.kubelt.lib.promise :refer [promise]]
+   [com.kubelt.lib.crypto.hexify :as hexify]
+   [dapp.wallet :as wallet]
+   [ethers :as ethers]
+   [re-frame.core :as re-frame]
+   [taoensso.timbre :as log])
+  (:require
+   [&quot;web3modal\$default&quot; :as Web3Modal]
+   [&quot;@coinbase/wallet-sdk&quot; :as CoinbaseWalletSDK]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ^:private provider-options
+  {:walletlink
+   {:package CoinbaseWalletSDK
+    :options
+    {:appName &quot;Kubelt&quot;}}})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ^:private default-modal-config
+  {:network &quot;mainnet&quot;
+   :cache-provider? true
+   :theme &quot;light&quot;})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn gen-modal-config
+  [{:keys [network cache-provider? theme]} provider-opts]
+  {:network network
+   :cacheProvider cache-provider?
+   :theme theme
+   :providerOptions provider-opts})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn gen-kubelt-wallet
+  [address sign-fn]
+  {:com.kubelt/type :kubelt.type/wallet
+   :wallet/address address
+   :wallet/sign-fn sign-fn})</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn make-sign-fn
+  [provider wallet-address]
+  (fn [signable]
+    (promise
+     (fn [resolve _reject]
+       (let [signable-buffer (hexify/hex-string signable)]
+         (-&gt; (.request provider (clj-&gt;js {:method &quot;personal_sign&quot;
+                                          :params [signable-buffer wallet-address]}))
+             (.then (fn [digest]
+                      (resolve digest)))))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn fetch-and-set-wallet
+  [provider account]
+  (let [raw-address (first (js-&gt;clj account))
+        wallet-address (ethers/utils.getAddress raw-address)
+        sign-fn (make-sign-fn provider wallet-address)
+        new-wallet (gen-kubelt-wallet wallet-address sign-fn)]
+    (re-frame/dispatch [::wallet/set-current-wallet new-wallet])))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn open-modal []
+  (log/trace &quot;open the modal&quot;)
+  (let [modal-config (gen-modal-config default-modal-config provider-options)
+        modal (Web3Modal. (clj-&gt;js modal-config))]
+    ;(.clearCachedProvider modal)
+    (-&gt; (.connect modal)
+        ;; TODO: figure out why this won't re-prompt wallet if password was not entered at prompt
+        (.then (fn [provider]
+                 (log/debug {:provider provider})
+                 (-&gt; (.request provider (clj-&gt;js {:method &quot;eth_requestAccounts&quot;}))
+                     (.then (fn [account]
+                              ;; Set the web3-modal object in the app-db. Needed to disconnect later.
+                              (re-frame/dispatch [::wallet/set-web3-modal modal])
+                              ;; Set the wallet to begin auth flow
+                              (fetch-and-set-wallet provider account))))))
+        (.catch (fn [error]
+                  (.clearCachedProvider modal)
+                  (log/error error))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="spacer docs">&nbsp;</td>
+				<td class="codes" />
+			</tr>
+		</table>
+		<div class="footer">Generated by <a href="https://github.com/captain-porcelain/sidenotes">Sidenotes</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+		</div>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+</html>
