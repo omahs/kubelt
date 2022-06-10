@@ -41,7 +41,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Internal</h2>
+					<h2>str->kw</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -52,37 +52,11 @@
 					<p>Convert a log level string (e.g. 'info', ':info') to a keyword.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn log-level-&gt;keyword
+					<pre class="brush: clojure">(defn str-&gt;kw
   [log-level]
   (if (string? log-level)
-    (keyword (cstr/replace log-level #&quot;^:&quot; &quot;&quot;))
+    (keyword (-&gt; log-level (cstr/trim) (cstr/replace #&quot;^:&quot; &quot;&quot;)))
     log-level))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Public</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Convert a JavaScript configuration object to a Clojure config map.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">#?(:cljs
-   (defn obj-&gt;map
-     [o]
-     {:pre [(object? o)]}
-     (let [config  (js-&gt;clj o :keywordize-keys true)]
-       (if (empty? config)
-         lib.config.default/sdk
-         ;; Fix up any config map values that didn't translate from
-         ;; JavaScript.
-         (-&gt; config
-             (update-in [:log/level] log-level-&gt;keyword))))))</pre>
 				</td>
 			</tr>
 			<tr>

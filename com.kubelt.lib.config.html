@@ -34,12 +34,13 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.config
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as str]))</pre>
+   [com.kubelt.lib.config.default :as lib.config.default]
+   [com.kubelt.lib.config.util :as lib.config.util]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<h2>Internal</h2>
+					<h2>obj->map</h2>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure"></pre>
@@ -47,39 +48,21 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Convert a log level string (e.g. 'info', ':info') to a keyword.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- log-level-&gt;keyword
-  [s]
-  (if (string? s)
-    (keyword (str/replace s #&quot;^:&quot; &quot;&quot;))
-    log-level))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<h2>Public</h2>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure"></pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Convert a JavaScript configuration object to a Clojure config map.</p>
+					<p>Convert a JavaScript object containing SDK initialization options to a Clojure config map containing the same configuration options but updated to conform to the schema that defines what is allowed as an option to the SDK (init) call. Any configuration options that aren't provided are set to their default values in the returned map.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn obj-&gt;map
   [o]
   {:pre [(object? o)]}
-  (let [config (js-&gt;clj o :keywordize-keys true)]
-    (if (empty? config)
-      default-config
-      ;; Fix up any config map values that didn't translate from
-      ;; JavaScript.
-      (-&gt; config
-          (update-in [:log/level] log-level-&gt;keyword)))))</pre>
+  (let [config  (js-&gt;clj o :keywordize-keys true)
+        config  (merge lib.config.default/sdk config)]
+    ;; Fix up any config map values that didn't translate from
+    ;; JavaScript.
+    (-&gt; config
+        (update-in [:log/level] lib.config.util/str-&gt;kw)
+        (update-in [:p2p/scheme] lib.config.util/str-&gt;kw)
+        (update-in [:ipfs.read/scheme] lib.config.util/str-&gt;kw)
+        (update-in [:ipfs.write/scheme] lib.config.util/str-&gt;kw))))</pre>
 				</td>
 			</tr>
 			<tr>
