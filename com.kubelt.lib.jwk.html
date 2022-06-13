@@ -178,21 +178,22 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn- jwk-as-obj
-  [jwk]
-  (letfn [(kw-&gt;str [kw]
-            (name (csk/-&gt;camelCase kw)))]
-    (let [key-id (get jwk :jwk/id)
-          key-type (get jwk :jwk/type)
-          key-use (kw-&gt;str (get jwk :jwk/use))
-          key-alg (kw-&gt;str (get jwk :jwk/algorithm))
-          key-ops (mapv kw-&gt;str (get jwk :jwk/operations))]
-      (clj-&gt;js
-       {:kid key-id
-        :kty key-type
-        :use key-use
-        :alg key-alg
-        :key_ops key-ops}))))</pre>
+					<pre class="brush: clojure">#?(:cljs
+   (defn- jwk-as-obj
+     [jwk]
+     (letfn [(kw-&gt;str [kw]
+               (name (csk/-&gt;camelCase kw)))]
+       (let [key-id (get jwk :jwk/id)
+             key-type (get jwk :jwk/type)
+             key-use (kw-&gt;str (get jwk :jwk/use))
+             key-alg (kw-&gt;str (get jwk :jwk/algorithm))
+             key-ops (mapv kw-&gt;str (get jwk :jwk/operations))]
+         (clj-&gt;js
+          {:kid key-id
+           :kty key-type
+           :use key-use
+           :alg key-alg
+           :key_ops key-ops})))))</pre>
 				</td>
 			</tr>
 			<tr>
