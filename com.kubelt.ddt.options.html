@@ -80,7 +80,7 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def p2p-port-default
+					<pre class="brush: clojure">(def oort-port-default
   8787)</pre>
 				</td>
 			</tr>
@@ -164,7 +164,7 @@
 				<td class="codes">
 					<pre class="brush: clojure">(def host-config
   #js {:alias &quot;h&quot;
-       :describe &quot;p2p service host&quot;
+       :describe &quot;oort service host&quot;
        :requiresArg true
        :demandOption &quot;service host is required&quot;
        :string true
@@ -188,12 +188,12 @@
 				<td class="codes">
 					<pre class="brush: clojure">(def port-config
   #js {:alias &quot;p&quot;
-       :describe &quot;p2p service port&quot;
+       :describe &quot;oort service port&quot;
        :requiresArg true
        :demandOption &quot;service port is required&quot;
        :number true
        :nargs 1
-       :default p2p-port-default})</pre>
+       :default oort-port-default})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -452,11 +452,11 @@
         ;; i.e. com.kubelt.\$name.
         base-name (.basename path (get m :\$0))
         app-name (cstr/join &quot;.&quot; [&quot;com&quot; &quot;kubelt&quot; base-name])
-        ;; Store the p2p service coordinates.
+        ;; Store the oort service coordinates.
         tls (get m :tls)
-        p2p-scheme (if tls :https :http)
-        p2p-host (get m :host)
-        p2p-port (get m :port)
+        oort-scheme (if tls :https :http)
+        oort-host (get m :host)
+        oort-port (get m :port)
         ;; Store coordinates of IPFS read host.
         ipfs-read-scheme (keyword (get m :ipfs-read-scheme))
         ipfs-read-host (get m :ipfs-read-host)
@@ -472,9 +472,9 @@
         credentials (apply hash-map jwts)]
     (-&gt; m
         (assoc :app-name app-name)
-        (assoc :p2p-scheme p2p-scheme)
-        (assoc :p2p-host p2p-host)
-        (assoc :p2p-port p2p-port)
+        (assoc :oort-scheme oort-scheme)
+        (assoc :oort-host oort-host)
+        (assoc :oort-port oort-port)
         (assoc :ipfs-read-scheme ipfs-read-scheme)
         (assoc :ipfs-read-host ipfs-read-host)
         (assoc :ipfs-read-port ipfs-read-port)
@@ -502,9 +502,9 @@
    :ipfs.write/scheme (get m :ipfs-write-scheme)
    :ipfs.write/host (get m :ipfs-write-host)
    :ipfs.write/port (get m :ipfs-write-port)
-   :p2p/scheme (get m :p2p-scheme)
-   :p2p/host (get m :p2p-host)
-   :p2p/port (get m :p2p-port)})</pre>
+   :oort/scheme (get m :oort-scheme)
+   :oort/host (get m :oort-host)
+   :oort/port (get m :oort-port)})</pre>
 				</td>
 			</tr>
 			<tr>

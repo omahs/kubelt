@@ -32,7 +32,8 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(ns com.kubelt.rpc.test-commons
-  (:require [com.kubelt.lib.util :as lib.util :refer [node-env]]))</pre>
+  (:require
+   [com.kubelt.lib.util :as lib.util :refer [node-env]]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -57,16 +58,16 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>return p2p config based on env</p><p>TODO use "oort-devnet.admin1337.workers.dev" as host when CORS issue abated</p>
+					<p>return p2p config based on env</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn p2p-config
+					<pre class="brush: clojure">(defn oort-config
   []
   (if (ci-env)
-      {:p2p/scheme :https
-       :app/name &quot;kubelt-test&quot;
-       :p2p/host &quot;oort-devnet.admin1337.workers.dev&quot;
-       :p2p/port  443}
+    {:app/name &quot;kubelt-test&quot;
+     :oort/scheme :https
+     :oort/host &quot;oort-devnet.admin1337.workers.dev&quot;
+     :oort/port  443}
     {}))</pre>
 				</td>
 			</tr>

@@ -43,7 +43,7 @@
    [com.kubelt.lib.promise :as lib.promise]
    [com.kubelt.rpc :as rpc]
    [com.kubelt.rpc.schema :as rpc.schema]
-   [com.kubelt.sdk.v1.core :as sdk.core]))</pre>
+   [com.kubelt.sdk.v1.oort :as sdk.oort]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -68,10 +68,10 @@
                   (ddt.options/to-map args)
                   (.-password result)
                   (fn [sys]
-                    (-&gt; (sdk.core/rpc-api sys (-&gt; sys :crypto/wallet :wallet/address))
+                    (-&gt; (sdk.oort/rpc-api sys (-&gt; sys :crypto/wallet :wallet/address))
                         (lib.promise/then (fn [api]
-                                            (let [client (-&gt; {:uri/domain (-&gt; sys :client/p2p :http/host)
-                                                              :uri/port (-&gt; sys :client/p2p :http/port)
+                                            (let [client (-&gt; {:uri/domain (-&gt; sys :client/oort :http/host)
+                                                              :uri/port (-&gt; sys :client/oort :http/port)
                                                               :uri/path (cstr/join  [&quot;/@&quot; (-&gt; sys :crypto/wallet :wallet/address) &quot;/jsonrpc&quot;])
                                                               :http/client (:client/http sys)}
                                                              rpc/init

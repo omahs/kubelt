@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.core.config.set</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.oort.config.set</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,23 +28,23 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>RPC core options</p>
+					<p>RPC oort config set options</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.core.config.set
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.oort.config.set
   {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [cljs.reader :as r])
   (:require
    [com.kubelt.ddt.auth :as ddt.auth]
-   [com.kubelt.lib.rpc :as lib.rpc ]
    [com.kubelt.ddt.cmds.rpc.call :as rpc.call ]
    [com.kubelt.ddt.options :as ddt.options]
    [com.kubelt.ddt.prompt :as ddt.prompt]
    [com.kubelt.ddt.util :as ddt.util]
    [com.kubelt.lib.json :as lib.json]
    [com.kubelt.lib.promise :as lib.promise]
-   [com.kubelt.sdk.v1.core :as sdk.core]))</pre>
+   [com.kubelt.lib.rpc :as lib.rpc ]
+   [com.kubelt.sdk.v1.oort :as sdk.oort]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -76,7 +76,7 @@
                     args
                     (.-password result)
                     (fn [sys]
-                      (-&gt; (sdk.core/rpc-api sys (-&gt; sys :crypto/wallet :wallet/address))
+                      (-&gt; (sdk.oort/rpc-api sys (-&gt; sys :crypto/wallet :wallet/address))
                           (lib.promise/then
                            (fn [api]
                              (-&gt; (lib.rpc/rpc-call&amp; sys api args)

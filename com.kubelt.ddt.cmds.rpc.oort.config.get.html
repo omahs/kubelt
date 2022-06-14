@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.core.profile.get</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.oort.config.get</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,10 +28,10 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>RPC core profile get</p>
+					<p>RPC oort config get</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.core.profile.get
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.oort.config.get
   {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.ddt.cmds.rpc.call :as rpc.call]
@@ -44,13 +44,13 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defonce command
-  {:command &quot;get&quot;
-   :desc &quot;Make an RPC get profile call.&quot;
+  {:command &quot;get [path]&quot;
+   :desc &quot;Make an RPC call.&quot;
    :requiresArg true
    :builder (fn [^Yargs yargs]
               (ddt.options/options yargs)
               (.option yargs rpc.call/ethers-rpc-name rpc.call/ethers-rpc-config))
-   :handler (rpc.call/ddt-rpc-call &quot;:kb:get:profile&quot;)})</pre>
+   :handler (rpc.call/ddt-rpc-call &quot;:kb:get:config&quot;)})</pre>
 				</td>
 			</tr>
 			<tr>

@@ -35,8 +35,8 @@
   {:author &quot;Proof Zero Inc.&quot;}
   (:require
    [com.kubelt.ddt.cmds.rpc.call :as rpc.call]
-   [com.kubelt.ddt.cmds.rpc.core :as rpc.core]
-   [com.kubelt.ddt.cmds.rpc.ls :as rpc.ls]))</pre>
+   [com.kubelt.ddt.cmds.rpc.ls :as rpc.ls]
+   [com.kubelt.ddt.cmds.rpc.oort :as rpc.oort]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -51,7 +51,7 @@
               (-&gt; yargs
                   (.command (clj-&gt;js rpc.call/command))
                   (.command (clj-&gt;js rpc.ls/command))
-                  (.command (clj-&gt;js rpc.core/command))
+                  (.command (clj-&gt;js rpc.oort/command))
                   (.demandCommand)))})</pre>
 				</td>
 			</tr>

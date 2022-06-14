@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.core.config</h1>
+							<h1 class="project-name">com.kubelt.ddt.cmds.rpc.oort.profile</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,14 +28,14 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>RPC core options</p>
+					<p>RPC oort options</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.core.config
+					<pre class="brush: clojure">(ns com.kubelt.ddt.cmds.rpc.oort.profile
   {:copyright &quot;ⓒ2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.ddt.cmds.rpc.core.config.get :as core.config.get]
-   [com.kubelt.ddt.cmds.rpc.core.config.set :as core.config.set]))</pre>
+   [com.kubelt.ddt.cmds.rpc.oort.profile.get :as oort.profile.get]
+   [com.kubelt.ddt.cmds.rpc.oort.profile.set :as oort.profile.set]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -44,12 +44,12 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defonce command
-  {:command &quot;config&quot;
-   :desc &quot;Work with RPC core config APIs&quot;
+  {:command &quot;profile&quot;
+   :desc &quot;Work with RPC oort profile APIs&quot;
    :builder (fn [^js yargs]
               (-&gt; yargs
-                  (.command (clj-&gt;js core.config.get/command))
-                  (.command (clj-&gt;js core.config.set/command))
+                  (.command (clj-&gt;js oort.profile.get/command))
+                  (.command (clj-&gt;js oort.profile.set/command))
                   (.demandCommand)))})</pre>
 				</td>
 			</tr>

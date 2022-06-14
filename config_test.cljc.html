@@ -116,16 +116,16 @@
             &quot;scheme should be :http or :https&quot;))
       (let [options (with-defaults {:ipfs.write/scheme :foobar})]
         (is (not (malli/validate spec.config/sdk-config options))))))
-  (testing &quot;p2p settings&quot;
+  (testing &quot;oort settings&quot;
     (testing &quot;valid address&quot;
-      (let [options (with-defaults {:p2p/host &quot;127.0.0.1&quot;})]
+      (let [options (with-defaults {:oort/host &quot;127.0.0.1&quot;})]
         (is (malli/validate spec.config/sdk-config options)
             &quot;a dotted-quad string is a valid host&quot;))
-      (let [options (with-defaults {:p2p/port 1234})]
+      (let [options (with-defaults {:oort/port 1234})]
         (is (malli/validate spec.config/sdk-config options)
             &quot;an integer is a valid port&quot;)))
     (testing &quot;invalid scheme&quot;
-      (let [options (with-defaults {:p2p/scheme :foobar})]
+      (let [options (with-defaults {:oort/scheme :foobar})]
         (is (not (malli/validate spec.config/sdk-config options))
             &quot;scheme should be :http or :https&quot;)))))</pre>
 				</td>

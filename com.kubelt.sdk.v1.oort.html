@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.sdk.v1.core</h1>
+							<h1 class="project-name">com.kubelt.sdk.v1.oort</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -31,13 +31,13 @@
 					<p>Account management.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.sdk.v1.core
+					<pre class="brush: clojure">(ns com.kubelt.sdk.v1.oort
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.lib.error :as lib.error]
    [com.kubelt.lib.http.status :as http.status]
    [com.kubelt.lib.jwt :as lib.jwt]
-   [com.kubelt.lib.p2p :as lib.p2p]
+   [com.kubelt.lib.oort :as lib.oort]
    [com.kubelt.lib.promise :as lib.promise :refer [promise]]
    [com.kubelt.lib.wallet :as lib.wallet]))</pre>
 				</td>
@@ -60,7 +60,7 @@
   ;; TODO add an extra arity that allows a wallet to be passed in?
   ;; TODO validate system map (especially: ensure wallet is present)
   (let [core (get-in sys [:crypto/wallet :wallet/address])]
-    (-&gt; (lib.p2p/authenticate! sys)
+    (-&gt; (lib.oort/authenticate! sys)
         (lib.promise/then
          (fn [auth-result]
            (if (lib.error/error? auth-result)
@@ -86,7 +86,7 @@
               ;; client IP to restrict renewing JWTs for other clients.
               ;; TODO check/assert that this is true.
               (lib.promise/then
-               (lib.p2p/verify! sys core nonce signature)
+               (lib.oort/verify! sys core nonce signature)
                (fn [verify-result]
                  (if (lib.error/error? verify-result)
                    ;; This triggers .catch handlers on returned promise.
@@ -121,7 +121,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn rpc-api [sys core]
-  (lib.p2p/rpc-api sys core))</pre>
+  (lib.oort/rpc-api sys core))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -139,7 +139,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn call-rpc-method [sys core method args]
-  (lib.p2p/call-rpc-method sys core method args))</pre>
+  (lib.oort/call-rpc-method sys core method args))</pre>
 				</td>
 			</tr>
 			<tr>

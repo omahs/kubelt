@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.lib.p2p</h1>
+							<h1 class="project-name">com.kubelt.lib.oort</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,16 +28,18 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Wrapper around the external p2p naming system.</p>
+					<p>Wrapper around the Oort backend.</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.lib.p2p
+					<pre class="brush: clojure">(ns com.kubelt.lib.oort
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [clojure.string :as cstr]
+   [clojure.string :as cstr])
+  (:require
+   [&quot;@ethersproject/providers&quot; :refer [JsonRpcProvider]])
+  (:require
    [taoensso.timbre :as log])
   (:require
-   [&quot;@ethersproject/providers&quot; :refer [JsonRpcProvider]]
    [com.kubelt.lib.error :as lib.error]
    [com.kubelt.lib.promise :as lib.promise]))</pre>
 				</td>
@@ -56,9 +58,9 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn- connection-uri [sys core]
-  (let [scheme (get-in sys [:client/p2p :http/scheme])
-        host (get-in sys [:client/p2p :http/host])
-        port (get-in sys [:client/p2p :http/port])
+  (let [scheme (get-in sys [:client/oort :http/scheme])
+        host (get-in sys [:client/oort :http/host])
+        port (get-in sys [:client/oort :http/port])
         path (cstr/join  [&quot;/@&quot; core &quot;/jsonrpc&quot;])
         uri (str (name scheme) &quot;://&quot; host &quot;:&quot; port path)]
     (log/debug {::connection-uri uri})
@@ -101,7 +103,7 @@
 					<pre class="brush: clojure">(defn authenticate!
   [sys]
   (let [address (get-in sys [:crypto/wallet :wallet/address])]
-    ;; Make an JsonRpc call to p2p system, passing along the user's
+    ;; Make an JsonRpc call to oort backend, passing along the user's
     ;; wallet address. Expect a nonce in return, which should be signed
     ;; and returned to prove ownership of provided key and complete
     ;; registration.
