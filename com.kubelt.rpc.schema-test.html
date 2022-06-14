@@ -111,7 +111,9 @@
                         (-&gt; (rpc/prepare client [:kb :ping] {})
                             (select-keys   [:com.kubelt/type :rpc/path :rpc/method])))
                        &quot;failing ping prepare expectations&quot;)))
-               (catch js/Error err (js/console.log err))
+               (catch js/Error err (do
+                                     (js/console.log err)
+                                     (is false err)))
                (finally (done)))))))</pre>
 				</td>
 			</tr>
