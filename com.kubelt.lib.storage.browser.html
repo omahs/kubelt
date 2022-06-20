@@ -34,8 +34,8 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.storage.browser
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [com.kubelt.lib.promise :as lib.promise]
-   [com.kubelt.lib.json :as lib.json]))</pre>
+   [com.kubelt.lib.json :as lib.json]
+   [com.kubelt.lib.promise :as lib.promise]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -113,7 +113,7 @@
    (fn [resolve _]
      (let [data (-&gt; (get-item DB_ID_KEY)
                     (lib.json/json-str-&gt;edn))]
-       (resolve {:data data})))))</pre>
+       (resolve data)))))</pre>
 				</td>
 			</tr>
 			<tr>

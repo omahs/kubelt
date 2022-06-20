@@ -53,7 +53,8 @@
            (go
              (try
                (let [app-name &quot;kubelt-dapp&quot;
-                     sdk      (&lt;p! (sdk.v1/init {:app/name app-name}))]
+                     sdk      (&lt;p! (sdk.v1/init {:app/name app-name}))
+                     vault {:com.kubelt/type :kubelt.type/vault, :vault/tokens {}}]
                  (is (some? sdk))
                  (let [data (-&gt; (&lt;p! (sdk.v1/store&amp;  sdk))
                                 :data
@@ -71,10 +72,11 @@
                             :ipfs.write/scheme :http,
                             :ipfs.write/host   &quot;127.0.0.1&quot;,
                             :ipfs.write/port   5001,
-                            :log/level         :warn,},
-                           :vault {:com.kubelt/type :kubelt.type/vault, :vault/tokens {}}})))
+                            :log/level         :warn},
+                           :vault vault})))
                  (let [data (&lt;p! (sdk.v1/restore&amp; sdk))]
                    (is (= app-name (:app/name data)))
+                   (is (= vault (:crypto/session data)))
                    (is (= #{:app/name
                             :client/http
                             :client/oort
