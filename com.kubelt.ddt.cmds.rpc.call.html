@@ -152,7 +152,7 @@
                           (lib.promise/then
                            (fn [api]
                              (-&gt; (lib.rpc/rpc-call&amp; sys api args)
-                                 (lib.promise/then #(println &quot;-&gt; &quot; %))
+                                 (lib.promise/then #(println &quot;-&gt; &quot; (-&gt; % :http/body :result)))
                                  (lib.promise/catch #(println &quot;ERROR-&gt; &quot; %)))))
                           (lib.promise/catch
                            (fn [e]
@@ -191,7 +191,7 @@
                  (lib.promise/then
                   (fn [api]
                     (-&gt; (lib.rpc/rpc-call&amp; sys api args)
-                        (lib.promise/then #(println &quot;-&gt; &quot; %))
+                        (lib.promise/then #(println &quot;-&gt; &quot; (-&gt; % :http/body :result)))
                         (lib.promise/catch #(println &quot;ERROR-&gt; &quot; %)))))
                  (lib.promise/catch
                   (fn [e]

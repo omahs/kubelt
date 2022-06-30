@@ -67,8 +67,18 @@
              (lib.promise/then resolve)
              (lib.promise/catch reject))
          (-&gt; (rpc/execute client request)
-             (lib.promise/then #(resolve (-&gt; % :http/body :result)))
+             (lib.promise/then resolve)
              (lib.promise/catch reject)))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn rpc-call-js [sys api args]
+ (-&gt; (rpc-call&amp; sys api (update (js-&gt;clj args :keywordize-keys true) :method #(mapv keyword %)))
+     (lib.promise/then clj-&gt;js)))</pre>
 				</td>
 			</tr>
 			<tr>
