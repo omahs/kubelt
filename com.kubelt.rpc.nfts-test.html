@@ -117,8 +117,7 @@
                      wallet (&lt;p! (wallet/load&amp; t.commons/app-name t.commons/wallet-name t.commons/wallet-password))
                      core (:wallet/address wallet)
                      kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet)))
-                     api (-&gt; (&lt;p! (sdk.oort/rpc-api sys core))
-                             (update :methods conj (&lt;! (lib.test-utils/read-local-edn&amp;go &quot;oort/methods/alchemy-get-nfts.edn&quot;))))
+                     api (&lt;p! (sdk.oort/rpc-api sys core))
                      nfts (-&gt; (&lt;p! (lib.rpc/rpc-call&amp; kbt api
                                                       {:method  [:alchemy :get-nf-ts]
                                                        :params {:params {:owner &quot;0xB0b9cd000A5AFA56d016C39470C3ec237df4e043&quot;}}}))
