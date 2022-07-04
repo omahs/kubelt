@@ -35,6 +35,7 @@
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.sdk.v1 :as sdk.v1]
+   [com.kubelt.lib.rpc :as lib.rpc]
    [com.kubelt.sdk.v1.oort :as sdk.v1.oort]))</pre>
 				</td>
 			</tr>
@@ -79,6 +80,9 @@
        :restore sdk.v1/restore-js&amp;
        ;; oort
        :oort #js {:authenticate sdk.v1.oort/authenticate-js!
+                  :callRpc sdk.v1.oort/call-rpc-api-js
+                  :callRpcClient lib.rpc/rpc-call-js
+                  :rpcApi sdk.v1.oort/rpc-api-js
                   :isLoggedIn sdk.v1.oort/logged-in-js?
                   :setWallet sdk.v1.oort/set-wallet-js}
        ;; development (removed from production builds)
