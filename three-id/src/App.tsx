@@ -1,3 +1,5 @@
+import "./tailwind/tailwind.css";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -29,18 +31,18 @@ export default function App() {
   });
 
   useEffect(() => {
-    stopSession()
+    stopSession();
 
     const asyncFn = async () => {
-      await startSession() 
-    }
+      await startSession();
+    };
 
-    asyncFn()
+    asyncFn();
 
     return () => {
-      stopSession()
-    }
-  }, [])
+      stopSession();
+    };
+  }, []);
 
   if (!fontsLoaded) return null;
 

@@ -23,7 +23,6 @@ const BLOCKED_HOSTNAMES = [
   //"miscreants.example.com",
 ];
 
-
 const serveAssetFrom = async (namespace, manifest, request, ctx) => {
   try {
     // getAssetFromKV(Evt) => Promise
@@ -117,5 +116,5 @@ export default {
     response.headers.set("Access-Control-Allow-Origin", "*");
 
     return response;
-  }
+  },
 };

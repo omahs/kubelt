@@ -1,0 +1,12 @@
+.flex {
+  display: flex;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-blue-800 {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity));
+}

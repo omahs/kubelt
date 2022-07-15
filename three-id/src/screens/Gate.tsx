@@ -8,7 +8,10 @@ import Constants from "expo-constants";
 import { startView } from "../analytics/datadog";
 import { clearAccount } from "../provider/web3";
 
+import { useTailwind } from "tailwind-rn";
+
 export default function Gate({ navigation }: { navigation: any }) {
+  const tailwind = useTailwind();
   const account = useAccount();
 
   useEffect(() => {
@@ -59,19 +62,9 @@ export default function Gate({ navigation }: { navigation: any }) {
           </Text>
         </Pressable>
 
-        <Text
-          style={{
-            paddingTop: 56,
-            paddingBottom: 43,
-            fontFamily: "Inter_700Bold",
-            fontSize: 24,
-            fontWeight: "700",
-            lineHeight: 32,
-            color: "#1F2937",
-          }}
-        >
-          Your wallet address is not whitelisted for Early Access.
-        </Text>
+        <View style={tailwind("text-blue-800 font-semibold")}>
+          <Text>Your wallet address is not whitelisted for Early Access.</Text>
+        </View>
 
         <Text
           style={{
