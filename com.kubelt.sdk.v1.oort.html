@@ -35,11 +35,11 @@
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
    [com.kubelt.lib.error :as lib.error]
-   [com.kubelt.lib.http.status :as http.status]
    [com.kubelt.lib.jwt :as lib.jwt]
    [com.kubelt.lib.oort :as lib.oort]
-   [com.kubelt.lib.vault :as lib.vault]
    [com.kubelt.lib.promise :as lib.promise :refer [promise]]
+   [com.kubelt.lib.rpc :as lib.rpc]
+   [com.kubelt.lib.vault :as lib.vault]
    [com.kubelt.lib.wallet :as lib.wallet]))</pre>
 				</td>
 			</tr>
@@ -132,6 +132,31 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn rpc-api-js [sys core]
   (rpc-api sys core))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn claims&amp; [sys core]
+  (lib.promise/promise
+   (fn [resolve]
+     (-&gt; (rpc-api sys core)
+         (lib.promise/then
+          (fn [api]
+            (-&gt; (lib.rpc/rpc-call&amp; sys api {:method [:kb :core :get :claims] :args []})
+                (lib.promise/then #(resolve (-&gt; % :http/body :result))))))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn claims-js [sys]
+  (-&gt; (claims&amp; sys (get-in sys [:crypto/wallet :wallet/address]))
+      (lib.promise/then clj-&gt;js)))</pre>
 				</td>
 			</tr>
 			<tr>
