@@ -141,12 +141,16 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn claims&amp; [sys core]
   (lib.promise/promise
-   (fn [resolve]
+   (fn [resolve reject]
      (-&gt; (rpc-api sys core)
          (lib.promise/then
           (fn [api]
             (-&gt; (lib.rpc/rpc-call&amp; sys api {:method [:kb :core :get :claims] :args []})
-                (lib.promise/then #(resolve (-&gt; % :http/body :result))))))))))</pre>
+                (lib.promise/then
+                 (fn [x]
+                   (if-let [error (-&gt; x :http/body :error)]
+                     (reject error)
+                     (resolve (-&gt; x :http/body :result))))))))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -174,7 +178,9 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn call-rpc-api-js [sys core method args]
-  (call-rpc-method sys core method (js-&gt;clj args)))</pre>
+  (-&gt; (call-rpc-method sys core method (js-&gt;clj args))
+      (lib.promise/then clj-&gt;js)
+      (lib.promise/catch clj-&gt;js)))</pre>
 				</td>
 			</tr>
 			<tr>
