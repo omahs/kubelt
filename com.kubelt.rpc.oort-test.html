@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.rpc.test-commons</h1>
+							<h1 class="project-name">com.kubelt.rpc.oort-test</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -31,9 +31,19 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.rpc.test-commons
+					<pre class="brush: clojure">(ns com.kubelt.rpc.oort-test
   (:require
-   [com.kubelt.lib.util :as lib.util :refer [node-env environment]]))</pre>
+   [cljs.core.async :refer [go]]
+   [cljs.core.async.interop :refer-macros [&lt;p!]]
+   [cljs.test :refer-macros [deftest is testing async use-fixtures] :as t])
+  (:require
+   [taoensso.timbre :as log])
+  (:require
+   [com.kubelt.lib.test-utils :as lib.test-utils]
+   [com.kubelt.lib.wallet.node :as wallet]
+   [com.kubelt.rpc.test-commons :as t.commons]
+   [com.kubelt.sdk.v1 :as sdk]
+   [com.kubelt.sdk.v1.oort :as sdk.oort]))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -41,9 +51,9 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def app-name &quot;com.kubelt.ddt.js&quot;)
-(def wallet-name &quot;auth_test&quot;)
-(def wallet-password &quot;auth_foo_pw&quot;)</pre>
+					<pre class="brush: clojure">(use-fixtures :once
+  {:before (lib.test-utils/import-wallet-fixture t.commons/app-name t.commons/test-wallet-name t.commons/test-wallet-mnemonic t.commons/test-wallet-password)
+   :after (lib.test-utils/delete-wallet-fixture t.commons/app-name t.commons/test-wallet-name t.commons/test-wallet-password)})</pre>
 				</td>
 			</tr>
 			<tr>
@@ -51,9 +61,19 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def test-wallet-name &quot;test_metamask&quot;)
-(def test-wallet-password (get (environment) &quot;METAMASK_PASSWORD&quot;))
-(def test-wallet-mnemonic (get (environment) &quot;METAMASKID_RECOVERY_PHRASE&quot;))</pre>
+					<pre class="brush: clojure">(deftest claims-test
+  (testing &quot;test sdk claims&quot;
+    (async done
+           (go
+             (try
+               (let [sys (&lt;p! (sdk/init (t.commons/oort-config)))
+                     wallet (&lt;p! (wallet/load&amp; t.commons/app-name t.commons/test-wallet-name t.commons/test-wallet-password))
+                     kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet)))]
+                 (is (= [&quot;3id.enter&quot;] (&lt;p! (sdk.oort/claims&amp; kbt (get-in kbt [:crypto/wallet :wallet/address]))))))
+               (catch js/Error err (do
+                                     (log/error err)
+                                     (is false err)))
+               (finally (done)))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -61,24 +81,11 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn ci-env
-  []
-  (some? (get-in (node-env) [:environment &quot;GITHUB_ACTIONS&quot;])))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>return p2p config based on env</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn oort-config
-  []
-  (if (ci-env)
-    {:app/name &quot;kubelt-test&quot;
-     :oort/scheme :https
-     :oort/host &quot;oort-devnet.admin1337.workers.dev&quot;
-     :oort/port  443}
-    {}))</pre>
+					<pre class="brush: clojure">(comment
+;;
+  (t/run-tests)
+  ;;
+  )</pre>
 				</td>
 			</tr>
 			<tr>

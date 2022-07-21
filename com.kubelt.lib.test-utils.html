@@ -64,7 +64,21 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn delete-wallet [app-name wallet-name wallet-password]
+					<pre class="brush: clojure">(defn import-wallet [app-name wallet-name mnemonic wallet-password]
+  (go
+    (log/debug &quot;importing-wallet: &quot; wallet-name)
+    (try
+      (let [{:keys [wallet/name]} (&lt;p! (wallet/import&amp; app-name wallet-name mnemonic wallet-password))]
+        name)
+      (catch js/Error err (do (is false err) err)))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(defn delete-wallet [app-name wallet-name wallet-password &amp; [silently]]
   (go
     (log/debug &quot;deleting-wallet: &quot; wallet-name)
     (try
@@ -74,7 +88,7 @@
           (let [deleted (&lt;p! (wallet/delete!&amp; app-name wallet-name))]
             (log/debug :deleted deleted)
             true)))
-      (catch js/Error err (do (is false err) err)))))</pre>
+      (catch js/Error err (do (is (or false silently) err) err)))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -97,12 +111,28 @@
 					
 				</td>
 				<td class="codes">
+					<pre class="brush: clojure">(defn import-wallet-fixture [app-name wallet-name mnemonic wallet-password]
+  #(async
+    done
+    (go
+      (try
+        (&lt;! (delete-wallet app-name wallet-name wallet-password true))
+        (is (= wallet-name (&lt;! (import-wallet app-name wallet-name mnemonic wallet-password))))
+        (catch js/Error err (js/console.log err))
+        (finally (done))))))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
 					<pre class="brush: clojure">(defn delete-wallet-fixture [app-name wallet-name wallet-password]
   #(async
     done
     (go
       (try
-        (&lt;! (delete-wallet app-name wallet-name wallet-password))
+        (&lt;! (delete-wallet app-name wallet-name wallet-password true))
         (catch js/Error err (js/console.log err))
         (finally (done))))))</pre>
 				</td>
