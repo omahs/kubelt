@@ -77,8 +77,10 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn rpc-call-js [sys api args]
- (-&gt; (rpc-call&amp; sys api (update (js-&gt;clj args :keywordize-keys true) :method #(mapv keyword %)))
-     (lib.promise/then clj-&gt;js)))</pre>
+  (let [core (-&gt; (get-in sys [:crypto/session :vault/tokens]) keys first)]
+    (-&gt; (assoc sys :crypto/wallet {:wallet/address core})
+        (rpc-call&amp; api (update (js-&gt;clj args :keywordize-keys true) :method #(mapv keyword %)))
+        (lib.promise/then clj-&gt;js))))</pre>
 				</td>
 			</tr>
 			<tr>
