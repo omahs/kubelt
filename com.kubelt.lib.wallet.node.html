@@ -41,57 +41,10 @@
    [&quot;@ethersproject/wallet&quot; :refer [Wallet]])
   (:require
    [com.kubelt.lib.error :as lib.error]
+   [com.kubelt.lib.io.node :as lib.io]
    [com.kubelt.lib.path :as lib.path]
    [com.kubelt.lib.promise :as lib.promise]
    [com.kubelt.lib.wallet.shared :as lib.wallet]))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Return the file location if exists. Don't throw exception if no exists</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- fs-exists?&amp;
-  [file]
-  (lib.promise/promise
-   (fn [resolve _]
-     (-&gt; (.access fs-promises file  (.. fs -constants -F_OK))
-         (lib.promise/then (fn [_] (resolve file)))
-         (lib.promise/catch (fn [_] (resolve nil)))))))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Return the wallet directory path as a string for an application.</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- wallet-dir
-  [app-name]
-  (let [config-path (lib.path/data app-name)
-        wallet-path (.join path config-path &quot;wallets&quot;)]
-    wallet-path))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					<p>Return the wallet directory path for the application as a string, creating it if it doesn't already exist. Throws exception if Wallet dir isn't available</p>
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(defn- ensure-wallet-dir&amp;
-  [app-name]
-  (let [wallet-dirp (wallet-dir app-name)]
-    (lib.promise/promise
-     (fn [resolve reject]
-       (-&gt; (fs-exists?&amp; wallet-dirp)
-           (lib.promise/then (fn [x]
-                               (when-not x
-                                 (let [mode &quot;0700&quot;
-                                       recursive? true
-                                       options #js {:mode mode
-                                                    :recursive recursive?}]
-                                   (.mkdir fs-promises wallet-dirp options)))))
-           (lib.promise/then (fn [_] (resolve wallet-dirp)))
-           (lib.promise/catch (fn [e] (reject (lib.error/error (str &quot;Wallet dir isn't available&quot; e))))))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -101,7 +54,7 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn- name-&gt;path
   [app-name wallet-name]
-  (let [wallet-path (wallet-dir app-name)
+  (let [wallet-path (lib.io/kubelt-dir app-name &quot;wallets&quot;)
         wallet-path (.join path wallet-path wallet-name)]
     wallet-path))</pre>
 				</td>
@@ -132,10 +85,10 @@
   [app-name wallet-name]
   (lib.promise/promise
    (fn [resolve reject]
-     (-&gt; (ensure-wallet-dir&amp; app-name)
+     (-&gt; (lib.io/ensure-kubelt-dir&amp; app-name &quot;wallets&quot;)
          (lib.promise/then
           (fn [_]
-            (-&gt; (fs-exists?&amp; (name-&gt;path app-name wallet-name))
+            (-&gt; (lib.io/fs-exists?&amp; (name-&gt;path app-name wallet-name))
                 (lib.promise/then
                  (fn [x]
                    (if x
@@ -159,7 +112,7 @@
 				<td class="codes">
 					<pre class="brush: clojure">(defn has-wallet?&amp;
   [app-name wallet-name]
-  (fs-exists?&amp; (name-&gt;path app-name wallet-name)))</pre>
+  (lib.io/fs-exists?&amp; (name-&gt;path app-name wallet-name)))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -191,7 +144,7 @@
   [app-name wallet-name password]
   (lib.promise/promise
    (fn [resolve reject]
-     (-&gt; (ensure-wallet-dir&amp; app-name)
+     (-&gt; (lib.io/ensure-kubelt-dir&amp; app-name &quot;wallets&quot;)
          (lib.promise/then
           (fn [wallet-dirp]
             (-&gt; (has-wallet?&amp; app-name wallet-name)
@@ -253,7 +206,7 @@
   [app-name]
   (lib.promise/promise
    (fn [resolve reject]
-     (-&gt; (ensure-wallet-dir&amp; app-name)
+     (-&gt; (lib.io/ensure-kubelt-dir&amp; app-name &quot;wallets&quot;)
          (lib.promise/then #(resolve (js-&gt;clj (.readdir fs-promises %))))
          (lib.promise/catch reject)))))</pre>
 				</td>
@@ -306,7 +259,7 @@
                      (reject error)))))
              ;; Returns the path of the wallet file to write.
              (wallet-path []
-               (-&gt; (ensure-wallet-dir&amp; app-name)
+               (-&gt; (lib.io/ensure-kubelt-dir&amp; app-name &quot;wallets&quot;)
                    (lib.promise/then #(.join path % wallet-name))))]
        (let [path&amp; (wallet-path)
              wallet&amp; (from-mnemonic mnemonic)]

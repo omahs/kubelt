@@ -37,6 +37,7 @@
    [clojure.string :as cstr])
   (:require
    [com.kubelt.lib.oort :as lib.oort]
+   [com.kubelt.lib.wallet :as lib.wallet]
    [com.kubelt.lib.promise :as lib.promise]
    [com.kubelt.rpc :as rpc]
    [com.kubelt.rpc.schema :as rpc.schema]))</pre>
@@ -50,7 +51,7 @@
 					<pre class="brush: clojure">(defn rpc-call&amp; [sys api args]
   (lib.promise/promise
    (fn [resolve reject]
-     (let [wallet-address (-&gt; sys :crypto/wallet :wallet/address)
+     (let [wallet-address (get-in sys [:crypto/wallet :wallet/address])
            client (-&gt; {:uri/domain (-&gt; sys :client/oort :http/host)
                        :uri/port (-&gt; sys :client/oort :http/port)
                        :uri/scheme (-&gt; sys :client/oort :http/scheme)

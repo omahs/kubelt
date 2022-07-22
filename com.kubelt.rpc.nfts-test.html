@@ -62,7 +62,7 @@
 					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(deftest rpc-qn-nfts-test
+					<pre class="brush: clojure">#_(deftest rpc-qn-nfts-test
   (testing &quot;rpc core fetch nfts ... so far jwt not related with wallet(nfts owner) param&quot;
     (async done
            (go
@@ -89,15 +89,8 @@
                (catch js/Error err (do
                                      (log/error err)
                                      (is false err)))
-               (finally (done)))))))</pre>
-				</td>
-			</tr>
-			<tr>
-				<td class="docs">
-					
-				</td>
-				<td class="codes">
-					<pre class="brush: clojure">(deftest rpc-alchemy-nfts-test
+               (finally (done)))))))
+(deftest rpc-alchemy-nfts-test
   (testing &quot;rpc core fetch alchemy-nfts ... so far jwt not related with wallet(nfts owner) param&quot;
     (async done
            (go

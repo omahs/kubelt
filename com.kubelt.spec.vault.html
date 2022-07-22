@@ -19,7 +19,7 @@
 				<td class="docs">
 					<div class="docs-header">
 						<a class="anchor" href="#repl" name="repl">
-							<h1 class="project-name">com.kubelt.spec.jwt</h1>
+							<h1 class="project-name">com.kubelt.spec.vault</h1>
 							<a class="toc-link" href="index.html">toc</a>
 						</a>
 					</div>
@@ -28,42 +28,58 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>JSON Web Token and related definition.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(ns com.kubelt.spec.jwt
-  {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
+					<pre class="brush: clojure">(ns com.kubelt.spec.vault
   (:require
-   [com.kubelt.spec.wallet :as spec.wallet]))</pre>
+   [com.kubelt.spec.wallet :as spec.wallet]
+   [com.kubelt.spec.jwt :as spec.jwt]))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>A JSON encrypted Web Token.</p>
+					<h2>Vault</h2>A vault is a collection of session tokens (JWTs) returned fromauthentication calls.
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def encrypted-jwt
-  [:re
-   (re-pattern &quot;(^[A-Za-z0-9-_]*\\\\.[A-Za-z0-9-_]*\\\\.[A-Za-z0-9-_]*\$)&quot;)])</pre>
+					<pre class="brush: clojure"></pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>A JSON Web Token.</p>
+					
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(def jwt
+					<pre class="brush: clojure">(def vault-tokens [:map-of spec.wallet/wallet-address spec.jwt/jwt])
+(def vault-tokens* [:map-of spec.wallet/wallet-address spec.jwt/encrypted-jwt])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def vault
   [:map
-   [:header [:map [:alg [:enum &quot;ES256&quot;]]]]
-   [:claims [:map
-             [:aud spec.wallet/wallet-address]
-             [:iss spec.wallet/wallet-address]
-             [:sub spec.wallet/wallet-address]
-             [:json-rpc-url :string]
-             [:iat number?]
-             [:exp number?]]]
-   [:token [:re (re-pattern &quot;(^[A-Za-z0-9-_]*\\\\.[A-Za-z0-9-_]*)&quot;)]]
-   [:signature :string]])</pre>
+   [:com.kubelt/type [:enum :kubelt.type/vault]]
+   [:vault/tokens vault-tokens]
+   [:vault/tokens* vault-tokens*]])</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def vault-schema
+  [:and
+   {:name &quot;vault&quot;
+    :description &quot;A collection of session tokens&quot;
+    :example {:com.kubelt/type :kubelt.type/vault
+              ;; TODO is this correct?
+              :vault/tokens {&quot;@acme&quot; {:com.kubelt/type :kubelt.type/jwt
+                                      ,,,}}}}
+   vault])</pre>
 				</td>
 			</tr>
 			<tr>

@@ -34,20 +34,25 @@
 					<pre class="brush: clojure">(ns com.kubelt.lib.storage.node
   {:copyright &quot;©2022 Proof Zero Inc.&quot; :license &quot;Apache 2.0&quot;}
   (:require
-   [&quot;fs&quot; :refer [promises] :rename {promises fs-promises} :as fs])
+   [&quot;fs&quot; :refer [promises] :rename {promises fs-promises} :as fs]
+   [&quot;path&quot; :as path])
   (:require
    [clojure.string :as cstr])
   (:require
-   [cognitect.transit :as t]
-   [malli.core :as malli]
-   [malli.error :as me]
-   [taoensso.timbre :as log])
+   [cognitect.transit :as t])
   (:require
-   [com.kubelt.lib.error :as lib.error]
-   [com.kubelt.lib.json :as lib.json]
+   [com.kubelt.lib.io.node :as lib.io]
    [com.kubelt.lib.path :as lib.path]
-   [com.kubelt.lib.promise :as lib.promise]
-   [com.kubelt.spec.storage :as spec.storage]))</pre>
+   [com.kubelt.lib.promise :as lib.promise]))</pre>
+				</td>
+			</tr>
+			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(def ^:private file-name &quot;storage.json&quot;)
+(def ^:private folder &quot;localstorage&quot;)</pre>
 				</td>
 			</tr>
 			<tr>
@@ -56,20 +61,21 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn- make-store-fn
-  [path]
+  [path*]
   (let [w (t/writer :json)]
     (fn [m]
       {:pre [(map? m)] :post [(lib.promise/promise? %)]}
       (let [data (t/write w m)
             mode 0640
-            opts #js {:mode mode}
-            write&amp; (.writeFile fs-promises path data opts)]
-        (-&gt; write&amp;
-            (lib.promise/then
-             (fn []
-               {:path path
-                :mode mode
-                :data data})))))))</pre>
+            opts #js {:mode mode}]
+        (-&gt;
+         (lib.io/ensure-kubelt-dir&amp; path* folder)
+         (lib.promise/then #(.writeFile fs-promises (.join path % file-name) data opts))
+         (lib.promise/then
+          (fn []
+            {:path (lib.io/kubelt-dir path* folder)
+             :mode mode
+             :data m})))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -78,16 +84,18 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn- make-restore-fn
-  [path]
+  [path*]
   (let [r (t/reader :json)]
     (fn []
       {:post [(lib.promise/promise? %)]}
       (let [opts #js{:encoding &quot;utf8&quot;}]
-        (-&gt; (.readFile fs-promises path opts)
-            (lib.promise/then
-             (fn [data-str]
-               (let [data (t/read r data-str)]
-                 data))))))))</pre>
+        (-&gt;
+         (lib.io/ensure-kubelt-dir&amp; path* folder)
+         (lib.promise/then #(.readFile fs-promises (.join path % file-name) opts))
+         (lib.promise/then
+          (fn [data-str]
+            (let [data (t/read r data-str)]
+              data))))))))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -98,7 +106,7 @@
 					<pre class="brush: clojure">(defn- make-path
   [app-name]
   (let [data-path (lib.path/data app-name)]
-    (cstr/join &quot;/&quot; [data-path &quot;storage.json&quot;])))</pre>
+    (cstr/join &quot;/&quot; [data-path])))</pre>
 				</td>
 			</tr>
 			<tr>
