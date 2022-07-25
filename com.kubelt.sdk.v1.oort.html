@@ -145,7 +145,7 @@
      (-&gt; (rpc-api sys core)
          (lib.promise/then
           (fn [api]
-            (-&gt; (lib.rpc/rpc-call&amp; sys api {:method [:kb :core :get :claims] :args []})
+            (-&gt; (lib.rpc/rpc-call&amp; sys api {:method [:kb :get-core-claims] :args []})
                 (lib.promise/then
                  (fn [x]
                    (if-let [error (-&gt; x :http/body :error)]

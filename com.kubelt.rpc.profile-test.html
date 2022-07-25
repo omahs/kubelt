@@ -73,7 +73,7 @@
                      core (:wallet/address wallet)
                      kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet)))
                      api (&lt;p! (sdk.oort/rpc-api sys core))
-                     profile (-&gt; (&lt;p! (lib.rpc/rpc-call&amp; kbt api {:method [:kb :get :profile]}))
+                     profile (-&gt; (&lt;p! (lib.rpc/rpc-call&amp; kbt api {:method [:kb :get-profile]}))
                                  :http/body :result)]
                  (is (= {:profile-picture
                          {:name &quot;DefaultKubeltPFP&quot;
@@ -86,9 +86,9 @@
                          :image-url 
                          :collection-id 
                          :collection-token-id }}
-                       _ (&lt;p! (lib.rpc/rpc-call&amp; kbt api {:method [:kb :set :profile]
+                       _ (&lt;p! (lib.rpc/rpc-call&amp; kbt api {:method [:kb :set-profile]
                                                           :params {:profile updated-profile-picture}}))
-                       updated-profile (-&gt; (&lt;p! (lib.rpc/rpc-call&amp; kbt api {:method [:kb :get :profile]}))
+                       updated-profile (-&gt; (&lt;p! (lib.rpc/rpc-call&amp; kbt api {:method [:kb :get-profile]}))
                                            :http/body :result)]
                    (is (= updated-profile-picture updated-profile))))
                (catch js/Error err (do

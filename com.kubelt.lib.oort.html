@@ -109,7 +109,7 @@
     ;; registration.
     ;;
     ;; Returns a promise.
-    (send (json-rpc-provider sys address) &quot;kb_auth&quot; [address])))</pre>
+    (send (json-rpc-provider sys address) &quot;kb_getNonce&quot; [address])))</pre>
 				</td>
 			</tr>
 			<tr>
@@ -121,7 +121,7 @@
   [sys core nonce signature]
   {:pre [(every? string? [core nonce])]}
   ;; Returns a promise.
-  (send (json-rpc-provider sys core) &quot;kb_auth_verify&quot; [nonce signature]))</pre>
+  (send (json-rpc-provider sys core) &quot;kb_verifyNonce&quot; [nonce signature]))</pre>
 				</td>
 			</tr>
 			<tr>
