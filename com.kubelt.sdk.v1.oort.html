@@ -168,19 +168,40 @@
 					<p>TODO test me</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn call-rpc-method [sys core method args]
-  (lib.oort/call-rpc-method sys core method args))</pre>
+					<pre class="brush: clojure">(defn call-rpc&amp; [sys core method params]
+  (lib.promise/promise
+   (fn [resolve reject]
+     (-&gt; (rpc-api sys core)
+         (lib.promise/then
+          (fn [api]
+            (-&gt; (lib.rpc/rpc-call&amp; sys api {:method method :params params})
+                (lib.promise/then resolve)
+                (lib.promise/catch
+                 (fn [e]
+                   (reject
+                    (lib.error/from-obj e)))))))))))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					
+					<p>entrypoint that uses sdk-rpc-client and sdk-rpc-api</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(defn call-rpc-api-js [sys core method args]
-  (-&gt; (call-rpc-method sys core method (js-&gt;clj args))
-      (lib.promise/then clj-&gt;js)
-      (lib.promise/catch clj-&gt;js)))</pre>
+					<pre class="brush: clojure">(defn call-rpc-js
+  ([sys args]
+   (let [{:keys [method params]} (js-&gt;clj args :keywordize-keys true)]
+     (-&gt; (call-rpc&amp; sys
+                          (-&gt; sys :crypto/wallet :wallet/address)
+                          (mapv keyword (js-&gt;clj method))
+                          params)
+         (lib.promise/then clj-&gt;js)
+         (lib.promise/catch clj-&gt;js))))
+  ([sys method params]
+   (let [method (mapv keyword (js-&gt;clj method))
+         params (js-&gt;clj params :keywordize-keys true)]
+     (-&gt; (call-rpc&amp; sys (-&gt; sys :crypto/wallet :wallet/address) method params)
+         (lib.promise/then clj-&gt;js)
+         (lib.promise/catch clj-&gt;js)))))</pre>
 				</td>
 			</tr>
 			<tr>
