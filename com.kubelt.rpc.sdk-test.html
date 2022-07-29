@@ -108,6 +108,35 @@
 				</td>
 			</tr>
 			<tr>
+				<td class="docs">
+					
+				</td>
+				<td class="codes">
+					<pre class="brush: clojure">(deftest js-rpc-profile-test
+  (testing &quot;test rpc profile from js env,
+            relates https://github.com/kubelt/kubelt/issues/630&quot;
+    (async done
+           (go
+             (try
+               (let [sys (&lt;p! (sdk/init (t.commons/oort-config)))
+                     wallet (&lt;p! (wallet/load&amp; t.commons/app-name t.commons/test-wallet-name t.commons/test-wallet-password))
+                     kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet)))
+                     result (-&gt; (&lt;p! (sdk.oort/call-rpc-js
+                                      kbt
+                                      #js [&quot;kb&quot; &quot;get-profile&quot;]
+                                      #js []))
+                                js-&gt;clj
+                                (get-in [&quot;body&quot; &quot;result&quot;]))]
+                 (is (= #{&quot;profilePicture&quot; &quot;nickname&quot; &quot;job&quot; &quot;location&quot; &quot;website&quot; &quot;email&quot; &quot;bio&quot;}
+                        (set (keys result))))
+                 (is (= #{&quot;name&quot; &quot;imageUrl&quot; &quot;collectionId&quot; &quot;collectionTokenId&quot;} (set (keys (get result &quot;profilePicture&quot;))))))
+               (catch js/Error err (do
+                                     (log/error err)
+                                     (is false err)))
+               (finally (done)))))))</pre>
+				</td>
+			</tr>
+			<tr>
 				<td class="spacer docs">&nbsp;</td>
 				<td class="codes" />
 			</tr>
