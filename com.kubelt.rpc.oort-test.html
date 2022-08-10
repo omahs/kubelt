@@ -58,22 +58,10 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					
+					<p>(deftest claims-test   (testing "test sdk claims"     (async done            (go              (try                (let [sys (<p! (sdk/init (t.commons/oort-config)))                      wallet (<p! (wallet/load& t.commons/app-name t.commons/test-wallet-name t.commons/test-wallet-password))                      kbt (<p! (sdk.oort/authenticate& (assoc sys :crypto/wallet wallet) {}))]                  (is (= ["3id.enter"] (<p! (sdk.oort/claims& kbt (get-in kbt [:crypto/wallet :wallet/address]))))))                (catch js/Error err (do                                      (log/error err)                                      (is false err)))                (finally (done)))))))</p>
 				</td>
 				<td class="codes">
-					<pre class="brush: clojure">(deftest claims-test
-  (testing &quot;test sdk claims&quot;
-    (async done
-           (go
-             (try
-               (let [sys (&lt;p! (sdk/init (t.commons/oort-config)))
-                     wallet (&lt;p! (wallet/load&amp; t.commons/app-name t.commons/test-wallet-name t.commons/test-wallet-password))
-                     kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet)))]
-                 (is (= [&quot;3id.enter&quot;] (&lt;p! (sdk.oort/claims&amp; kbt (get-in kbt [:crypto/wallet :wallet/address]))))))
-               (catch js/Error err (do
-                                     (log/error err)
-                                     (is false err)))
-               (finally (done)))))))</pre>
+					<pre class="brush: clojure"></pre>
 				</td>
 			</tr>
 			<tr>

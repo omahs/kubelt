@@ -70,7 +70,7 @@
                      sys (&lt;p! (sdk/init config))
                      wallet (&lt;p! (wallet/load&amp; t.commons/app-name t.commons/wallet-name t.commons/wallet-password))
                      core (:wallet/address wallet)
-                     kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet)))]
+                     kbt (&lt;p! (sdk.oort/authenticate&amp; (assoc sys :crypto/wallet wallet) {}))]
                  (is (= {} (-&gt; sys :crypto/session :vault/tokens)))
                  (is (map? (get-in kbt [:crypto/session :vault/tokens core])))
                  (is (= :kubelt.type/vault (get-in kbt [:crypto/session :com.kubelt/type])))

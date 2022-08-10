@@ -101,7 +101,7 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn authenticate!
-  [sys]
+  [sys permissions]
   (let [address (get-in sys [:crypto/wallet :wallet/address])]
     ;; Make an JsonRpc call to oort backend, passing along the user's
     ;; wallet address. Expect a nonce in return, which should be signed
@@ -109,7 +109,7 @@
     ;; registration.
     ;;
     ;; Returns a promise.
-    (send (json-rpc-provider sys address) &quot;kb_getNonce&quot; [address])))</pre>
+    (send (json-rpc-provider sys address) &quot;kb_getNonce&quot; [address permissions])))</pre>
 				</td>
 			</tr>
 			<tr>

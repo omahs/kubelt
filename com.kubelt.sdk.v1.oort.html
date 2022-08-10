@@ -59,11 +59,11 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn authenticate&amp;
-  [sys]
+  [sys permissions]
   ;; TODO add an extra arity that allows a wallet to be passed in?
   ;; TODO validate system map (especially: ensure wallet is present)
   (let [core (get-in sys [:crypto/wallet :wallet/address])]
-    (-&gt; (lib.oort/authenticate! sys)
+    (-&gt; (lib.oort/authenticate! sys permissions)
         (lib.promise/then
          (fn [auth-result]
            (if (lib.error/error? auth-result)
@@ -114,8 +114,8 @@
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn authenticate-js!
-  [sys core]
-  (authenticate&amp; sys))</pre>
+  [sys permissions]
+  (authenticate&amp; sys permissions))</pre>
 				</td>
 			</tr>
 			<tr>
