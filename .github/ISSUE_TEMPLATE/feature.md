@@ -17,9 +17,9 @@ labels: types » enhancement
 
 > Please design, decompose, and discuss: break the logical **What** into a set of issues documenting physical implementation tasks.
 
-- [ ] Issue #1
-- [ ] Issue #2
-- [ ] Issue #3
+- [ ] Issue # 1
+- [ ] Issue # 2
+- [ ] Issue # 3
 
 # Notes
 
