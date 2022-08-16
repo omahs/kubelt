@@ -67,6 +67,8 @@ export const authenticate = async (
 
     isAuth = await isAuthenticated(address);
     if (force || !isAuth) {
+      const { chainId } = await provider.getNetwork();
+
       sdk = await sdkWeb?.node_v1?.oort.setWallet(sdk, {
         address,
         signFn,
