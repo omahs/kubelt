@@ -251,7 +251,7 @@
 			</tr>
 			<tr>
 				<td class="docs">
-					
+					<p>Return a promise that resolves to a system map that has had saved state restored.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn restore&amp;
@@ -266,17 +266,22 @@
         (lib.promise/then
          (fn [{:keys [options vault]}]
            ;; TODO fold options back into system map?
-           (let [restored-system (-&gt; system
-                                     (assoc :crypto/session vault
-                                            :crypto/wallet {:com.kubelt/type :kubelt.type/wallet
-                                                            :wallet/address (-&gt; vault :vault/tokens keys first)}))]
-             (conform* [spec.config/restored-system restored-system]
-                       restored-system)))))))</pre>
+           (let [session vault
+                 wallet {:com.kubelt/type :kubelt.type/wallet
+                         :wallet/address (-&gt; vault :vault/tokens keys first)}
+                 restored-system (assoc system
+                                        :crypto/session session
+                                        :crypto/wallet wallet)]
+             ;; TODO restore this check of the restored SDK against a schema
+             restored-system
+             #_(conform*
+              [spec.config/restored-system restored-system]
+              restored-system)))))))</pre>
 				</td>
 			</tr>
 			<tr>
 				<td class="docs">
-					<p>Return a system map that has had saved state restored.</p>
+					<p>Returns a promise that resolves to a system map that has had saved state restored. This function is expected to be invoked from a JavaScript context.</p>
 				</td>
 				<td class="codes">
 					<pre class="brush: clojure">(defn restore-js&amp;
@@ -284,7 +289,14 @@
   {:pre [(map? system)] :post [(promise? %)]}
   ;; We don't have any arguments to convert from JSON to edn, so we just
   ;; invoke restore&amp; directly.
-  (restore&amp; system))</pre>
+  (-&gt; (restore&amp; system)
+      (lib.promise/then
+       (fn [sys]
+         (if (lib.error/error? sys)
+           ;; Convert the error into an object for inspection in the
+           ;; calling context.
+           (clj-&gt;js sys)
+           sys)))))</pre>
 				</td>
 			</tr>
 			<tr>
