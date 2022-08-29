@@ -61,7 +61,7 @@
   (let [scheme (get-in sys [:client/oort :http/scheme])
         host (get-in sys [:client/oort :http/host])
         port (get-in sys [:client/oort :http/port])
-        path (cstr/join  [&quot;/@&quot; core &quot;/jsonrpc&quot;])
+        path (cstr/join  [&quot;/&quot; core &quot;/jsonrpc&quot;])
         uri (str (name scheme) &quot;://&quot; host &quot;:&quot; port path)]
     (log/debug {::connection-uri uri})
     uri))</pre>
