@@ -100,8 +100,12 @@ contract ThreeId_ProfilePicture is
         // Make sure that the redeemer is the same as the receipient.
         require(recipient == voucher.recipient, "Invalid recipient!");
 
-        // NB: PFP #0000 is reserved, user allocated range is [#0001 to #_maxPFPs].
+        // NB: PFP #0000 is reserved, user allocated range is [#0001 to uint256(-1)].
         uint256 profileId = _profileIds.current();
+        
+        // Underflow to the maximum value.
+        uint256 MAX_UINT256 = 100000; //type(uint256).max;
+        require(profileId <= MAX_UINT256);
 
         _safeMint(recipient, profileId);
         _setTokenURI(profileId, voucher.uri);

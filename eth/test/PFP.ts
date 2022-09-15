@@ -44,6 +44,7 @@ describe("Profile Pictures", function () {
       const { pfp } = await loadFixture(deployPFPFixture);
       expect(await pfp.nextPFP()).to.equal(0);
     });
+
   });
 
   describe("Signatures", function () {
@@ -70,6 +71,19 @@ describe("Profile Pictures", function () {
       const { pfp, voucher, owner, operator } = await loadFixture(deployPFPFixture);
       const nextVoucher = await signVoucher(owner, 'https://example.com', operator);
       await expect(pfp.awardPFP(owner.address, nextVoucher)).not.to.be.rejected;
+    });
+
+    it("Shouldn't assign more than max profiles", async function () {
+      const { pfp, voucher, owner, operator } = await loadFixture(deployPFPFixture);
+
+      // NOTE: Modify the smart contract here, otherwise you'll never get to max UINT256.
+      for (let i = 0; i <= 10; i++) {
+        const nextVoucher = await signVoucher(owner, 'https://example.com', operator);
+        await expect(pfp.awardPFP(owner.address, nextVoucher)).not.to.be.rejected;
+      }
+      
+      const nextVoucher = await signVoucher(owner, 'https://example.com', operator);
+      await expect(pfp.awardPFP(owner.address, nextVoucher)).to.be.rejected;
     });
   });
 
