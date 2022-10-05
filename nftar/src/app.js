@@ -305,7 +305,8 @@ jsonrpc.method('3iD_genInvite', async (ctx, next) => {
 
     let inviteId = ctx.jsonrpc.params['inviteId'];
     const inviteTier = ctx.jsonrpc.params['inviteTier'];
-    const issueDate = ctx.jsonrpc.params['issueDate'];
+    // Note: we enforce Canadian date formats per design.
+    const issueDate = Intl.DateTimeFormat('en-CA').format(Date.now());
     const assetFile = "./assets/3ID_NFT_CARD_NO_BG.svg"
     const OUTPUT_DIR = path.resolve("outputs");
 
