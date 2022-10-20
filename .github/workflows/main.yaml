@@ -177,8 +177,20 @@ jobs:
 
   # nftar
   # ----------------------------------------------------------------------------
-  build-test-nftar:
+  build-test-nftar-dev:
     runs-on: ubuntu-latest
+    env:
+      CHAIN: 'ethereum'
+      CHAIN_ID: 5
+      OORT_URL: oort-devnet.kubelt.com
+      STORAGE_KEY: ${{ secrets.NFT_STORAGE_DEV }}
+      WALLET_PRIVATE_KEY: ${{ secrets.MINT_PFP_TEST_OPERATOR_PRIVATE_KEY }} # TODO: this is a bad env name
+      ALCHEMY_URL: ${{ secrets.ALCHEMY_GOERLI_API_URL }}
+      ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_GOERLI_API_KEY }}
+      ALCHEMY_NETWORK: 'ETH_MAINNET'
+      INVITE_CONTRACT_ADDRESS: ${{ secrets.INVITE_TEST_CONTRACT_ADDRESS }}
+      PFP_CONTRACT_ADDRESS: ${{ secrets.MINT_PFP_TEST_CONTRACT_ADDRESS }}
+      NFTAR_API_KEY: 'test'
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
@@ -205,16 +217,12 @@ jobs:
       - name: Build and Test
         run: npm test
         working-directory: nftar
-        env:
-          CHAIN: 'ethereum'
-          CHAIN_ID: 5
-          OORT_URL: oort-devnet.kubelt.com
-          STORAGE_KEY: ${{ secrets.NFT_STORAGE_DEV }}
-          WALLET_PRIVATE_KEY: ${{ secrets.MINT_PFP_TEST_OPERATOR_PRIVATE_KEY }} # TODO: this is a bad env name
-          ALCHEMY_URL: ${{ secrets.ALCHEMY_GOERLI_API_URL }}
-          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_GOERLI_API_KEY }}
-          ALCHEMY_NETWORK: 'ETH_MAINNET'
-          INVITE_CONTRACT_ADDRESS: ${{ secrets.INVITE_TEST_CONTRACT_ADDRESS }}
-          PFP_CONTRACT_ADDRESS: ${{ secrets.MINT_PFP_TEST_CONTRACT_ADDRESS }}
-          NFTAR_API_KEY: 'test'
-      # TODO: deploy
+      - name: Deploy to gcloud
+        run: echo gcloud builds submit
+        working-directory: nftar
+      - name: Get secrets from 1Pass
+        run: echo op get secrets
+        working-directory: nftar
+      - name: Pulumi Up
+        run: echo pulumi preview
+        working-directory: nftar
