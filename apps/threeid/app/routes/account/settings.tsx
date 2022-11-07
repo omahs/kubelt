@@ -1,4 +1,4 @@
-import { Outlet } from '@remix-run/react'
+import { Link, Outlet } from '@remix-run/react'
 import { Toast } from 'flowbite-react'
 import { useState } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
@@ -10,7 +10,7 @@ import Text, {
 
 const tabs = [
   { name: 'Profile', to: 'profile' },
-  { name: 'Integrations', to: 'integrations', disabled: true },
+  { name: 'Integrations', to: 'integrations' },
   { name: 'Connected Accounts', to: 'connections', disabled: true },
 ]
 
@@ -64,9 +64,10 @@ export default function AccountSetting() {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
-              <a
+              <Link
                 key={tab.name}
-                href={!tab.disabled ? tab.to : '#'}
+                to={!tab.disabled ? tab.to : '#'}
+                prefetch={'intent'}
                 // prefetch="render"
                 className={classNames(
                   tab?.current
@@ -77,7 +78,7 @@ export default function AccountSetting() {
                 )}
               >
                 {tab.name}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
