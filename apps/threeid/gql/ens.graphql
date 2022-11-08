@@ -1,0 +1,6 @@
+query lookupENSFromAddress($address: String!) {
+  ensLookup(address: $address) {
+    name
+    setOnCore
+  }
+}

@@ -1,4 +1,4 @@
-import { ActionFunction, json, LoaderFunction } from "@remix-run/cloudflare";
+import { ActionFunction, json, LoaderFunction } from '@remix-run/cloudflare'
 
 import {
   useLoaderData,
@@ -8,160 +8,162 @@ import {
   useTransition,
   Form,
   PrefetchPageLinks,
-} from "@remix-run/react";
+} from '@remix-run/react'
 
-import { Label, Spinner } from "flowbite-react";
+import { Label, Spinner } from 'flowbite-react'
 
-import Heading from "~/components/typography/Heading";
+import Heading from '~/components/typography/Heading'
 import Text, {
   TextColor,
   TextSize,
   TextWeight,
-} from "~/components/typography/Text";
+} from '~/components/typography/Text'
 
-import { getUserSession } from "~/utils/session.server";
+import { getUserSession } from '~/utils/session.server'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
-import styles from "~/styles/onboard.css";
+import styles from '~/styles/onboard.css'
 
-import { Button, ButtonSize, ButtonType } from "~/components/buttons";
-import { oortSend } from "~/utils/rpc.server";
+import { Button, ButtonSize, ButtonType } from '~/components/buttons'
+import { oortSend } from '~/utils/rpc.server'
 
-import ensLogo from "~/assets/ens.png";
-import { useNetwork, useAccount } from "wagmi";
+import ensLogo from '~/assets/ens.png'
+import { useNetwork, useAccount } from 'wagmi'
+import { getGalaxyClient } from '~/helpers/galaxyClient'
 
 export const links = () => {
-  return [{ rel: "stylesheet", href: styles }];
-};
+  return [{ rel: 'stylesheet', href: styles }]
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getUserSession(request);
-  const jwt = session.get("jwt");
-  const address = session.get("address");
+  const session = await getUserSession(request)
+  const jwt = session.get('jwt')
+  const address = session.get('address')
 
-  const addressLookup = await oortSend("ens_lookupAddress", [address], {
-    jwt,
-  });
+  const galaxyClient = await getGalaxyClient()
 
-  const coreEnsLookup = await oortSend("kb_getCoreAddresses", [["ens"]], {
-    jwt,
-  });
+  console.log(jwt)
 
-  let isSetOnCore = false;
-  if (coreEnsLookup.result?.ens?.length > 0) {
-    isSetOnCore = true;
-  }
+  const ensNameRes = await galaxyClient.lookupENSFromAddress(
+    {
+      address,
+    },
+    {
+      'KBT-Access-JWT-Assertion': jwt,
+    }
+  )
 
-  const ensName = addressLookup.result;
+  console.log(ensNameRes)
+
   return json({
     account: address,
-    ensName,
-    isSetOnCore,
-  });
-};
+    ensName: ensNameRes.ensLookup?.name,
+    isSetOnCore: ensNameRes.ensLookup?.setOnCore,
+  })
+}
 
 export const action: ActionFunction = async ({ request }) => {
-  const session = await getUserSession(request);
-  const jwt = session.get("jwt");
-  const address = session.get("address");
+  const session = await getUserSession(request)
+  const jwt = session.get('jwt')
+  const address = session.get('address')
 
-  const formData = await request.formData();
-  const operation = formData.get("operation");
+  const formData = await request.formData()
+  const operation = formData.get('operation')
 
-  let ensRes = null;
-  if (operation === "register") {
-    ensRes = await oortSend("3id_registerName", [address], {
+  let ensRes = null
+  if (operation === 'register') {
+    ensRes = await oortSend('3id_registerName', [address], {
       jwt: jwt,
-    });
+    })
   } else {
-    ensRes = await oortSend("3id_unregisterName", [address], {
+    ensRes = await oortSend('3id_unregisterName', [address], {
       jwt: jwt,
-    });
+    })
   }
 
   if (ensRes.error) {
-    return json({ error: true, operation }, { status: 500 });
+    return json({ error: true, operation }, { status: 500 })
   }
 
-  return json({ error: false, operation }, { status: 200 });
-};
+  return json({ error: false, operation }, { status: 200 })
+}
 
 const OnboardEns = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const submit = useSubmit();
+  const submit = useSubmit()
 
-  const { isConnected, address } = useAccount();
-  const { chain } = useNetwork();
+  const { isConnected, address } = useAccount()
+  const { chain } = useNetwork()
 
-  const { ensName, isSetOnCore, account } = useLoaderData();
+  const { ensName, isSetOnCore, account } = useLoaderData()
 
-  const [ensChecked, setEnsChecked] = useState<boolean>(isSetOnCore);
-  const [validating, setValidating] = useState<boolean>(true);
+  const [ensChecked, setEnsChecked] = useState<boolean>(isSetOnCore)
+  const [validating, setValidating] = useState<boolean>(true)
 
-  const data = useActionData();
+  const data = useActionData()
 
-  const [invalidChain, setInvalidChain] = useState(false);
+  const [invalidChain, setInvalidChain] = useState(false)
   useEffect(() => {
     if (chain && chain.id != window.ENV.NFTAR_CHAIN_ID) {
-      setInvalidChain(true);
+      setInvalidChain(true)
     } else {
-      setInvalidChain(false);
+      setInvalidChain(false)
     }
-  }, [chain]);
+  }, [chain])
 
-  const [invalidAddress, setInvalidAddress] = useState(false);
+  const [invalidAddress, setInvalidAddress] = useState(false)
   useEffect(() => {
     if (address && address !== account) {
-      setInvalidAddress(true);
+      setInvalidAddress(true)
     } else {
-      setInvalidAddress(false);
+      setInvalidAddress(false)
     }
-  }, [address]);
+  }, [address])
 
   useEffect(() => {
-    if (data?.error && data.operation === "register") {
-      setEnsChecked(false);
-    } else if (data?.error && data.operation === "unregister") {
-      setEnsChecked(true);
+    if (data?.error && data.operation === 'register') {
+      setEnsChecked(false)
+    } else if (data?.error && data.operation === 'unregister') {
+      setEnsChecked(true)
     } else if (data) {
-      if (data.operation === "register") {
-        setEnsChecked(true);
-      } else if (data.operation === "unregister") {
-        setEnsChecked(false);
+      if (data.operation === 'register') {
+        setEnsChecked(true)
+      } else if (data.operation === 'unregister') {
+        setEnsChecked(false)
       }
     }
 
-    setValidating(false);
-  }, [data]);
+    setValidating(false)
+  }, [data])
 
   useEffect(() => {
-    setValidating(false);
-  }, [ensName]);
+    setValidating(false)
+  }, [ensName])
 
   const handleEnsToggle = async (checked: boolean) => {
-    setValidating(true);
+    setValidating(true)
 
     if (checked) {
-      postEnsRequest("register");
+      postEnsRequest('register')
     } else {
-      postEnsRequest("unregister");
+      postEnsRequest('unregister')
     }
-  };
+  }
 
-  const postEnsRequest = (operation: "register" | "unregister") => {
+  const postEnsRequest = (operation: 'register' | 'unregister') => {
     submit(
       {
         operation,
       },
       {
-        method: "post",
+        method: 'post',
       }
-    );
-  };
+    )
+  }
 
-  const transition = useTransition();
+  const transition = useTransition()
 
   return (
     <>
@@ -171,7 +173,7 @@ const OnboardEns = () => {
             href="/onboard/name"
             className="block h-2.5 w-2.5 rounded-full bg-indigo-600 hover:bg-indigo-900"
           >
-            <span className="sr-only">{"Display Name"}</span>
+            <span className="sr-only">{'Display Name'}</span>
           </a>
         </li>
 
@@ -180,13 +182,13 @@ const OnboardEns = () => {
             href="/onboard/mint"
             className="block h-2.5 w-2.5 rounded-full bg-indigo-600 hover:bg-indigo-900"
           >
-            <span className="sr-only">{"Mint"}</span>
+            <span className="sr-only">{'Mint'}</span>
           </a>
         </li>
 
         <li>
           <a
-            href={"/onboard/ens"}
+            href={'/onboard/ens'}
             className="relative flex items-center justify-center"
             aria-current="step"
           >
@@ -197,7 +199,7 @@ const OnboardEns = () => {
               className="relative block h-2.5 w-2.5 rounded-full bg-indigo-600"
               aria-hidden="true"
             />
-            <span className="sr-only">{"ENS"}</span>
+            <span className="sr-only">{'ENS'}</span>
           </a>
         </li>
       </ol>
@@ -211,7 +213,7 @@ const OnboardEns = () => {
         <div
           className="flex flex-col space-y-4 lg:flex-row lg:space-x-4 p-4"
           style={{
-            backgroundColor: "#F9FAFB",
+            backgroundColor: '#F9FAFB',
           }}
         >
           <img
@@ -249,7 +251,7 @@ const OnboardEns = () => {
                 size={TextSize.SM}
                 weight={TextWeight.Medium500}
               >
-                **Please select switch your network to{" "}
+                **Please select switch your network to{' '}
                 {window.ENV.VALID_CHAIN_ID_NAME}**
               </Text>
             )}
@@ -277,7 +279,7 @@ const OnboardEns = () => {
                   <label
                     htmlFor="use-ens"
                     className={`inline-flex relative items-center mb-5 cursor-${
-                      !validating && !ensName ? "default" : "pointer"
+                      !validating && !ensName ? 'default' : 'pointer'
                     }`}
                   >
                     {!validating && ensName && (
@@ -328,7 +330,7 @@ const OnboardEns = () => {
         id="onboard-ens-actions"
         className="flex justify-end items-center space-x-4 pt-10 lg:pt-0"
       >
-        {transition.state === "submitting" || transition.state === "loading" ? (
+        {transition.state === 'submitting' || transition.state === 'loading' ? (
           <Spinner />
         ) : (
           <>
@@ -338,7 +340,7 @@ const OnboardEns = () => {
                 size={ButtonSize.L}
                 onClick={() => {
                   // @ts-ignore
-                  navigate(`/onboard/mint`);
+                  navigate(`/onboard/mint`)
                 }}
               >
                 Back
@@ -358,7 +360,7 @@ const OnboardEns = () => {
       </section>
       <PrefetchPageLinks page="/onboard/mint" />
     </>
-  );
-};
+  )
+}
 
-export default OnboardEns;
+export default OnboardEns
