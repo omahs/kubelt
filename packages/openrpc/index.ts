@@ -72,6 +72,8 @@ export type {
 
 /**
  * Construct a new request context.
+ *
+ * @alpha
  */
 export function context(): RpcContext {
   return impl.context()
@@ -81,7 +83,7 @@ export function context(): RpcContext {
 // -----------------------------------------------------------------------------
 
 /**
- *
+ * @alpha
  */
 export function options(opt: Readonly<RpcOptions>): RpcOptions {
   return impl.options(opt)
@@ -90,6 +92,9 @@ export function options(opt: Readonly<RpcOptions>): RpcOptions {
 // chain
 // -----------------------------------------------------------------------------
 
+/**
+ * @alpha
+ */
 export function chain(rpcChain: Readonly<RpcChain>): Readonly<RpcChain> {
   return impl.chain(rpcChain)
 }
@@ -108,6 +113,8 @@ export function chain(rpcChain: Readonly<RpcChain>): Readonly<RpcChain> {
  * @param f - A function that implements the middleware logic
  *
  * @returns
+ *
+ * @alpha
  */
 export function middleware(f: Readonly<RpcChainFn>): MiddlewareFn {
   return impl.middleware(f)
@@ -126,6 +133,8 @@ export function middleware(f: Readonly<RpcChainFn>): MiddlewareFn {
  *
  * @returns A JSON-RPC response that returns the supplied result to the
  * caller.
+ *
+ * @alpha
  */
 export async function response(
   request: Readonly<RpcRequest>,
@@ -144,6 +153,8 @@ export async function response(
  * @param detail - Information about the error that occurred
  *
  * @returns A JSON-RPC error response
+ *
+ * @alpha
  */
 export function error(
   request: Readonly<RpcRequest>,
@@ -170,6 +181,8 @@ export function error(
  * @param methodList - An array of RPC request method implementations
  *
  * @returns A map from method name to method implementation
+ *
+ * @alpha
  */
 export function methods(
   schema: Readonly<RpcSchema>,
@@ -189,6 +202,8 @@ export function methods(
  * @param serviceMethod - a descriptor for the service method
  *
  * @returns An RPC method that can be passed to methods()
+ *
+ * @alpha
  */
 export function method(
   schema: Readonly<RpcSchema>,
@@ -202,6 +217,8 @@ export function method(
 
 /**
  * @param f - An RPC method handler function
+ *
+ * @alpha
  */
 export function handler(f: Readonly<RpcHandler>): Readonly<RpcHandler> {
   return impl.handler(f)
@@ -224,6 +241,8 @@ export function handler(f: Readonly<RpcHandler>): Readonly<RpcHandler> {
  * @param methodSet - A collection of extensions built using `extension()`
  *
  * @returns A collection of service extensions.
+ *
+ * @alpha
  */
 export function extensions(
   schema: Readonly<RpcSchema>,
@@ -249,6 +268,8 @@ export function extensions(
  * @param ext - a descriptor for the service extensionx
  *
  * @returns An RPC extension that can be passed to `extensions()`
+ *
+ * @alpha
  */
 export function extension(
   schema: Readonly<RpcSchema>,
@@ -267,6 +288,8 @@ export function extension(
  * @param extension - an extension to add to the service
  *
  * @returns The updated RPC service
+ *
+ * @alpha
  */
 export function extend(
   service: Readonly<RpcService>,
@@ -286,6 +309,8 @@ export function extend(
  * @param name - the name of the scope to create
  *
  * @returns A new scope.
+ *
+ * @alpha
  */
 export function scope(name: string | Scope): Scope {
   invariant(name !== '')
@@ -302,6 +327,8 @@ export function scope(name: string | Scope): Scope {
  * @param list - An array of scopes or scope names
  *
  * @returns A collection of scopes
+ *
+ * @alpha
  */
 export function scopes(
   list: ReadonlyArray<string | Scope>
@@ -323,6 +350,8 @@ export function scopes(
  * @param clientOptions - Various configuration options
  *
  * @returns A descriptor for the OpenRPC service.
+ *
+ * @alpha
  */
 export function service(
   schema: Readonly<RpcSchema>,
@@ -349,6 +378,8 @@ export function service(
  * @returns A function that should be invoked on an incoming Request
  * (optionally including an additional context Map), and which returns
  * an HTTP Response object.
+ *
+ * @alpha
  */
 export function build(
   service: Readonly<RpcService>,
@@ -375,6 +406,8 @@ export function build(
  * @param options - Configuration options for the client
  *
  * @returns A client for the component service.
+ *
+ * @alpha
  */
 export function client(
   // TODO better type?
@@ -399,6 +432,8 @@ export function client(
  * @param options - Configuration options for the client
  *
  * @returns an RPC client stub for the discovered OpenRPC service
+ *
+ * @alpha
  */
 export async function discover(
   // TODO better type?

@@ -10,48 +10,48 @@ import type { ContentDescriptorObjectName } from '@open-rpc/meta-schema';
 import type { MethodObject } from '@open-rpc/meta-schema';
 import type { OpenrpcDocument } from '@open-rpc/meta-schema';
 
-// @public
+// @alpha
 export function build(service: Readonly<RpcService>, base: Readonly<RpcPath>, root: Readonly<RpcPath>, chain?: Readonly<RpcChain>): OpenRpcHandler;
 
-// @public (undocumented)
+// @alpha (undocumented)
 export function chain(rpcChain: Readonly<RpcChain>): Readonly<RpcChain>;
 
 // Warning: (ae-forgotten-export) The symbol "RpcClientOptions" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "RpcClient" needs to be exported by the entry point index.d.ts
 //
-// @public
+// @alpha
 export function client(durableObject: DurableObjectNamespace, name: string, schema: RpcSchema, options?: RpcClientOptions): RpcClient;
 
-// @public
+// @alpha
 export function context(): RpcContext;
 
-// @public
+// @alpha
 export function discover(durableObject: DurableObjectNamespace, name: string, options?: RpcClientOptions): Promise<RpcClient>;
 
-// @public
+// @alpha
 export function error(request: Readonly<RpcRequest>, detail: Readonly<RpcErrorDetail>): Promise<Readonly<RpcError>>;
 
-// @public
+// @alpha
 export function extend(service: Readonly<RpcService>, extension: Readonly<RpcMethod>): Readonly<RpcService>;
 
-// @public
+// @alpha
 export function extension(schema: Readonly<RpcSchema>, ext: Readonly<ServiceExtension>): Readonly<RpcMethod>;
 
-// @public
+// @alpha
 export function extensions(schema: Readonly<RpcSchema>, methodSet: Readonly<RpcMethodSet>): Readonly<RpcMethods>;
 
-// @public (undocumented)
+// @alpha (undocumented)
 export function handler(f: Readonly<RpcHandler>): Readonly<RpcHandler>;
 
-// @public
+// @alpha
 export function method(schema: Readonly<RpcSchema>, serviceMethod: Readonly<ServiceMethod>): Readonly<RpcMethod>;
 
-// @public
+// @alpha
 export function methods(schema: Readonly<RpcSchema>, methodSet: Readonly<RpcMethodSet>): Readonly<RpcMethods>;
 
 // Warning: (ae-forgotten-export) The symbol "RpcChainFn" needs to be exported by the entry point index.d.ts
 //
-// @public
+// @alpha
 export function middleware(f: Readonly<RpcChainFn>): MiddlewareFn;
 
 // @public (undocumented)
@@ -63,10 +63,10 @@ export type MiddlewareResult = Promise<Response | void>;
 // @public (undocumented)
 export type OpenRpcHandler = (request: Readonly<Request>, context?: Readonly<RpcContext>) => Promise<Response>;
 
-// @public (undocumented)
+// @alpha (undocumented)
 export function options(opt: Readonly<RpcOptions>): RpcOptions;
 
-// @public
+// @alpha
 export function response(request: Readonly<RpcRequest>, result: unknown): Promise<Readonly<RpcResponse>>;
 
 // @public (undocumented)
@@ -133,16 +133,16 @@ export type RpcService = {
 // @public (undocumented)
 export type Scope = symbol;
 
-// @public
+// @alpha
 export function scope(name: string | Scope): Scope;
 
-// @public
+// @alpha
 export function scopes(list: ReadonlyArray<string | Scope>): Readonly<ScopeSet>;
 
 // @public (undocumented)
 export type ScopeSet = Set<Scope>;
 
-// @public
+// @alpha
 export function service(schema: Readonly<RpcSchema>, allScopes: Readonly<ScopeSet>, methods: Readonly<RpcMethods>, extensions: Readonly<RpcMethods>, clientOptions: Readonly<RpcOptions>): Readonly<RpcService>;
 
 // @public (undocumented)
