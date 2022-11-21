@@ -38,7 +38,6 @@ import { getGalaxyClient } from '~/helpers/galaxyClient'
 
 import hexStyle from '~/helpers/hex-style'
 import { getCachedVoucher } from '~/helpers/voucher'
-import { parseMutationArgs } from '@tanstack/react-query'
 
 export function links() {
   return [...spinnerLinks(), ...nftCollLinks()]
@@ -80,6 +79,7 @@ const getOGImageURL = async (hex, bkg, social) => {
     headers: {
       authorization: `Bearer ${NFTAR_AUTHORIZATION}`,
       'content-type': 'application/json',
+      'accept': 'application/json',
     },
     body: JSON.stringify({
       bkg,
@@ -91,10 +91,49 @@ const getOGImageURL = async (hex, bkg, social) => {
   .catch(e => {
     console.error(
       e,
-      'JSON converstion failed for og:image generator. Using default social image.'
+      'JSON conversion failed for og:image generator. Using default social image.'
     )
     return social
   })
+}
+
+const getCoverURL = async (targetAddress) => {
+  try {
+    if (!targetAddress) {
+      throw new Error(
+        'Target address expected to recover original cover gradient'
+      )
+    }
+
+    return getCachedVoucher(targetAddress)
+      .then(voucher => voucher?.metadata?.cover)
+
+  } catch (ex) {
+    console.debug('Error trying to retrieve cached voucher')
+    console.error(ex)
+  }
+}
+
+const getProfile = async (isOwner, loggedInUserProfile, args, params, jwt, address) => {
+  let profileJson = loggedInUserProfile
+  if (!isOwner) {
+    const profileJsonRes = await profileLoader(args)
+    if (profileJsonRes.status !== 200) {
+      const resData = {
+        error: await profileJsonRes.text(),
+        targetAddress: params.profile,
+        displayName: null,
+        bio: null,
+        loggedInUserProfile,
+        ogImageUrl: social,
+        loggedIn: jwt ? { address } : false,
+      }
+      throw json(resData, { status: profileJsonRes.status as number })
+    }
+    profileJson = await profileJsonRes.json()
+  }
+
+  return profileJson
 }
 
 export const loader: LoaderFunction = async (args) => {
@@ -113,57 +152,24 @@ export const loader: LoaderFunction = async (args) => {
     const profileResponse = await loadLoggedInUserProfile(jwt)
 
     loggedInUserProfile = {
-      ...profileResponse,
+      ...profileResponse?.profile,
       claimed: true
     }
 
     targetAddress = await getTargetAddress(params, jwt, address)
   }
 
-  let profileJson = {}
-  let isOwner = false
+  let isOwner = address == targetAddress
+  let profileJson = await getProfile(isOwner, loggedInUserProfile, args, params, jwt, address)
 
-  if (address !== targetAddress) {
-    const profileJsonRes = await profileLoader(args)
-    if (profileJsonRes.status !== 200) {
-      const resData = {
-        error: await profileJsonRes.text(),
-        targetAddress: params.profile,
-        displayName: null,
-        bio: null,
-        loggedInUserProfile,
-        ogImageUrl: social,
-        loggedIn: jwt ? { address } : false,
-      }
-      throw json(resData, { status: profileJsonRes.status as number })
-    }
-    profileJson = await profileJsonRes.json()
-  } else {
-    profileJson = loggedInUserProfile
-    isOwner = true
-  }
-  
   // Setup og tag data
   let hex = gatewayFromIpfs(profileJson?.pfp?.image)
   let bkg = gatewayFromIpfs(profileJson?.cover)
   const ogImageURL = await getOGImageURL(hex, bkg, social)
 
-  let originalCoverUrl
-  try {
-    if (!targetAddress) {
-      throw new Error(
-        'Target address expected to recover original cover gradient'
-      )
-    }
+  let originalCoverUrl = await getCoverURL(targetAddress)
 
-    const voucher = await getCachedVoucher(targetAddress)
-    originalCoverUrl = voucher?.metadata?.cover
-  } catch (ex) {
-    console.debug('Error trying to retrieve cached voucher')
-    console.error(ex)
-  }
-
-  return json({
+  const loaderResponse = {
     ...profileJson,
     originalCoverUrl,
     loggedInUserProfile,
@@ -171,7 +177,9 @@ export const loader: LoaderFunction = async (args) => {
     targetAddress,
     loggedIn: jwt ? { address } : false,
     ogImageURL,
-  })
+  }
+
+  return json(loaderResponse)
 }
 
 // Wire the loaded profile json, above, to the og meta tags.
