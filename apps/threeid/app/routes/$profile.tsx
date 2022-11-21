@@ -38,9 +38,63 @@ import { getGalaxyClient } from '~/helpers/galaxyClient'
 
 import hexStyle from '~/helpers/hex-style'
 import { getCachedVoucher } from '~/helpers/voucher'
+import { parseMutationArgs } from '@tanstack/react-query'
 
 export function links() {
   return [...spinnerLinks(), ...nftCollLinks()]
+}
+
+const loadLoggedInUserProfile = async (jwt) => {
+  if (!jwt) return {}
+  return getGalaxyClient().then(galaxyClient => {
+    const QUERY_VARIABLES = undefined
+    return galaxyClient.getProfile(QUERY_VARIABLES, {
+      'KBT-Access-JWT-Assertion': jwt,
+    })
+  })
+}
+
+const getTargetAddress = async (params, jwt, address) => {
+  let targetAddress = params?.profile
+
+  if (params?.address?.endsWith('.eth')) {
+    // get the 0x address for the eth name
+    const addressLookup = await oortSend('ens_lookupAddress', [address], {
+      jwt,
+    })
+
+    // the ens name is the same as the logged in user
+    if (addressLookup?.result == params.address) {
+      targetAddress = address
+    }
+  } else if (address == params.address) {
+    targetAddress = address
+  }
+
+  return targetAddress
+}
+
+const getOGImageURL = async (hex, bkg, social) => {
+  return fetch(`${NFTAR_URL}/v0/og-image`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${NFTAR_AUTHORIZATION}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      bkg,
+      hex,
+    }),
+  })
+  .then(r => r.json())
+  .then(body => body?.url || social)
+  .catch(e => {
+    console.error(
+      e,
+      'JSON converstion failed for og:image generator. Using default social image.'
+    )
+    return social
+  })
 }
 
 export const loader: LoaderFunction = async (args) => {
@@ -54,33 +108,21 @@ export const loader: LoaderFunction = async (args) => {
 
   // get the logged in user profile for the UI
   let loggedInUserProfile = {}
+  
   if (jwt) {
-    const galaxyClient = await getGalaxyClient()
-    const profileRes = await galaxyClient.getProfile(undefined, {
-      'KBT-Access-JWT-Assertion': jwt,
-    })
+    const profileResponse = await loadLoggedInUserProfile(jwt)
+
     loggedInUserProfile = {
-      ...profileRes.profile,
-      claimed: true,
+      ...profileResponse,
+      claimed: true
     }
 
-    if (params.address?.endsWith('.eth')) {
-      // get the 0x address for the eth name
-      const addressLookup = await oortSend('ens_lookupAddress', [address], {
-        jwt,
-      })
-
-      // the ens name is the same as the logged in user
-      if (addressLookup?.result == params.address) {
-        targetAddress = address
-      }
-    } else if (address == params.address) {
-      targetAddress = address
-    }
+    targetAddress = await getTargetAddress(params, jwt, address)
   }
 
   let profileJson = {}
   let isOwner = false
+
   if (address !== targetAddress) {
     const profileJsonRes = await profileLoader(args)
     if (profileJsonRes.status !== 200) {
@@ -100,33 +142,11 @@ export const loader: LoaderFunction = async (args) => {
     profileJson = loggedInUserProfile
     isOwner = true
   }
-
+  
   // Setup og tag data
   let hex = gatewayFromIpfs(profileJson?.pfp?.image)
   let bkg = gatewayFromIpfs(profileJson?.cover)
-
-  // check generate and return og image
-  const ogImage = await fetch(`${NFTAR_URL}/v0/og-image`, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${NFTAR_AUTHORIZATION}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      bkg,
-      hex,
-    }),
-  })
-
-  let url
-  try {
-    url = (await ogImage.json()).url
-  } catch {
-    console.error(
-      'JSON converstion failed for og:image generator. Using default social image.'
-    )
-    url = social
-  }
+  const ogImageURL = await getOGImageURL(hex, bkg, social)
 
   let originalCoverUrl
   try {
@@ -148,9 +168,9 @@ export const loader: LoaderFunction = async (args) => {
     originalCoverUrl,
     loggedInUserProfile,
     isOwner,
-    targetAddress: targetAddress,
+    targetAddress,
     loggedIn: jwt ? { address } : false,
-    ogImageURL: url,
+    ogImageURL,
   })
 }
 
