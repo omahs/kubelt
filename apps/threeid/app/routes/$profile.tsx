@@ -108,6 +108,16 @@ export const loader: LoaderFunction = async (args) => {
   console.log('hex', hex)
   console.log('bkg', bkg)
 
+  // @ts-ignore
+  if (!NFTAR_URL) {
+    throw new Error("Make sure 'NFTAR_URL' env variable is set.")
+  }
+
+  // @ts-ignore
+  if (!NFTAR_AUTHORIZATION) {
+    throw new Error("Make sure 'NFTAR_AUTHORIZATION' env variable is set.")
+  }  
+
   // check generate and return og image
   const ogImage = await fetch(`${NFTAR_URL}/v0/og-image`, {
     method: 'POST',

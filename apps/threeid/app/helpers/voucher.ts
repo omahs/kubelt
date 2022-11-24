@@ -8,11 +8,26 @@ type FetchVoucherParams = {
 
 export const fetchVoucher = async ({ address }: FetchVoucherParams) => {
   // @ts-ignore
+  if (!NFTAR_URL) {
+    throw new Error("Make sure 'NFTAR_URL' env variable is set.")
+  }  
+  // @ts-ignore
   const nftarUrl: string = NFTAR_URL
+
+  // @ts-ignore
+  if (!NFTAR_AUTHORIZATION) {
+    throw new Error("Make sure 'NFTAR_AUTHORIZATION' env variable is set.")
+  }  
   // @ts-ignore
   const nftarToken: string = NFTAR_AUTHORIZATION
+
+  // @ts-ignore
+  if (!MINTPFP_CONTRACT_ADDRESS) {
+    throw new Error("Make sure 'MINTPFP_CONTRACT_ADDRESS' env variable is set.")
+  }  
   // @ts-ignore
   const contractAddress: string = MINTPFP_CONTRACT_ADDRESS
+
   // @ts-ignore
   const chainId: string = NFTAR_CHAIN_ID
 

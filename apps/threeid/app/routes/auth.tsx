@@ -25,6 +25,10 @@ export function links() {
 }
 
 export const loader: LoaderFunction = () => {
+  // @ts-ignore
+  if (!ALCHEMY_PUBLIC_API_KEY) {
+    throw new Error("Make sure 'ALCHEMY_PUBLIC_API_KEY' env variable is set.")
+  }
   return {
     // @ts-ignore
     ALCHEMY_PUBLIC_API_KEY: ALCHEMY_PUBLIC_API_KEY,

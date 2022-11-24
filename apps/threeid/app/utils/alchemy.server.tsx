@@ -68,7 +68,10 @@ export class AlchemyClient {
     }
   ): Promise<GetNFTsResponse> {
     // @ts-ignore
-    console.log('address for alchemy', address)
+    if (!ALCHEMY_NFT_API_URL) {
+      throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set.")
+    }
+    // @ts-ignore    
     const reqUrl = new URL(`${ALCHEMY_NFT_API_URL}/getNFTs`)
     reqUrl.searchParams.set('owner', address)
     options?.contracts &&
