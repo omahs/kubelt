@@ -28,12 +28,14 @@ CF_ZONE_ID=
 
 ETH_GOERLI_PK=
 
+# Note that this values are REQUIRED and you can get them from 1Password
 NFTAR_URL=
 NFTAR_AUTHORIZATION=
 MINTPFP_CONTRACT_ADDRESS=
 NFTAR_CHAIN_ID=5
 VALID_CHAIN_ID_NAME=goerli
 
+# Note that this values are REQUIRED and you can get them from the Alchemy dashboard.
 ALCHEMY_NFT_API_URL=
 ALCHEMY_PUBLIC_API_KEY=
 
