@@ -68,7 +68,7 @@ export class AlchemyClient {
     }
   ): Promise<GetNFTsResponse> {
     // @ts-ignore
-    console.log('address', address)
+    console.log('address for alchemy', address)
     const reqUrl = new URL(`${ALCHEMY_NFT_API_URL}/getNFTs`)
     reqUrl.searchParams.set('owner', address)
     options?.contracts &&
@@ -86,16 +86,27 @@ export class AlchemyClient {
     // Adding AIRDROPS to filter removes 3iD invites
     // reqUrl.searchParams.append('filters[]', 'AIRDROPS');
 
+    console.log('reqUrl', reqUrl.href)
+
     const response = await fetch(reqUrl.toString(), {
       headers: { accept: 'application/json' },
     })
 
+    console.log('response', response)
+
     if (response.status !== 200) {
+      console.log('failed with status', response.status)
       throw new Error(
         `Failed to fetch NFTs with request: ${await response.text()}`
       )
     }
 
-    return response.json()
+    const response2 = response.clone()
+
+    const responseJson = await response.json()
+
+    console.log('response', await response2.text())
+
+    return responseJson
   }
 }

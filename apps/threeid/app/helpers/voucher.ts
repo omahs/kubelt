@@ -16,11 +16,18 @@ export const fetchVoucher = async ({ address }: FetchVoucherParams) => {
   // @ts-ignore
   const chainId: string = NFTAR_CHAIN_ID
 
+  console.log('fetching voucher', address)
+
   // check if the user has already minted
   const alchemy = new AlchemyClient()
+  console.log('alchemy client', JSON.stringify(alchemy))
+
   const nfts = await alchemy.getNFTsForOwner(address, {
     contracts: [contractAddress],
   })
+
+  console.log('got alchemy nfts', nfts)
+
   if (nfts.ownedNfts.length > 0) {
     const voucher = {
       chainId,
@@ -28,7 +35,9 @@ export const fetchVoucher = async ({ address }: FetchVoucherParams) => {
       minted: true,
       metadata: nfts.ownedNfts[0].metadata,
     }
+    console.log('putting voucher', voucher)
     await putCachedVoucher(address, voucher)
+    console.log('returning voucher', voucher)
     return { contractAddress, voucher }
   }
 
@@ -52,9 +61,14 @@ export const fetchVoucher = async ({ address }: FetchVoucherParams) => {
     }),
   }
 
+  console.log('nftarFetch', nftarFetch)
   const response = await fetch(`${nftarUrl}`, nftarFetch)
 
+  console.log('got response', response)
+
   const jsonRes = await response.json()
+
+  console.log('got json', jsonRes)
 
   if (jsonRes.error) {
     throw new Error(jsonRes.error.data.message)
@@ -68,9 +82,13 @@ export const fetchVoucher = async ({ address }: FetchVoucherParams) => {
   res.metadata.cover = gatewayFromIpfs(jsonRes.result.metadata.cover)
   res.metadata.image = gatewayFromIpfs(jsonRes.result.metadata.image)
 
+  console.log('fire and forget', res)
+
   // fire and forget to hotload image
   fetch(res.metadata.image)
   fetch(res.metadata.cover)
+
+  console.log('after fire and forget')
 
   return res
 }

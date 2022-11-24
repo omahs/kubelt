@@ -74,10 +74,14 @@ export const loader: LoaderFunction = async (args) => {
     }
   }
 
+  console.log('LOADING PROFILE -=-=-=-=-=-=-=-=-')
+
   let profileJson = {}
   let isOwner = false
   if (address !== targetAddress) {
+    console.log('case1')
     const profileJsonRes = await profileLoader(args)
+    console.log('apres-loader', profileJsonRes.status)
     if (profileJsonRes.status !== 200) {
       const resData = {
         error: await profileJsonRes.text(),
@@ -92,6 +96,7 @@ export const loader: LoaderFunction = async (args) => {
     }
     profileJson = await profileJsonRes.json()
   } else {
+    console.log('case2')
     profileJson = loggedInUserProfile
     isOwner = true
   }
@@ -99,6 +104,9 @@ export const loader: LoaderFunction = async (args) => {
   // Setup og tag data
   let hex = gatewayFromIpfs(profileJson?.pfp?.image)
   let bkg = gatewayFromIpfs(profileJson?.cover)
+
+  console.log('hex', hex)
+  console.log('bkg', bkg)
 
   // check generate and return og image
   const ogImage = await fetch(`${NFTAR_URL}/v0/og-image`, {
@@ -113,6 +121,8 @@ export const loader: LoaderFunction = async (args) => {
     }),
   })
 
+  console.log('post-fetch')
+
   let url
   try {
     url = (await ogImage.json()).url
@@ -123,7 +133,9 @@ export const loader: LoaderFunction = async (args) => {
     url = social
   }
 
-  let originalCoverUrl
+  console.log('URL:', url)
+
+  let originalPFPUrl, originalCoverUrl
   try {
     if (!targetAddress) {
       throw new Error(
@@ -131,22 +143,36 @@ export const loader: LoaderFunction = async (args) => {
       )
     }
 
+    console.log('getting voucher')
     const voucher = await getCachedVoucher(targetAddress)
+    console.log('got voucher', voucher)
+
+    originalPFPUrl = voucher?.metadata?.image
     originalCoverUrl = voucher?.metadata?.cover
+    console.log('originalPFPUrl', originalPFPUrl)
   } catch (ex) {
     console.debug('Error trying to retrieve cached voucher')
     console.error(ex)
   }
 
-  return json({
+  // profileJson.pfp = profileJson.pfp || {
+  //   "image": originalPFPUrl
+  // }
+
+  const responseObject = {
     ...profileJson,
+    originalPFPUrl,
     originalCoverUrl,
     loggedInUserProfile,
     isOwner,
     targetAddress: targetAddress,
     loggedIn: jwt ? { address } : false,
     ogImageURL: url,
-  })
+  }
+
+  console.log('responseObject', responseObject)
+
+  return json(responseObject)
 }
 
 // Wire the loaded profile json, above, to the og meta tags.
@@ -181,8 +207,9 @@ export const meta: MetaFunction = ({
 }
 
 const ProfileRoute = () => {
-  const {
+  let {
     loggedInUserProfile,
+    originalPFPUrl,
     originalCoverUrl,
     targetAddress,
     claimed,
@@ -197,7 +224,33 @@ const ProfileRoute = () => {
     website,
   } = useLoaderData()
 
+  console.log('ProfileRoute', {
+    loggedInUserProfile,
+    originalPFPUrl,
+    originalCoverUrl,
+    targetAddress,
+    claimed,
+    displayName,
+    bio,
+    job,
+    location,
+    isOwner,
+    loggedIn,
+    pfp,
+    cover,
+    website,
+  })
+
+  pfp = pfp || {
+    image: originalPFPUrl,
+  }
+
+  cover = cover || originalCoverUrl
+
   const [coverUrl, setCoverUrl] = useState(cover)
+
+  console.log('coverUrl', coverUrl)
+
   const [handlingCover, setHandlingCover] = useState<boolean>(false)
 
   const fetcher = useFetcher()
@@ -225,9 +278,13 @@ const ProfileRoute = () => {
     )
   }
 
+  console.log('post-cover thing')
+
   const coverUploadRef = useRef<HTMLInputElement>(null)
   const handleCoverUpload = async (e: any) => {
     setHandlingCover(true)
+
+    console.log('handling cover upload')
 
     const coverFile = (e.target as HTMLInputElement & EventTarget).files?.item(
       0
@@ -274,6 +331,8 @@ const ProfileRoute = () => {
     0,
     4
   )} ... ${targetAddress.substring(targetAddress.length - 4)}`
+
+  console.log('shortenedAccount', shortenedAccount)
 
   return (
     <div className="bg-white h-full min-h-screen">

@@ -11,13 +11,19 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw new Error('Profile address required')
   }
 
+  console.log('dans profile loader')
+
   // TODO: double check that this still throws an exception
   // TODO: remove claimed from response?
   try {
+    console.log('getting client')
     const galaxyClient = await getGalaxyClient()
+    console.log('getting profile', params.profile)
     const profileRes = await galaxyClient.getProfileFromAddress({
       address: params.profile,
-    })
+    }).catch(e => console.log(e))
+
+    console.log('got response', profileRes)
 
     return json({
       ...profileRes.profileFromAddress,
@@ -29,8 +35,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     })
   } catch (e) {
     console.error("Couldn't find profile", e)
+    console.log('error conditional', JSON.stringify(e?.response?.errors))
     if (e?.response?.errors) {
       // we have a handled exception from galaxy
+      console.log('status',e.response.status)
       const status = e.response.errors[0]?.extensions?.extensions.http.status
       if (status === 404 || status === 400) {
         const error = `Failed to fetch profile with with resolver ${params.profile}: ${e.response.errors[0]?.message}`
@@ -57,6 +65,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       },
       cover: null,
     }
+
+    console.log('attempting eth address:', targetAddress)
+
     // convert eth name to address (only works on mainnet)
     // this way we set the correct targetAddress for the voucher
     if (targetAddress?.endsWith('.eth')) {
@@ -77,16 +88,24 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       }
     }
 
+    console.log(`into voucher generation for ${targetAddress} with profile`, profile)
+
     let voucher = await getCachedVoucher(targetAddress)
     if (!voucher) {
+      console.log('getting new voucher')
       voucher = await fetchVoucher({
         address: targetAddress,
       })
+      console.log('got new voucher')
       voucher = await putCachedVoucher(targetAddress, voucher)
     }
 
+    console.log('got voucher', voucher)
+
     profile.pfp.image ||= voucher.metadata.image
     profile.cover ||= voucher.metadata.cover
+
+    console.log('got profile', profile)
 
     return json({
       ...profile,

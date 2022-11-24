@@ -35,7 +35,7 @@ services = [
   command = "yarn build -- --sourcemap"
 
 [dev]
-port = 9797
+port = 31337
 local_protocol = "http"
 
 # dev (development)
