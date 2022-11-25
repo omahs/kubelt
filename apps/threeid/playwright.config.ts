@@ -1,21 +1,14 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
+
 import dotenv from "dotenv";
-
-// Read from default ".env" file.
-dotenv.config(); // TODO: figure out how to replace and use .dev.vars
-
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+dotenv.config({ path: './.dev.vars'});
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 let config: PlaywrightTestConfig = {
-  testDir: "./tests",
+  testDir: "./tests/e2e",
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {

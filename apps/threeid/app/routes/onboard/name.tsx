@@ -74,6 +74,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const galaxyClient = await getGalaxyClient()
   // PUT new object
+  console.log('updating profile', displayname)
   await galaxyClient.updateProfile(
     {
       profile: {
@@ -85,10 +86,13 @@ export const action: ActionFunction = async ({ request }) => {
       'KBT-Access-JWT-Assertion': jwt,
     }
   )
+  console.log('after profile', displayname)
 
   if (Object.keys(errors).length) {
     return json(errors, { status: 422 })
   }
+
+  console.log('got here with Cosmin')
 
   // @ts-ignore
   return redirect(`/onboard/mint`)

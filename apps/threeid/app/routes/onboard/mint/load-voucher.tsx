@@ -14,6 +14,7 @@ import { oortSend } from '~/utils/rpc.server'
 import deafaultPfp from '~/assets/circle_gradient.png'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  console.log('in voucher loader')
   const session = await getUserSession(request)
 
   // TODO: remove chain id and redirect to /auth
@@ -31,12 +32,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const address = queryAddress ?? session.get('address')
 
   let voucher = await getCachedVoucher(address)
+  console.log('cached voucher', voucher)
 
   const galaxyClient = await getGalaxyClient()
   const profileRes = await galaxyClient.getProfile(undefined, {
     'KBT-Access-JWT-Assertion': jwt,
   })
   const prof = profileRes.profile
+
+  console.log('got profile', prof)
 
   if (!voucher) {
     try {
@@ -85,7 +89,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     )
   }
 
+  console.log('lets see voucher', voucher)
+
   if (voucher.minted) {
+    console.log('voucher minted')
     return redirect('/account')
   }
 

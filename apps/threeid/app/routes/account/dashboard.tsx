@@ -22,6 +22,7 @@ import { getGalaxyClient } from '~/helpers/galaxyClient'
 
 // @ts-ignore
 export const loader = async ({ request }) => {
+  console.log('in dashboard loader')
   const jwt = await requireJWT(request, '/auth')
 
   const oortOptions = {
@@ -154,6 +155,7 @@ const roadmapSteps = [
 ]
 
 export default function Welcome() {
+  console.log('dashboard welcome component')
   const { votes, isToken, displayname, profile } = useLoaderData()
   let submit = useSubmit()
 

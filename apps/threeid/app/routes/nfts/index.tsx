@@ -5,11 +5,6 @@ import { AlchemyClient } from '~/utils/alchemy.server'
 export const loader: LoaderFunction = async ({ request }) => {
   const srcUrl = new URL(request.url)
 
-  // @ts-ignore
-  if (!ALCHEMY_NFT_API_URL) {
-    throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set.")
-  }
-
   const owner = srcUrl.searchParams.get('owner')
   if (!owner) {
     throw new Error('Owner required')
@@ -17,7 +12,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const pageKey = srcUrl.searchParams.get('pageKey')
 
-  const alchemy = new AlchemyClient()
+  // @ts-ignore
+  if (!ALCHEMY_NFT_API_URL) {
+    throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set.")
+  }  
+  const alchemyUrl: string = ALCHEMY_NFT_API_URL
+  const alchemy = new AlchemyClient(alchemyUrl)
+ 
   const res = await alchemy.getNFTsForOwner(owner, { pageKey })
   const ownedNfts = res.ownedNfts.map((nft) => {
     let properties: {

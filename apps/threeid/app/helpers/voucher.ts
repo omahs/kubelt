@@ -31,10 +31,14 @@ export const fetchVoucher = async ({ address }: FetchVoucherParams) => {
   // @ts-ignore
   const chainId: string = NFTAR_CHAIN_ID
 
-  console.log('fetching voucher', address)
+  // @ts-ignore
+  if (!ALCHEMY_NFT_API_URL) {
+    throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set.")
+  }  
+  const alchemyUrl: string = ALCHEMY_NFT_API_URL
 
   // check if the user has already minted
-  const alchemy = new AlchemyClient()
+  const alchemy = new AlchemyClient(alchemyUrl)
   console.log('alchemy client', JSON.stringify(alchemy))
 
   const nfts = await alchemy.getNFTsForOwner(address, {

@@ -5,6 +5,7 @@ export type NFTMedia = {
   format: string
   bytes: number
 }
+
 export type GetNFTsResponse = {
   ownedNfts: {
     contract: {
@@ -56,7 +57,15 @@ export type GetNFTsResponse = {
 }
 
 export class AlchemyClient {
-  constructor() {}
+  alchemyUrl: string
+
+  constructor(alchemyUrl: string) {
+    // @ts-ignore
+    if (!alchemyUrl) {
+      throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set and passed to AlchemyClient.")
+    }
+    this.alchemyUrl = alchemyUrl
+  }
 
   async getNFTsForOwner(
     address: string,
@@ -68,19 +77,24 @@ export class AlchemyClient {
     }
   ): Promise<GetNFTsResponse> {
     // @ts-ignore
-    if (!ALCHEMY_NFT_API_URL) {
-      throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set.")
+    if (!this.alchemyUrl) {
+      throw new Error("Make sure 'ALCHEMY_NFT_API_URL' env variable is set and passed to AlchemyClient.")
     }
-    // @ts-ignore    
-    const reqUrl = new URL(`${ALCHEMY_NFT_API_URL}/getNFTs`)
+
+    // @ts-ignore
+    const reqUrl = new URL(`${this.alchemyUrl}/getNFTs`)
     reqUrl.searchParams.set('owner', address)
+
     options?.contracts &&
       options.contracts.forEach((contract, idx) =>
         reqUrl.searchParams.append('contractAddresses[]', contract)
       )
+
     options?.pageKey && reqUrl.searchParams.set('pageKey', options.pageKey)
+
     options?.pageSize &&
       reqUrl.searchParams.set('pageSize', '' + options.pageSize)
+
     options?.withMetadata &&
       reqUrl.searchParams.set('withMetadata', options.withMetadata.toString())
 
@@ -89,13 +103,9 @@ export class AlchemyClient {
     // Adding AIRDROPS to filter removes 3iD invites
     // reqUrl.searchParams.append('filters[]', 'AIRDROPS');
 
-    console.log('reqUrl', reqUrl.href)
-
     const response = await fetch(reqUrl.toString(), {
       headers: { accept: 'application/json' },
     })
-
-    console.log('response', response)
 
     if (response.status !== 200) {
       console.log('failed with status', response.status)
@@ -104,12 +114,6 @@ export class AlchemyClient {
       )
     }
 
-    const response2 = response.clone()
-
-    const responseJson = await response.json()
-
-    console.log('response', await response2.text())
-
-    return responseJson
+    return response.json()
   }
 }
