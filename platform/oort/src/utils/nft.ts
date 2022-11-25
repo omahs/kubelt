@@ -16,7 +16,7 @@ type GetOwnersForTokenResult = {
   owners: string[]
 }
 
-const NFT_API_URL = process.env.ALCHEMY_NFT_API_URL
+const NFT_API_URL = process.env.ALCHEMY_NFT_API_URL || 'https://eth-goerli.g.alchemy.com/v2/this-might-work-but-set-your-envvar'
 
 export const getNFTs = async (
   params: GetNFTsParams
