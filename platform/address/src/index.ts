@@ -12,9 +12,10 @@ import serviceDescription from './openrpc.json'
 import { required as requiredEnv } from './env'
 
 const index = Router()
-  .all('*', (_: unknown, env: Record<string, unknown>) =>
+  .all('*', (_: unknown, env: Record<string, unknown>) => {
     checkEnv(requiredEnv, env)
-  )
+    Object.assign(globalThis, env)
+  })
   .get('/openrpc.json', discoveryHandler(serviceDescription))
   .options('/jsonrpc', handleOptions({ headers: ['Content-Type'] }))
   .post('/jsonrpc', jsonRpcHandler)
