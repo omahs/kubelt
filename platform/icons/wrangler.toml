@@ -11,8 +11,8 @@ workers_dev = false
 # $ wrangler secret put <KEY> [--env]
 #
 # Required secrets:
-# - CLOUDFLARE_ACCOUNT_ID: the CF account ID of the uploaded image owner
-# - CLOUDFLARE_IMAGES_KEY: an API token with Images permissions
+# - INTERNAL_CLOUDFLARE_ACCOUNT_ID: the CF account ID of the uploaded image owner
+# - TOKEN_CLOUDFLARE_API: an API token with Images permissions
 [dev]
 port = 8989
 local_protocol = "http"
