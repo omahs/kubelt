@@ -6,8 +6,8 @@ import { AnyURN, parseURN } from '@kubelt/urns'
 import { EdgeURN } from '@kubelt/urns/edge'
 
 export const AddressURNInput = z.custom<AddressURN>((input) => {
-  if (AddressURNSpace.parse(input as AddressURN) === null) {
-    throw new Error('Invalid AddressURN entry')
+  if (!AddressURNSpace.is(input)) {
+    throw new Error(`invalid AddressURN entry: ${input}`)
   }
   return input as AddressURN
 })

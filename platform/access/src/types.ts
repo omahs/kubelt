@@ -1,5 +1,6 @@
 import { KeyLike, JWK } from 'jose'
 
+import type { AccessURN } from '@kubelt/urns/access'
 import type { AccountURN } from '@kubelt/urns/account'
 
 export interface KeyPair {
@@ -15,6 +16,7 @@ export interface KeyPairSerialized {
 export interface Environment {
   Access: DurableObjectNamespace
   Authorization: DurableObjectNamespace
+  Edges: Fetcher
   Starbase: Fetcher
 }
 
@@ -44,4 +46,10 @@ export type AuthorizeResult = {
 export type ExchangeTokenResult = {
   accessToken: string
   refreshToken: string
+}
+
+export type SessionDetails = {
+  expired?: boolean
+  creation?: string
+  expiry?: string
 }

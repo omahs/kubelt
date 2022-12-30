@@ -6,6 +6,7 @@
  * to the "edges" service.
  */
 
+import type { AccessURN } from '@kubelt/urns/access'
 import type { AccountURN } from '@kubelt/urns/account'
 import type { AddressURN } from '@kubelt/urns/address'
 import type { ApplicationURN } from '@kubelt/urns/application'
@@ -14,7 +15,7 @@ import type { Edge, EdgeQuery } from './types'
 
 import { EdgeDirection, EdgesOptions, NodeFilter } from './types'
 
-import { EDGE_ADDRESS, EDGE_APPLICATION } from './edges'
+import { EDGE_ACCESS, EDGE_ADDRESS, EDGE_APPLICATION } from './edges'
 
 import { Address } from '@kubelt/types'
 
@@ -88,6 +89,65 @@ export async function unlinkAccountApp(
   const tag = EDGE_APPLICATION
 
   return graph.unlink(edges, src, dst, tag)
+}
+
+// Account <=> Access
+// -----------------------------------------------------------------------------
+
+/**
+ * Create the link between an account node and a client session node for
+ * that account.
+ */
+export async function linkAccountAccess(
+  edges: Fetcher,
+  account: AccountURN,
+  access: AccessURN
+): ReturnType<typeof graph.link> {
+  const src = account
+  const dst = access
+  const tag = EDGE_ACCESS
+
+  return graph.link(edges, src, dst, tag)
+}
+
+/**
+ * Remove the link between an account node and a client session node for
+ * that account.
+ */
+export async function unlinkAccountAccess(
+  edges: Fetcher,
+  account: AccountURN,
+  access: AccessURN
+): ReturnType<typeof graph.unlink> {
+  const src = account
+  const dst = access
+  const tag = EDGE_ACCESS
+
+  return graph.unlink(edges, src, dst, tag)
+}
+
+/**
+ * Return a list of the sessions belong to an account.
+ */
+export async function listSessions(
+  edges: Fetcher,
+  account: AccountURN
+): ReturnType<typeof graph.edges> {
+  const query: EdgeQuery = {
+    // We only want edges that start at the provided account node.
+    id: account,
+    // We only want edges that link to Access nodes (sessions).
+    tag: EDGE_ACCESS,
+    // Account -> Access edges indicate session ownership.
+    dir: EdgeDirection.Outgoing,
+  }
+  const opt: EdgesOptions = {}
+
+  const results = await graph.edges(edges, query, opt)
+
+  return results.map((edge) => {
+    return edge?.dst?.urn
+  })
 }
 
 // listAddresses()

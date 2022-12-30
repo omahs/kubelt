@@ -12,8 +12,8 @@ import type { Environment } from './types'
  * Defines your inner context shape.
  * Add fields here that the inner context brings.
  */
-interface CreateInnerContextOptions
-  extends Partial<CreateNextContextOptions & BaseContext> {
+interface CreateInnerContextOptions extends Partial<CreateNextContextOptions & BaseContext> {
+  Edges: Fetcher
   Access: DurableObjectNamespace
   access?: Access
   Authorization: DurableObjectNamespace

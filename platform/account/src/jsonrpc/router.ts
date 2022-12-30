@@ -10,6 +10,7 @@ import { getProfileMethod, GetProfileInput } from './methods/getProfile'
 import { setProfileMethod, SetProfileInput } from './methods/setProfile'
 import { getAddressesMethod, GetAddressesInput } from './methods/getAddresses'
 import { hasAddressesMethod, HasAddressesInput } from './methods/hasAddresses'
+import { getSessionsMethod, GetSessionsMethodInput, GetSessionsMethodOutput } from './methods/getSessions'
 
 import { ProfileSchema } from './middlewares/profile'
 
@@ -21,6 +22,7 @@ import { LogUsage } from '@kubelt/platform-middleware/log'
 import { Scopes } from '@kubelt/platform-middleware/scopes'
 
 import { initAccountNodeByName } from '../nodes'
+
 
 const t = initTRPC.context<Context>().create({
   errorFormatter({ shape, error }) {
@@ -83,4 +85,12 @@ export const appRouter = t.router({
     .use(LogUsage)
     .input(HasAddressesInput)
     .mutation(hasAddressesMethod),
+  getSessions: t.procedure
+    .use(JWTAssertionTokenFromHeader)
+    .use(ValidateJWT)
+    .use(Scopes)
+    .use(LogUsage)
+    .input(GetSessionsMethodInput)
+    .output(GetSessionsMethodOutput)
+    .mutation(getSessionsMethod),
 })

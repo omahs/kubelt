@@ -319,6 +319,21 @@ export function component(schema: Readonly<RpcSchema>) {
       }
 
       /**
+       * Return the DurableObjectId for this instance.
+       */
+      get id(): DurableObjectId {
+        return this._state.id
+      }
+
+      /**
+       * Destroy all state owned by this component so that the
+       * underlying durable object can be garbage collected.
+       */
+      public async destroy() {
+        await this._state.storage.deleteAll()
+      }
+
+      /**
        *
        */
       private _initMethods() {

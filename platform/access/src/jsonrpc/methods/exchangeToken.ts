@@ -4,6 +4,8 @@ import { AccountURNInput } from '@kubelt/platform-middleware/inputValidators'
 import { AccessURNSpace } from '@kubelt/urns/access'
 import { AccountURNSpace } from '@kubelt/urns/account'
 
+import { linkAccountAccess } from '@kubelt/graph/util'
+
 import { Context } from '../../context'
 import { initAuthorizationNodeByName, initAccessNodeByName } from '../../nodes'
 
@@ -79,43 +81,18 @@ export const exchangeTokenMethod = async ({
       scope: [], //scope,
     })
 
+    // Create an edge between Account and Access nodes to record the
+    // existence of a user "session".
+    const access = AccessURNSpace.urn(iss)
+    const linkResult = await linkAccountAccess(ctx.Edges, account, access)
+    if (linkResult?.error) {
+      throw new Error(`failed to create edge: ${linkResult?.error?.message}`)
+    }
+
     return result
   } else if (grantType == GrantType.AuthorizationCode) {
     throw new Error('not implemented')
-    // const { account, code, redirectUri, clientId, clientSecret } = input
 
-    // const name = AccessURNSpace.fullUrn(account, {
-    //   r: URN_NODE_TYPE_AUTHORIZATION,
-    //   q: { clientId },
-    // })
-
-    // const authorizationNode = await initAuthorizationNodeByName(
-    //   name,
-    //   ctx.Authorization
-    // )
-    // const { scope } = await authorizationNode.params(code)
-
-    // const validated = await ctx.starbaseClient.kb_appAuthCheck({
-    //   redirectURI: redirectUri,
-    //   scopes: scope,
-    //   clientId,
-    //   clientSecret,
-    // })
-    // if (validated) {
-    //   const { scope } = await authorizationNode.exchangeCode(
-    //     code,
-    //     redirectUri,
-    //     clientId
-    //   )
-
-    //   // create a new id but use it as the name
-    //   const objectId = ctx.Access.newUniqueId().toString()
-    //   const accessNode = await initAccessNodeByName(objectId, ctx.Access)
-    //   const result = await accessNode.generate({ account, clientId, scope })
-    //   return result
-    // } else {
-    //   throw new Error(`failed authorization attempt`)
-    // }
   } else if (grantType == GrantType.RefreshToken) {
     const {
       token: { iss, token },

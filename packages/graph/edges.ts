@@ -22,9 +22,15 @@ export const EDGE_APPLICATION: EdgeURN = edge('owns/app')
  */
 export const EDGE_ADDRESS: EdgeURN = edge('owns/address')
 
+/**
+ * An edge linking an account node (representing a user account) and a
+ * client session node for that account.
+ */
+export const EDGE_ACCESS: EdgeURN = edge('owns/access')
+
 // Edge Lists
 // -----------------------------------------------------------------------------
 
-export const EDGES_LIST = [EDGE_APPLICATION, EDGE_ADDRESS]
+export const EDGES_LIST = [EDGE_ACCESS, EDGE_ADDRESS, EDGE_APPLICATION]
 
 export const EDGES_SET = new Set(EDGES_LIST)

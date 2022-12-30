@@ -19,9 +19,9 @@ import type { AnyURN } from '@kubelt/urns'
 
 import type {
   Edge,
+  EdgeQuery,
   EdgeTag,
   EdgesOptions,
-  EdgeQuery,
   Node,
   NodeFilter,
   Permission,
