@@ -14,8 +14,9 @@ interface CreateInnerContextOptions
   extends Partial<CreateNextContextOptions & BaseContext> {
   Account: DurableObjectNamespace
   Edges: Fetcher
+  // Analytics: AnalyticsEngineDataset
   account?: DurableObjectStubProxy<Account>
-  accountURN?: string
+  // accountURN?: string
 }
 /**
  * Inner context. Will always be available in your procedures, in contrast to the outer context.
