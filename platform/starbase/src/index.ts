@@ -864,7 +864,7 @@ const kb_appRotateApiKey = openrpc.method(schema, {
       })
 
       const apiKey = await app.rotateApiKey({ appId: appId, urn: appURN })
-
+      console.debug("API KEY", apiKey)
       return openrpc.response(request, {
         apiKey: apiKey,
       })
